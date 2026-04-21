@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Owen — personal site" />
+    <title>Owen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <p class="eyebrow">Hello</p>
+        <h1>I’m Owen.</h1>
+        <p class="lead">
+          This site is a starting point — swap in your bio, projects, and links when you’re ready.
+        </p>
+      </header>
+
+      <main>
+        <section id="about" aria-labelledby="about-heading">
+          <h2 id="about-heading">About</h2>
+          <div class="card">
+            <p>
+              Edit <code>index.html</code> and <code>styles.css</code> in this repo to make it yours.
+              Colors and type are set with CSS variables at the top of the stylesheet.
+            </p>
+            <p>
+              Host for free on
+              <a href="https://pages.github.com/">GitHub Pages</a>
+              from the <code>main</code> branch — no build step required.
+            </p>
+          </div>
+        </section>
+
+        <section id="links" aria-labelledby="links-heading">
+          <h2 id="links-heading">Links</h2>
+          <nav class="links" aria-label="Social and project links">
+            <a href="https://github.com/Partialglyph/owen_website">Source</a>
+            <a href="https://github.com/Partialglyph">GitHub</a>
+            <!-- Add more: email mailto:, LinkedIn, etc. -->
+          </nav>
+        </section>
+      </main>
+
+      <footer>
+        <span>© <span id="year"></span> Owen</span>
+      </footer>
+    </div>
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>
