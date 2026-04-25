@@ -3,56 +3,50 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Owen — personal site" />
-    <title>Owen</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    <meta name="description" content="Owen's personal website" />
+    <title>Owen | Personal Site</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="wrap">
-      <header>
-        <p class="eyebrow">Hello</p>
-        <h1>I’m Owen.</h1>
-        <p class="lead">
-          This site is a starting point — swap in your bio, projects, and links when you’re ready.
-        </p>
+    <main class="container">
+      <header class="hero">
+        <h1>Owen</h1>
+        <p>Welcome to my website. This is a simple starter page.</p>
       </header>
 
-      <main>
-        <section id="about" aria-labelledby="about-heading">
-          <h2 id="about-heading">About</h2>
-          <div class="card">
-            <p>
-              Edit <code>index.html</code> and <code>styles.css</code> in this repo to make it yours.
-              Colors and type are set with CSS variables at the top of the stylesheet.
-            </p>
-            <p>
-              Host for free on
-              <a href="https://pages.github.com/">GitHub Pages</a>
-              from the <code>main</code> branch — no build step required.
-            </p>
-          </div>
-        </section>
+      <section id="about">
+        <h2>About</h2>
+        <p>
+          I am building this site to share my projects, interests, and ways to contact me.
+        </p>
+      </section>
 
-        <section id="links" aria-labelledby="links-heading">
-          <h2 id="links-heading">Links</h2>
-          <nav class="links" aria-label="Social and project links">
-            <a href="https://github.com/Partialglyph/owen_website">Source</a>
-            <a href="https://github.com/Partialglyph">GitHub</a>
-            <!-- Add more: email mailto:, LinkedIn, etc. -->
-          </nav>
-        </section>
-      </main>
+      <section id="projects">
+        <h2>Projects</h2>
+        <ul>
+          <li>Project 1 - short description</li>
+          <li>Project 2 - short description</li>
+          <li>Project 3 - short description</li>
+        </ul>
+      </section>
+
+      <section id="contact">
+        <h2>Contact</h2>
+        <p>
+          Email:
+          <a href="mailto:you@example.com">you@example.com</a>
+        </p>
+        <p>
+          GitHub:
+          <a href="https://github.com/Partialglyph">github.com/Partialglyph</a>
+        </p>
+      </section>
 
       <footer>
-        <span>© <span id="year"></span> Owen</span>
+        <p>&copy; <span id="year"></span> Owen</p>
       </footer>
-    </div>
+    </main>
+
     <script>
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>
