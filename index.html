@@ -3,147 +3,157 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Owen Kan portfolio - editorial-inspired design and product work."
-    />
-    <title>Owen Kan | Portfolio</title>
+    <meta name="description" content="Owen Kan technical dashboard portfolio." />
+    <title>Owen Kan | Portfolio Command Center</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body data-page="home">
-    <main class="page">
-      <header class="masthead panel reveal">
-        <div class="masthead-meta">
-          <span>Owen Kan</span>
-          <span>Product + UI Design</span>
-          <button
-            id="theme-toggle"
-            class="theme-toggle magnetic"
-            type="button"
-            aria-label="Toggle theme"
-          >
-            Light / Dark
-          </button>
+    <main class="dashboard">
+      <aside class="sidebar card">
+        <div class="brand">
+          <div class="brand-dot"></div>
+          <div>
+            <strong>Owen OS</strong>
+            <small>Portfolio Dashboard</small>
+          </div>
         </div>
-        <h1>
-          REDESIGN
-          <br />
-          CONCEPT <em>of</em> DIGITAL
-          <br />
-          EXPERIENCES
-        </h1>
-        <p class="masthead-note">
-          Inspired by editorial systems, built as a fast, interactive portfolio.
-        </p>
-      </header>
-
-      <section class="toc panel reveal" id="toc">
-        <div class="section-title">Contents</div>
-        <ol>
-          <li><a class="magnetic" href="#intro">Introduction</a></li>
-          <li><a class="magnetic" href="#about">About</a></li>
-          <li><a class="magnetic" href="#projects">Selected Work</a></li>
-          <li><a class="magnetic" href="news.html">News Page</a></li>
-          <li><a class="magnetic" href="#contact">Contact</a></li>
-        </ol>
-      </section>
-
-      <section id="intro" class="panel split reveal">
-        <div class="section-title">Introduction</div>
-        <div>
-          <p class="lede">
-            I design visual stories across graphic design, photography, and videography,
-            blending editorial structure with cinematic mood.
-          </p>
-          <p>
-            I am also the founder and acting director of
-            <a href="https://academicrights.org">academicrights.org</a>, where I lead creative
-            direction and communication strategy.
-          </p>
+        <nav>
+          <a href="#overview">Overview</a>
+          <a href="#skills">Skills Matrix</a>
+          <a href="#projects">Projects</a>
+          <a href="#timeline">Timeline</a>
+          <a href="#contact">Contact</a>
+        </nav>
+        <div class="sidebar-footer">
+          <p>System status: <span class="status-live">LIVE</span></p>
+          <button id="theme-toggle" class="theme-toggle" type="button">Toggle Theme</button>
+          <a href="news.html">Open News Log</a>
         </div>
-      </section>
+      </aside>
 
-      <section id="about" class="panel split reveal">
-        <div class="section-title">About</div>
-        <div>
-          <p>
-            I am Owen Kan, a student based in Vancouver, Canada, focused on visual design,
-            storytelling, and social impact projects.
-          </p>
-          <ul class="facts">
-            <li>Student in Vancouver, Canada</li>
-            <li>Graphic designer, photographer, and videographer</li>
-            <li>Founder and acting director of academicrights.org</li>
-          </ul>
-        </div>
-      </section>
-
-      <section id="projects" class="panel reveal">
-        <div class="section-title">Selected Work</div>
-        <div class="project-list">
-          <article class="project-card">
-            <h3>Design Exhibitions Series</h3>
-            <p>
-              A visual identity concept inspired by exhibition posters and editorial page
-              systems with strong color contrast.
+      <section class="content">
+        <header id="overview" class="topbar card reveal">
+          <div>
+            <p class="kicker">Creative Command Center</p>
+            <h1>Owen Kan</h1>
+            <p class="intro">
+              Student in Vancouver, graphic designer, photographer, videographer, and founder
+              of <a href="https://academicrights.org">academicrights.org</a>.
             </p>
-            <button class="project-toggle magnetic" aria-expanded="false" type="button">
-              View details
-            </button>
-            <div class="project-details">
-              <p>Role: Graphic Designer + Art Direction</p>
-              <p>Deliverables: Poster system, web layout direction, campaign visuals.</p>
+          </div>
+          <div class="topbar-meta">
+            <p>Last sync: <span id="live-time">--:--:--</span></p>
+            <p>Mode: <span>Production</span></p>
+          </div>
+        </header>
+
+        <section class="metrics reveal">
+          <article class="card metric">
+            <p>Projects Shipped</p>
+            <h2 data-count="27">0</h2>
+            <small>+4 this quarter</small>
+          </article>
+          <article class="card metric">
+            <p>Creative Assets</p>
+            <h2 data-count="312">0</h2>
+            <small>Photo / video / brand</small>
+          </article>
+          <article class="card metric">
+            <p>Clients & Teams</p>
+            <h2 data-count="19">0</h2>
+            <small>Student + startup work</small>
+          </article>
+          <article class="card metric">
+            <p>Advocacy Reach</p>
+            <h2 data-count="58">0</h2>
+            <small>Communities engaged</small>
+          </article>
+        </section>
+
+        <section id="skills" class="grid-two reveal">
+          <article class="card">
+            <div class="card-head">
+              <h3>Skills Radar</h3>
+              <small>Capability map</small>
+            </div>
+            <canvas id="skills-radar" width="480" height="300" aria-label="skills chart"></canvas>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h3>Workflow Throughput</h3>
+              <small>Weekly production cycles</small>
+            </div>
+            <canvas id="throughput-chart" width="480" height="300"></canvas>
+          </article>
+        </section>
+
+        <section id="projects" class="card reveal">
+          <div class="card-head row">
+            <h3>Project Registry</h3>
+            <div class="filters">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="design">Design</button>
+              <button class="filter-btn" data-filter="media">Media</button>
+              <button class="filter-btn" data-filter="advocacy">Advocacy</button>
+            </div>
+          </div>
+          <div class="project-grid">
+            <article class="project-card" data-category="design">
+              <h4>Design Exhibitions Series</h4>
+              <p>Modular visual language and campaign posters for showcase events.</p>
+              <div class="project-tags"><span>Brand</span><span>UI</span></div>
+            </article>
+            <article class="project-card" data-category="media">
+              <h4>Portrait Motion Stories</h4>
+              <p>Cinematic portrait direction blending still photography and short reels.</p>
+              <div class="project-tags"><span>Photo</span><span>Video</span></div>
+            </article>
+            <article class="project-card" data-category="advocacy">
+              <h4>Academic Rights Platform</h4>
+              <p>Content system and advocacy messaging strategy for student support.</p>
+              <div class="project-tags"><span>Leadership</span><span>Comms</span></div>
+            </article>
+            <article class="project-card" data-category="design">
+              <h4>Campus Creative Lab Dashboard</h4>
+              <p>Internal dashboard concept for tracking media requests and production.</p>
+              <div class="project-tags"><span>UX</span><span>Data Viz</span></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="timeline" class="grid-two reveal">
+          <article class="card terminal">
+            <div class="card-head">
+              <h3>Live Terminal</h3>
+              <small>Current focus thread</small>
+            </div>
+            <pre id="typed-log"></pre>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h3>Active Skill Stack</h3>
+              <small>Current proficiency model</small>
+            </div>
+            <div class="skill-bars">
+              <div class="bar-row"><span>Graphic Design</span><div class="bar"><i style="--w:95%"></i></div></div>
+              <div class="bar-row"><span>Photography</span><div class="bar"><i style="--w:88%"></i></div></div>
+              <div class="bar-row"><span>Videography</span><div class="bar"><i style="--w:84%"></i></div></div>
+              <div class="bar-row"><span>Front-end</span><div class="bar"><i style="--w:76%"></i></div></div>
+              <div class="bar-row"><span>Creative Direction</span><div class="bar"><i style="--w:91%"></i></div></div>
             </div>
           </article>
+        </section>
 
-          <article class="project-card">
-            <h3>Portrait Motion Stories</h3>
-            <p>
-              Photography and short-form videography series exploring emotion, motion blur,
-              and narrative composition.
-            </p>
-            <button class="project-toggle magnetic" aria-expanded="false" type="button">
-              View details
-            </button>
-            <div class="project-details">
-              <p>Role: Photographer + Videographer</p>
-              <p>Tools: Lightroom, Premiere Pro, After Effects.</p>
-            </div>
-          </article>
-
-          <article class="project-card">
-            <h3>Academic Rights Platform</h3>
-            <p>
-              Ongoing design and direction for academicrights.org, including messaging,
-              public-facing visuals, and digital presence.
-            </p>
-            <button class="project-toggle magnetic" aria-expanded="false" type="button">
-              View details
-            </button>
-            <div class="project-details">
-              <p>Role: Founder + Acting Director</p>
-              <p>Focus: Advocacy communication, brand consistency, and outreach design.</p>
-            </div>
-          </article>
-        </div>
+        <section id="contact" class="card reveal contact">
+          <h3>Connect</h3>
+          <div class="contact-links">
+            <a href="mailto:owenkan0316@gmail.com">owenkan0316@gmail.com</a>
+            <a href="https://github.com/Partialglyph">github.com/Partialglyph</a>
+            <a href="https://academicrights.org">academicrights.org</a>
+          </div>
+        </section>
       </section>
-
-      <section id="contact" class="panel split reveal">
-        <div class="section-title">Contact</div>
-        <div class="contact-list">
-          <a class="magnetic" href="mailto:owenkan0316@gmail.com">owenkan0316@gmail.com</a>
-          <a class="magnetic" href="https://github.com/Partialglyph">GitHub</a>
-          <a class="magnetic" href="https://academicrights.org">academicrights.org</a>
-          <a class="magnetic" href="news.html">Read latest news</a>
-        </div>
-      </section>
-
-      <footer class="footer panel reveal">
-        <span>Owen Kan</span>
-        <span>&copy; <span id="year"></span></span>
-      </footer>
     </main>
-
     <script src="script.js"></script>
   </body>
 </html>
