@@ -3,66 +3,56 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="News and updates from Owen Kan." />
+    <meta name="description" content="Owen Kan news dashboard." />
     <title>Owen Kan | News</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body data-page="news">
-    <main class="page">
-      <header class="news-hero panel reveal">
-        <div>
-          <div class="section-title">Latest Updates</div>
-          <h1>News Page</h1>
+    <main class="dashboard">
+      <aside class="sidebar panel">
+        <div class="brand">
+          <div class="brand-dot"></div>
+          <div>
+            <strong>Owen OS</strong>
+            <small>Monotone System</small>
+          </div>
         </div>
-        <a class="magnetic" href="index.html">Back to Home</a>
-      </header>
-
-      <section class="panel reveal">
-        <div class="news-grid">
-          <article class="news-item">
-            <time datetime="2026-04-24">Apr 24, 2026</time>
-            <h2>New Portfolio Direction Published</h2>
-            <p>
-              Released an updated visual system inspired by exhibition design language and
-              cinematic composition.
-            </p>
-          </article>
-
-          <article class="news-item">
-            <time datetime="2026-04-20">Apr 20, 2026</time>
-            <h2>Design + Photography Case Study</h2>
-            <p>
-              Building a cross-medium case study that combines graphic design, portrait
-              photography, and short-form video work.
-            </p>
-          </article>
-
-          <article class="news-item">
-            <time datetime="2026-04-16">Apr 16, 2026</time>
-            <h2>Academic Rights Visual Updates</h2>
-            <p>
-              Updated communication graphics and brand assets for academicrights.org across
-              social and web channels.
-            </p>
-          </article>
-
-          <article class="news-item">
-            <time datetime="2026-04-11">Apr 11, 2026</time>
-            <h2>Open for Creative Collaboration</h2>
-            <p>
-              Available for student and startup collaborations in graphic design, photography,
-              and videography.
-            </p>
-          </article>
+        <nav>
+          <a href="index.html" data-nav="overview">Overview</a>
+          <a href="skills.html" data-nav="skills">Skills</a>
+          <a href="projects.html" data-nav="projects">Projects</a>
+          <a href="contact.html" data-nav="contact">Contact</a>
+          <a href="news.html" data-nav="news">News</a>
+        </nav>
+        <div class="sidebar-footer">
+          <p>System status: <span class="status-live">LIVE</span></p>
+          <p>Time zone: Vancouver</p>
         </div>
+      </aside>
+
+      <section class="content">
+        <header class="topbar panel">
+          <div>
+            <h1>News Log</h1>
+            <p class="sub">Live updates and release notes from the portfolio system.</p>
+          </div>
+          <div>
+            <p class="sub">Vancouver time</p>
+            <p><strong id="van-time">--:--:--</strong></p>
+          </div>
+        </header>
+
+        <section class="tile panel">
+          <p class="label">Change feed</p>
+          <div class="feed">
+            <div class="feed-item"><p>Monotone component system deployed.</p><small>Apr 24, 2026</small></div>
+            <div class="feed-item"><p>Sidebar navigation split into multi-page architecture.</p><small>Apr 24, 2026</small></div>
+            <div class="feed-item"><p>Spatial cluster data visualization integrated into overview.</p><small>Apr 24, 2026</small></div>
+            <div class="feed-item"><p>SF Pro stack enabled for entire UI.</p><small>Apr 24, 2026</small></div>
+          </div>
+        </section>
       </section>
-
-      <footer class="footer panel reveal">
-        <span>Owen Kan</span>
-        <span>&copy; <span id="year"></span></span>
-      </footer>
     </main>
-
     <script src="script.js"></script>
   </body>
 </html>

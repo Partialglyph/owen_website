@@ -3,154 +3,119 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Owen Kan technical dashboard portfolio." />
-    <title>Owen Kan | Portfolio Command Center</title>
+    <meta name="description" content="Owen Kan portfolio overview dashboard." />
+    <title>Owen Kan | Overview</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body data-page="home">
+  <body data-page="overview">
     <main class="dashboard">
-      <aside class="sidebar card">
+      <aside class="sidebar panel">
         <div class="brand">
           <div class="brand-dot"></div>
           <div>
             <strong>Owen OS</strong>
-            <small>Portfolio Dashboard</small>
+            <small>Monotone System</small>
           </div>
         </div>
         <nav>
-          <a href="#overview">Overview</a>
-          <a href="#skills">Skills Matrix</a>
-          <a href="#projects">Projects</a>
-          <a href="#timeline">Timeline</a>
-          <a href="#contact">Contact</a>
+          <a href="index.html" data-nav="overview">Overview</a>
+          <a href="skills.html" data-nav="skills">Skills</a>
+          <a href="projects.html" data-nav="projects">Projects</a>
+          <a href="contact.html" data-nav="contact">Contact</a>
+          <a href="news.html" data-nav="news">News</a>
         </nav>
         <div class="sidebar-footer">
           <p>System status: <span class="status-live">LIVE</span></p>
-          <button id="theme-toggle" class="theme-toggle" type="button">Toggle Theme</button>
-          <a href="news.html">Open News Log</a>
+          <p>Time zone: Vancouver</p>
+          <p>Micro mode enabled</p>
         </div>
       </aside>
 
       <section class="content">
-        <header id="overview" class="topbar card reveal">
+        <header class="topbar panel">
           <div>
-            <p class="kicker">Creative Command Center</p>
-            <h1>Owen Kan</h1>
-            <p class="intro">
-              Student in Vancouver, graphic designer, photographer, videographer, and founder
-              of <a href="https://academicrights.org">academicrights.org</a>.
+            <h1>Overview Dashboard</h1>
+            <p class="sub">
+              Student in Vancouver, graphic designer, photographer, videographer, founder and
+              acting director of <a href="https://academicrights.org">academicrights.org</a>.
             </p>
           </div>
-          <div class="topbar-meta">
-            <p>Last sync: <span id="live-time">--:--:--</span></p>
-            <p>Mode: <span>Production</span></p>
+          <div>
+            <p class="sub">Vancouver time</p>
+            <p><strong id="van-time">--:--:--</strong></p>
           </div>
         </header>
 
-        <section class="metrics reveal">
-          <article class="card metric">
-            <p>Projects Shipped</p>
+        <section class="bento">
+          <article class="tile panel metric span-3">
+            <p class="label">Projects shipped</p>
             <h2 data-count="27">0</h2>
             <small>+4 this quarter</small>
+            <div class="tiny-chart"></div>
           </article>
-          <article class="card metric">
-            <p>Creative Assets</p>
+          <article class="tile panel metric span-3">
+            <p class="label">Creative assets</p>
             <h2 data-count="312">0</h2>
-            <small>Photo / video / brand</small>
+            <small>design + photo + video</small>
+            <div class="tiny-chart"></div>
           </article>
-          <article class="card metric">
-            <p>Clients & Teams</p>
+          <article class="tile panel metric span-3">
+            <p class="label">Client streams</p>
             <h2 data-count="19">0</h2>
-            <small>Student + startup work</small>
+            <small>student + startup</small>
+            <div class="tiny-chart"></div>
           </article>
-          <article class="card metric">
-            <p>Advocacy Reach</p>
+          <article class="tile panel metric span-3">
+            <p class="label">Advocacy reach</p>
             <h2 data-count="58">0</h2>
-            <small>Communities engaged</small>
+            <small>communities engaged</small>
+            <div class="tiny-chart"></div>
           </article>
-        </section>
 
-        <section id="skills" class="grid-two reveal">
-          <article class="card">
-            <div class="card-head">
-              <h3>Skills Radar</h3>
-              <small>Capability map</small>
+          <article class="tile panel cluster-panel span-8">
+            <p class="label">GIS / Spatial Data Cluster</p>
+            <h3>Creative Work Intelligence Map</h3>
+            <div class="cluster-wrap">
+              <canvas id="cluster-canvas" width="900" height="360"></canvas>
             </div>
-            <canvas id="skills-radar" width="480" height="300" aria-label="skills chart"></canvas>
+            <p class="footer-note">Nodes represent project domains and collaboration links.</p>
           </article>
-          <article class="card">
-            <div class="card-head">
-              <h3>Workflow Throughput</h3>
-              <small>Weekly production cycles</small>
-            </div>
-            <canvas id="throughput-chart" width="480" height="300"></canvas>
-          </article>
-        </section>
 
-        <section id="projects" class="card reveal">
-          <div class="card-head row">
-            <h3>Project Registry</h3>
-            <div class="filters">
-              <button class="filter-btn active" data-filter="all">All</button>
-              <button class="filter-btn" data-filter="design">Design</button>
-              <button class="filter-btn" data-filter="media">Media</button>
-              <button class="filter-btn" data-filter="advocacy">Advocacy</button>
+          <article class="tile panel span-4">
+            <p class="label">Active modules</p>
+            <h3>Priority channels</h3>
+            <div class="side-list">
+              <div><span>Brand Systems</span><span class="accent-cyan">High</span></div>
+              <div><span>Photo Production</span><span class="accent-orange">Medium</span></div>
+              <div><span>Advocacy Content</span><span class="accent-green">Active</span></div>
+              <div><span>Video Pipeline</span><span class="accent-cyan">Queued</span></div>
             </div>
-          </div>
-          <div class="project-grid">
-            <article class="project-card" data-category="design">
-              <h4>Design Exhibitions Series</h4>
-              <p>Modular visual language and campaign posters for showcase events.</p>
-              <div class="project-tags"><span>Brand</span><span>UI</span></div>
-            </article>
-            <article class="project-card" data-category="media">
-              <h4>Portrait Motion Stories</h4>
-              <p>Cinematic portrait direction blending still photography and short reels.</p>
-              <div class="project-tags"><span>Photo</span><span>Video</span></div>
-            </article>
-            <article class="project-card" data-category="advocacy">
-              <h4>Academic Rights Platform</h4>
-              <p>Content system and advocacy messaging strategy for student support.</p>
-              <div class="project-tags"><span>Leadership</span><span>Comms</span></div>
-            </article>
-            <article class="project-card" data-category="design">
-              <h4>Campus Creative Lab Dashboard</h4>
-              <p>Internal dashboard concept for tracking media requests and production.</p>
-              <div class="project-tags"><span>UX</span><span>Data Viz</span></div>
-            </article>
-          </div>
-        </section>
-
-        <section id="timeline" class="grid-two reveal">
-          <article class="card terminal">
-            <div class="card-head">
-              <h3>Live Terminal</h3>
-              <small>Current focus thread</small>
-            </div>
-            <pre id="typed-log"></pre>
-          </article>
-          <article class="card">
-            <div class="card-head">
-              <h3>Active Skill Stack</h3>
-              <small>Current proficiency model</small>
-            </div>
-            <div class="skill-bars">
-              <div class="bar-row"><span>Graphic Design</span><div class="bar"><i style="--w:95%"></i></div></div>
-              <div class="bar-row"><span>Photography</span><div class="bar"><i style="--w:88%"></i></div></div>
-              <div class="bar-row"><span>Videography</span><div class="bar"><i style="--w:84%"></i></div></div>
-              <div class="bar-row"><span>Front-end</span><div class="bar"><i style="--w:76%"></i></div></div>
-              <div class="bar-row"><span>Creative Direction</span><div class="bar"><i style="--w:91%"></i></div></div>
+            <div class="actions">
+              <a href="projects.html">Open project table</a>
+              <a href="skills.html">Open skill metrics</a>
             </div>
           </article>
-        </section>
 
-        <section id="contact" class="card reveal contact">
-          <h3>Connect</h3>
-          <div class="contact-links">
-            <a href="mailto:owenkan0316@gmail.com">owenkan0316@gmail.com</a>
-            <a href="https://github.com/Partialglyph">github.com/Partialglyph</a>
-            <a href="https://academicrights.org">academicrights.org</a>
-          </div>
+          <article class="tile panel span-6">
+            <p class="label">Top skills snapshot</p>
+            <h3>Capability bars</h3>
+            <div class="progress">
+              <div class="progress-row"><span>Graphic Design</span><div class="bar"><i style="--w:95%"></i></div></div>
+              <div class="progress-row"><span>Photography</span><div class="bar"><i style="--w:88%"></i></div></div>
+              <div class="progress-row"><span>Videography</span><div class="bar"><i style="--w:84%"></i></div></div>
+            </div>
+          </article>
+
+          <article class="tile panel span-6">
+            <p class="label">Quick links</p>
+            <h3>Contact channels</h3>
+            <div class="actions">
+              <a href="mailto:owenkan0316@gmail.com">Email</a>
+              <a href="https://github.com/Partialglyph">GitHub</a>
+              <a href="https://academicrights.org">Academic Rights</a>
+            </div>
+            <p class="footer-note">Monotone interface with highlight-coded status values.</p>
+          </article>
         </section>
       </section>
     </main>
