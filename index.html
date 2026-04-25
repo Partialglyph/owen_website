@@ -3,528 +3,334 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Owen — Designer</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <title>Owen Kan</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:        #080808;
-      --surface:   #111111;
-      --border:    rgba(255,255,255,0.07);
-      --text:      #e8e8e8;
-      --muted:     #555;
-      --accent-g:  #a8ff78;   /* green  */
-      --accent-b:  #5b8dee;   /* blue   */
-      --accent-p:  #c084fc;   /* purple */
-      --accent-o:  #fb923c;   /* orange */
-      --accent-r:  #f87171;   /* red    */
-      --mono: 'DM Mono', monospace;
-      --sans: 'Syne', sans-serif;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--mono);
-      min-height: 100vh;
-      padding: 32px 24px;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
     }
 
-    /* ── HEADER ─────────────────────────────────────── */
-    header {
+    /* ── HERO ────────────────────────────────────────── */
+    .hero {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Text: upper-left, sits over the deliberately dark cell zone */
+    .hero-text {
+      position: absolute;
+      top: 9vh;
+      left: 5vw;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hero-text .name {
+      display: block;
+      font-size: clamp(3rem, 7vw, 6.5rem);
+      font-weight: 300;
+      line-height: 0.93;
+      letter-spacing: -0.025em;
+    }
+    .hero-text .sub {
+      margin-top: 1.4rem;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
+      flex-direction: column;
+      gap: 3px;
     }
-    header .name {
-      font-family: var(--sans);
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-    header nav { display: flex; gap: 24px; }
-    header nav a {
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-decoration: none;
+    .hero-text .sub span {
+      font-size: clamp(0.6rem, 1vw, 0.78rem);
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      transition: color 0.2s;
-    }
-    header nav a:hover { color: var(--text); }
-
-    /* ── GRID ───────────────────────────────────────── */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-auto-rows: 180px;
-      gap: 10px;
+      color: rgba(255,255,255,0.45);
     }
 
-    /* span helpers */
-    .w2  { grid-column: span 2; }
-    .w3  { grid-column: span 3; }
-    .w4  { grid-column: span 4; }
-    .h2  { grid-row:    span 2; }
-
-    /* ── WIDGET BASE ────────────────────────────────── */
-    .widget {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: border-color 0.25s;
-    }
-    .widget:hover { border-color: rgba(255,255,255,0.16); }
-
-    .widget-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-    .widget-value {
-      font-family: var(--sans);
-      font-size: 2.4rem;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -0.02em;
-    }
-    .widget-sub {
-      font-size: 0.65rem;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    /* accent dot */
-    .dot {
-      display: inline-block;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      margin-right: 6px;
-      vertical-align: middle;
-    }
-
-    /* ── SPARKLINE ──────────────────────────────────── */
-    .sparkline { width: 100%; height: 48px; }
-    .sparkline path { fill: none; stroke-width: 1.5; }
-    .sparkline .fill { opacity: 0.12; stroke: none; }
-
-    /* ── BAR CHART ──────────────────────────────────── */
-    .bars {
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      height: 48px;
-      width: 100%;
-    }
-    .bar {
-      flex: 1;
-      border-radius: 3px 3px 0 0;
-      transition: opacity 0.2s;
-      min-height: 4px;
-    }
-    .bar:hover { opacity: 0.7; }
-
-    /* ── SKILL BARS ─────────────────────────────────── */
-    .skill-list { display: flex; flex-direction: column; gap: 8px; }
-    .skill-row { display: flex; flex-direction: column; gap: 3px; }
-    .skill-row-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.6rem;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-    }
-    .skill-track {
-      height: 3px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .skill-fill {
-      height: 100%;
-      border-radius: 2px;
-      transition: width 1s ease;
-    }
-
-    /* ── PILL TAGS ──────────────────────────────────── */
-    .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; }
-    .tag {
-      font-size: 0.58rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-    }
-
-    /* ── TIMELINE ───────────────────────────────────── */
-    .timeline { display: flex; flex-direction: column; gap: 10px; }
-    .tl-item { display: flex; gap: 10px; align-items: flex-start; }
-    .tl-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      margin-top: 4px;
-      flex-shrink: 0;
-    }
-    .tl-content {}
-    .tl-title { font-size: 0.72rem; font-weight: 500; }
-    .tl-meta  { font-size: 0.58rem; color: var(--muted); margin-top: 1px; }
-
-    /* ── RING / DONUT ───────────────────────────────── */
-    .ring-wrap {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .ring-svg { flex-shrink: 0; }
-    .ring-legend { display: flex; flex-direction: column; gap: 6px; }
-    .ring-legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.6rem; color: var(--muted); }
-
-    /* ── STAT GRID ──────────────────────────────────── */
-    .stat-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      height: 100%;
-    }
-    .stat-cell {
-      background: rgba(255,255,255,0.03);
-      border-radius: 8px;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .stat-num {
-      font-family: var(--sans);
-      font-size: 1.5rem;
-      font-weight: 800;
-      line-height: 1;
-    }
-    .stat-label { font-size: 0.55rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
-
-    /* ── GLOW EFFECT ────────────────────────────────── */
-    .glow::after {
-      content: '';
+    /* Scroll hint */
+    .scroll-hint {
       position: absolute;
-      inset: -60px;
-      border-radius: 50%;
-      opacity: 0.06;
-      pointer-events: none;
-      filter: blur(40px);
+      bottom: 2.4vh;
+      left: 5vw;
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.2);
+      z-index: 10;
     }
-    .glow-g::after { background: var(--accent-g); }
-    .glow-b::after { background: var(--accent-b); }
-    .glow-p::after { background: var(--accent-p); }
-    .glow-o::after { background: var(--accent-o); }
 
-    /* ── HERO NAME WIDGET ───────────────────────────── */
-    .hero-name {
-      font-family: var(--sans);
-      font-size: clamp(2.4rem, 5vw, 4rem);
-      font-weight: 800;
-      line-height: 0.95;
-      letter-spacing: -0.03em;
+    /* ── BENTO ───────────────────────────────────────── */
+    .bento-page {
+      min-height: 100vh;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
-    .hero-name span { color: var(--accent-b); }
-
-    /* ── PROJECT WIDGET ─────────────────────────────── */
-    .project-img {
-      width: 100%;
-      flex: 1;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.04);
-      margin-bottom: 8px;
-      overflow: hidden;
+    .panel {
+      background: #0c0c0c;
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 3px;
       position: relative;
-      min-height: 60px;
     }
-    .project-img-inner {
-      width: 100%; height: 100%;
+    .panel .inner {
+      position: absolute;
+      inset: 0;
+      padding: 14px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.6rem;
-      color: var(--muted);
+      flex-direction: column;
     }
-    .project-title { font-size: 0.85rem; font-weight: 500; }
-    .project-type  { font-size: 0.58rem; color: var(--muted); margin-top: 2px; }
+    .cn {
+      position: absolute;
+      width: 12px; height: 12px;
+      border-color: rgba(255,255,255,0.28);
+      border-style: solid;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .cn-tl { top:0; left:0;  border-width:1px 0 0 1px; }
+    .cn-tr { top:0; right:0; border-width:1px 1px 0 0; }
+    .cn-bl { bottom:0; left:0;  border-width:0 0 1px 1px; }
+    .cn-br { bottom:0; right:0; border-width:0 1px 1px 0; }
 
-    /* ── AVAILABILITY ───────────────────────────────── */
-    .avail-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--accent-g);
-      box-shadow: 0 0 8px var(--accent-g);
-      animation: pulse 2s infinite;
+    .top-row {
+      display: grid;
+      grid-template-columns: 1fr 22%;
+      gap: 6px;
+      height: 48vh;
     }
-    @keyframes pulse {
-      0%,100% { opacity: 1; }
-      50%      { opacity: 0.4; }
-    }
-
-    /* ── CONTACT LINKS ──────────────────────────────── */
-    .contact-links { display: flex; flex-direction: column; gap: 8px; }
-    .contact-link {
+    .top-name {
+      padding: 18px 20px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.65rem;
-      color: var(--text);
-      text-decoration: none;
-      padding: 6px 8px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      transition: border-color 0.2s, background 0.2s;
+      align-items: flex-start;
     }
-    .contact-link:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.03); }
-    .contact-link span { color: var(--muted); font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .top-name h2 {
+      font-size: clamp(1.6rem, 3vw, 2.8rem);
+      font-weight: 300;
+      letter-spacing: -0.01em;
+    }
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 27% 1fr 27%;
+      gap: 6px;
+      flex: 1;
+    }
+    .bl { display: grid; grid-template-rows: 1fr 2fr; gap: 6px; }
+    .bc { display: grid; grid-template-rows: 1fr 1fr; gap: 6px; }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="name">Owen —</div>
-    <nav>
-      <a href="#">Work</a>
-      <a href="#">About</a>
-      <a href="#">Contact</a>
-    </nav>
-  </header>
-
-  <div class="grid">
-
-    <!-- 1. HERO NAME — wide -->
-    <div class="widget w2 glow glow-b">
-      <div class="widget-label">Graphic Designer</div>
-      <div class="hero-name">Owen<br><span>Visual</span><br>Designer.</div>
-    </div>
-
-    <!-- 2. AVAILABILITY -->
-    <div class="widget">
-      <div class="widget-label">Status</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <div class="avail-dot"></div>
-        <span style="font-size:0.75rem;">Available for work</span>
-      </div>
-      <div class="widget-sub">Open to freelance & full-time<br>Based in Vancouver, BC</div>
-    </div>
-
-    <!-- 3. YEARS XP -->
-    <div class="widget glow glow-o">
-      <div class="widget-label">Experience</div>
-      <div class="widget-value" style="color:var(--accent-o)">6</div>
-      <div class="widget-sub">Years in design</div>
-      <!-- sparkline -->
-      <svg class="sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="og" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="var(--accent-o)" />
-            <stop offset="100%" stop-color="transparent" />
-          </linearGradient>
-        </defs>
-        <path class="fill" d="M0,38 L12,32 L25,28 L40,20 L55,18 L70,10 L85,8 L100,4 L100,40 L0,40Z" fill="url(#og)" />
-        <path d="M0,38 L12,32 L25,28 L40,20 L55,18 L70,10 L85,8 L100,4" stroke="var(--accent-o)" />
-      </svg>
-    </div>
-
-    <!-- 4. SKILLS — tall -->
-    <div class="widget h2 glow glow-p">
-      <div>
-        <div class="widget-label">Core Skills</div>
-        <div style="font-family:var(--sans);font-size:1rem;font-weight:700;margin-bottom:14px;">Craft</div>
-      </div>
-      <div class="skill-list" id="skills"></div>
-    </div>
-
-    <!-- 5. PROJECTS DONE -->
-    <div class="widget">
-      <div class="widget-label">Projects Shipped</div>
-      <div class="widget-value" style="color:var(--accent-g)">48</div>
-      <div class="widget-sub">Across brand, digital, print</div>
-    </div>
-
-    <!-- 6. TOOLS / TAGS -->
-    <div class="widget w2">
-      <div class="widget-label">Toolkit</div>
-      <div class="tags" id="tools"></div>
-    </div>
-
-    <!-- 7. DISCIPLINE DONUT -->
-    <div class="widget">
-      <div class="widget-label">Discipline Split</div>
-      <div class="ring-wrap" id="donut-wrap">
-        <!-- injected by JS -->
+  <!-- HERO -->
+  <section class="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-text">
+      <span class="name">Owen</span>
+      <span class="name">Kan</span>
+      <div class="sub">
+        <span>Graphic Designer</span>
+        <span>Brand · Digital · Motion</span>
+        <span>Vancouver BC — Available</span>
       </div>
     </div>
+    <div class="scroll-hint">scroll ↓</div>
+  </section>
 
-    <!-- 8. FEATURED PROJECT A -->
-    <div class="widget h2">
-      <div class="widget-label">Featured — 01</div>
-      <div class="project-img">
-        <div class="project-img-inner">[ Insert project thumbnail ]</div>
-      </div>
-      <div>
-        <div class="project-title">Brand Identity — Studio Lacune</div>
-        <div class="project-type">Identity · Print · Motion</div>
-      </div>
+  <!-- BENTO -->
+  <section class="bento-page">
+    <div class="top-row">
+      <div class="top-name"><h2>Owen Kan</h2></div>
+      <div class="panel" id="p-top-right"><div class="inner"></div></div>
     </div>
-
-    <!-- 9. CLIENT COUNT STAT GRID -->
-    <div class="widget w2">
-      <div class="widget-label">By the Numbers</div>
-      <div class="stat-grid" id="stats"></div>
-    </div>
-
-    <!-- 10. FEATURED PROJECT B -->
-    <div class="widget h2">
-      <div class="widget-label">Featured — 02</div>
-      <div class="project-img">
-        <div class="project-img-inner">[ Insert project thumbnail ]</div>
+    <div class="bottom-row">
+      <div class="bl">
+        <div class="panel" id="p-bl-top"><div class="inner"></div></div>
+        <div class="panel" id="p-bl-bot"><div class="inner"></div></div>
       </div>
-      <div>
-        <div class="project-title">Digital Campaign — Meridian</div>
-        <div class="project-type">Digital · Social · Art Direction</div>
+      <div class="bc">
+        <div class="panel" id="p-bc-top"><div class="inner"></div></div>
+        <div class="panel" id="p-bc-bot"><div class="inner"></div></div>
       </div>
+      <div class="panel" id="p-br"><div class="inner"></div></div>
     </div>
-
-    <!-- 11. TIMELINE -->
-    <div class="widget w2">
-      <div class="widget-label">Career</div>
-      <div class="timeline" id="timeline"></div>
-    </div>
-
-    <!-- 12. ACTIVITY BAR CHART -->
-    <div class="widget w2 glow glow-g">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-        <div>
-          <div class="widget-label">Projects / Year</div>
-          <div class="widget-value" style="color:var(--accent-g);font-size:1.8rem;">2024</div>
-        </div>
-        <div style="font-size:0.65rem;color:var(--accent-g);margin-top:4px;">↑ 23%</div>
-      </div>
-      <div class="bars" id="bars"></div>
-      <div style="display:flex;justify-content:space-between;font-size:0.5rem;color:var(--muted);margin-top:4px;">
-        <span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span>
-      </div>
-    </div>
-
-    <!-- 13. CONTACT -->
-    <div class="widget w2">
-      <div class="widget-label">Get in Touch</div>
-      <div class="contact-links">
-        <a class="contact-link" href="mailto:owen@example.com">owen@example.com <span>Email</span></a>
-        <a class="contact-link" href="#">linkedin.com/in/owen <span>LinkedIn</span></a>
-        <a class="contact-link" href="#">@owen <span>Instagram</span></a>
-      </div>
-    </div>
-
-  </div><!-- /grid -->
+  </section>
 
   <script>
-    // ── SKILLS ──────────────────────────────────────────
-    const skills = [
-      { label: 'Brand Identity',   pct: 95, color: 'var(--accent-p)' },
-      { label: 'Typography',       pct: 90, color: 'var(--accent-b)' },
-      { label: 'Art Direction',    pct: 85, color: 'var(--accent-g)' },
-      { label: 'Motion / After FX',pct: 65, color: 'var(--accent-o)' },
-      { label: 'Web / UI',         pct: 55, color: 'var(--accent-r)' },
+    // ── CORNER BRACKETS ────────────────────────────────
+    document.querySelectorAll('.panel').forEach(p => {
+      ['tl','tr','bl','br'].forEach(pos => {
+        const c = document.createElement('div');
+        c.className = `cn cn-${pos}`;
+        p.appendChild(c);
+      });
+    });
+
+    // ── HERO GRAPHIC ───────────────────────────────────
+    const canvas = document.getElementById('hero-canvas');
+    const ctx    = canvas.getContext('2d');
+    const BG     = '#0a0a0a';
+
+    // Minimal 4-tone palette: near-white → slate-blue → dark navy → near-bg
+    const PAL = [
+      [235, 242, 248],  // 0 pale blue-white  (brightest)
+      [160, 195, 220],  // 1 light slate
+      [55,  95, 130],   // 2 muted blue
+      [18,  30,  42],   // 3 dark navy
+      [11,  12,  14],   // 4 near-background
     ];
-    const sl = document.getElementById('skills');
-    skills.forEach(s => {
-      sl.innerHTML += `
-        <div class="skill-row">
-          <div class="skill-row-label"><span>${s.label}</span><span>${s.pct}%</span></div>
-          <div class="skill-track"><div class="skill-fill" style="width:${s.pct}%;background:${s.color}"></div></div>
-        </div>`;
-    });
 
-    // ── TOOLS ───────────────────────────────────────────
-    const tools = ['Figma','Illustrator','Photoshop','InDesign','After Effects','Procreate','Notion','Framer','Blender'];
-    const tl = document.getElementById('tools');
-    tools.forEach(t => tl.innerHTML += `<div class="tag">${t}</div>`);
+    function sr(s) { const x = Math.sin(s * 127.1 + 311.7) * 43758.5; return x - Math.floor(x); }
 
-    // ── STATS ───────────────────────────────────────────
-    const statsData = [
-      { num: '32+', label: 'Clients' },
-      { num: '4',   label: 'Awards' },
-      { num: '12',  label: 'Brands built' },
-      { num: '3',   label: 'Countries' },
-    ];
-    const sg = document.getElementById('stats');
-    statsData.forEach(s => {
-      sg.innerHTML += `
-        <div class="stat-cell">
-          <div class="stat-label">${s.label}</div>
-          <div class="stat-num">${s.num}</div>
-        </div>`;
-    });
+    function getBrightness(col, row, COLS, ROWS) {
+      // Glow blob centred lower-right so upper-left stays dark for text
+      const nx = col / COLS;
+      const ny = row / ROWS;
+      const cx = 0.64, cy = 0.62;
+      const dx = (nx - cx) * 1.3;
+      const dy = (ny - cy) * 1.1;
+      const dist = Math.sqrt(dx * dx + dy * dy);
 
-    // ── TIMELINE ────────────────────────────────────────
-    const tlData = [
-      { title: 'Senior Designer — Studio Helio',    meta: '2022 – Present', color: 'var(--accent-g)' },
-      { title: 'Mid Designer — Arklow Agency',       meta: '2020 – 2022',   color: 'var(--accent-b)' },
-      { title: 'Junior — Freelance',                 meta: '2018 – 2020',   color: 'var(--accent-p)' },
-    ];
-    const tlEl = document.getElementById('timeline');
-    tlData.forEach(t => {
-      tlEl.innerHTML += `
-        <div class="tl-item">
-          <div class="tl-dot" style="background:${t.color}"></div>
-          <div class="tl-content">
-            <div class="tl-title">${t.title}</div>
-            <div class="tl-meta">${t.meta}</div>
-          </div>
-        </div>`;
-    });
+      // Organic noise
+      const n = sr(col * 0.31 + row * 0.17) * 0.26 - 0.13;
+      return Math.max(0, 1 - (dist + n) / 0.85);
+    }
 
-    // ── BAR CHART ───────────────────────────────────────
-    const barData = [3,5,4,7,5,8,6,9,7,10,8,12];
-    const barsEl = document.getElementById('bars');
-    const max = Math.max(...barData);
-    barData.forEach(v => {
-      barsEl.innerHTML += `<div class="bar" style="height:${(v/max)*100}%;background:var(--accent-g);opacity:${0.4 + (v/max)*0.6}"></div>`;
-    });
+    function palColor(brightness) {
+      // Map brightness (0–1) onto the 5 palette stops
+      const t = brightness;
+      if (t > 0.82) return PAL[0];
+      if (t > 0.60) return lerp3(PAL[1], PAL[0], (t - 0.60) / 0.22);
+      if (t > 0.36) return lerp3(PAL[2], PAL[1], (t - 0.36) / 0.24);
+      if (t > 0.14) return lerp3(PAL[3], PAL[2], (t - 0.14) / 0.22);
+      return lerp3(PAL[4], PAL[3], t / 0.14);
+    }
 
-    // ── DONUT ────────────────────────────────────────────
-    const donutData = [
-      { label: 'Brand',    pct: 45, color: 'var(--accent-p)' },
-      { label: 'Digital',  pct: 30, color: 'var(--accent-b)' },
-      { label: 'Print',    pct: 15, color: 'var(--accent-o)' },
-      { label: 'Motion',   pct: 10, color: 'var(--accent-g)' },
-    ];
-    const r = 28, cx = 34, cy = 34, stroke = 10;
-    const circumference = 2 * Math.PI * r;
-    let offset = 0;
-    let paths = '';
-    donutData.forEach(d => {
-      const dash = (d.pct / 100) * circumference;
-      paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${d.color}" stroke-width="${stroke}"
-        stroke-dasharray="${dash} ${circumference - dash}"
-        stroke-dashoffset="${-offset}"
-        transform="rotate(-90 ${cx} ${cy})" />`;
-      offset += dash;
+    function lerp3(a, b, t) {
+      return [
+        Math.round(a[0] + (b[0] - a[0]) * t),
+        Math.round(a[1] + (b[1] - a[1]) * t),
+        Math.round(a[2] + (b[2] - a[2]) * t),
+      ];
+    }
+
+    function rgb(c) { return `rgb(${c[0]},${c[1]},${c[2]})`; }
+
+    function drawPoster(W, H) {
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, W, H);
+
+      const COLS = 28, ROWS = 34;
+
+      // Non-uniform cell sizes for organic feel
+      const rawC = Array.from({length: COLS}, (_, i) => 0.7 + sr(i * 41 + 1) * 0.7);
+      const rawR = Array.from({length: ROWS}, (_, i) => 0.7 + sr(i * 59 + 2) * 0.7);
+      const sumC = rawC.reduce((a, b) => a + b, 0);
+      const sumR = rawR.reduce((a, b) => a + b, 0);
+
+      let xp = [0]; rawC.forEach(w => xp.push(xp[xp.length-1] + (w/sumC) * W));
+      let yp = [0]; rawR.forEach(h => yp.push(yp[yp.length-1] + (h/sumR) * H));
+
+      // ── Pass 1: base cells ────────────────────────────
+      const bloomCanvas = document.createElement('canvas');
+      bloomCanvas.width = W; bloomCanvas.height = H;
+      const bc = bloomCanvas.getContext('2d');
+      bc.clearRect(0, 0, W, H);
+
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const x = xp[c], y = yp[r];
+          const cw = xp[c+1] - x, ch = yp[r+1] - y;
+          const bri = getBrightness(c, r, COLS, ROWS);
+
+          // Skip near-bg cells — let actual background show (seamless fade)
+          if (bri < 0.04) continue;
+
+          const col = palColor(bri);
+          ctx.fillStyle = rgb(col);
+          ctx.fillRect(x, y, cw, ch);
+
+          // Scan lines — fine vertical stripes
+          ctx.fillStyle = 'rgba(0,0,0,0.28)';
+          for (let lx = x; lx < x + cw; lx += 3) {
+            ctx.fillRect(lx, y, 1, ch);
+          }
+
+          // Bloom source: only bright cells go onto bloom layer
+          if (bri > 0.42) {
+            const alpha = (bri - 0.42) / 0.58;
+            bc.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${alpha * 0.9})`;
+            bc.fillRect(x, y, cw, ch);
+          }
+        }
+      }
+
+      // ── Pass 2: bloom composite ───────────────────────
+      // Layer 1 — wide soft glow
+      ctx.save();
+      ctx.filter = 'blur(22px)';
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = 0.55;
+      ctx.drawImage(bloomCanvas, 0, 0);
+      ctx.restore();
+
+      // Layer 2 — tighter crisp halo
+      ctx.save();
+      ctx.filter = 'blur(7px)';
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = 0.45;
+      ctx.drawImage(bloomCanvas, 0, 0);
+      ctx.restore();
+
+      // ── Pass 3: edge fade to background ──────────────
+      // Radial gradient: transparent center → solid BG at edges
+      const fade = ctx.createRadialGradient(
+        W * 0.62, H * 0.60, H * 0.10,   // inner circle (around the glow centre)
+        W * 0.50, H * 0.50, H * 0.76    // outer circle
+      );
+      fade.addColorStop(0,   'rgba(10,10,10,0)');
+      fade.addColorStop(0.55,'rgba(10,10,10,0.15)');
+      fade.addColorStop(0.78,'rgba(10,10,10,0.62)');
+      fade.addColorStop(1,   'rgba(10,10,10,1)');
+      ctx.fillStyle = fade;
+      ctx.fillRect(0, 0, W, H);
+
+      // Extra dark mask over the text zone (upper-left)
+      // so "Owen Kan" is always legible
+      const textMask = ctx.createLinearGradient(0, 0, W * 0.52, H * 0.55);
+      textMask.addColorStop(0,   'rgba(10,10,10,0.72)');
+      textMask.addColorStop(0.5, 'rgba(10,10,10,0.18)');
+      textMask.addColorStop(1,   'rgba(10,10,10,0)');
+      ctx.fillStyle = textMask;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    function setup() {
+      const dpr = window.devicePixelRatio || 1;
+      const W = canvas.offsetWidth;
+      const H = canvas.offsetHeight;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      ctx.scale(dpr, dpr);
+      drawPoster(W, H);
+    }
+
+    setup();
+    window.addEventListener('resize', () => {
+      ctx.setTransform(1, 0, 0, 1, 0, 0); // reset scale before re-setup
+      setup();
     });
-    let legend = donutData.map(d =>
-      `<div class="ring-legend-item"><div class="dot" style="background:${d.color}"></div>${d.label} ${d.pct}%</div>`
-    ).join('');
-    document.getElementById('donut-wrap').innerHTML = `
-      <svg class="ring-svg" width="68" height="68" viewBox="0 0 68 68">${paths}</svg>
-      <div class="ring-legend">${legend}</div>`;
   </script>
 
 </body>
