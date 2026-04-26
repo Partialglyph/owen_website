@@ -19,10 +19,19 @@
   src: url('./fonts/PPNeueMontreal-Medium.otf') format('opentype');
   font-weight: 500;
 }
+/* Targets the container and its children */
+.hero-text .sub {
+  font-family: 'NeueMontreal', sans-serif; /* Change this to your desired font */
+  font-weight: 500;                        /* Uses your 'Medium' weight */
+  color: #ffffff;                             /* Ensures it stays gray */
+  line-height: 1.3;                        /* Improves readability for stacked spans */
+  display: flex;
+  flex-direction: column;                  /* Stack the lines vertically */
+}
 
 body {
   background: #0a0a0a;
-  color: #fff;
+  color: #ffffff;
   font-family: 'NeueMontreal', 'Helvetica Neue', Arial, sans-serif;
   overflow-x: hidden;
 }
@@ -71,9 +80,9 @@ body {
     }
     .hero-text .sub span {
       font-size: clamp(0.58rem, 0.9vw, 0.74rem);
-      letter-spacing: 0.1em;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.38);
+      color: rgba(255, 255, 255, 0.712);
     }
 
     .scroll-hint {
@@ -159,7 +168,7 @@ body {
       <span class="name">Kan</span>
       <div class="sub">
         <span>grade 11 student @ pmss</span>
-        <span>photography · videography · programing (kinda)</span>
+
         <span>Vancouver BC</span>
       </div>
     </div>
@@ -168,7 +177,7 @@ body {
 
   <section class="bento-page">
     <div class="top-row">
-      <div class="top-name"><h2>Owen Kan</h2></div>
+      <div class="top-name"><h2>whats up</h2></div>
       <div class="panel" id="p-top-right"><div class="inner"></div></div>
     </div>
     <div class="bottom-row">
@@ -195,8 +204,8 @@ body {
     });
 
     // ── CONFIG ─────────────────────────────────────────
-    const CELL = 54;        // bigger cells
-    const GAP  = 3;
+    const CELL = 60;        // bigger cells
+    const GAP  = 2;
     const STEP = CELL + GAP;
 
     // Blue palette
