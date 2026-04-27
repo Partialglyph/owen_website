@@ -8,14 +8,47 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      background: #0a0a0a;
-      color: #fff;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      overflow-x: hidden;
-    }
+@font-face {
+  font-family: 'NeueMontreal';
+  /* Match the "Thin" file for your Light/300 weight */
+  src: url('fonts/PPNeueMontreal-Thin.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+}
 
-    /* ── HERO ────────────────────────────────────────── */
+@font-face {
+  font-family: 'NeueMontreal';
+  /* Match the "Medium" file */
+  src: url('fonts/PPNeueMontreal-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+/* Update the body to use NeueMontreal as the primary font */
+body {
+  background: #0a0a0a;
+  color: #ffffff;
+  font-family: 'NeueMontreal', Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Update Name and Title weights to match your font-face (300/500) */
+.hero-text .name {
+  font-weight: 300; /* Uses Thin/Light */
+}
+
+.top-name h2, .info-title {
+  font-family: 'NeueMontreal', sans-serif;
+  font-weight: 300;
+}
+
+/* Update Subtext and Stats to the Medium weight */
+.hero-text .sub span, .info-label, .info-tag, .info-stat {
+  font-family: 'NeueMontreal', sans-serif;
+  font-weight: 300; /* Uses Medium */
+}
+
+    /* ── HERO ───────────────────────────────────────── */
     .hero {
       width: 100%;
       height: 100vh;
@@ -49,9 +82,11 @@
     }
     .hero-text .sub span {
       font-size: clamp(0.58rem, 0.9vw, 0.74rem);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.38);
+      letter-spacing: 0.12em;
+      /* Change 'uppercase' to 'none' for normal case */
+      text-transform: none; 
+      /* Change the opacity from 0.38 to 1 for solid white */
+      color: rgba(255, 255, 255, 1); 
     }
     .scroll-hint {
       position: absolute;
@@ -63,15 +98,13 @@
       z-index: 10;
     }
 
-    /* ── BENTO ───────────────────────────────────────── */
+    /* ── BENTO ──────────────────────────────────────── */
     .bento-page {
       padding: 8px;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      /* no negative margin — hero and bento are separate, site elongates */
     }
-
     .panel {
       background: #0c0c0c;
       border: 1px solid rgba(255,255,255,0.11);
@@ -98,7 +131,6 @@
     .cn-bl { bottom:0; left:0;  border-width:0 0 1px 1px; }
     .cn-br { bottom:0; right:0; border-width:0 1px 1px 0; }
 
-    /* name + side panel row */
     .top-row {
       display: grid;
       grid-template-columns: 1fr 22%;
@@ -116,13 +148,12 @@
       letter-spacing: -0.01em;
     }
 
-    /* 3D graph — full width, tall */
+    /* ── GRAPH PANEL ────────────────────────────────── */
     .graph-panel {
       height: 70vh;
-      cursor: grab;
+      cursor: crosshair;
       overflow: hidden;
     }
-    .graph-panel:active { cursor: grabbing; }
     #three-canvas, #label-canvas {
       position: absolute;
       inset: 0;
@@ -131,7 +162,96 @@
     }
     #label-canvas { pointer-events: none; }
 
-    /* remaining bento panels */
+    /* ── INFO OVERLAY ───────────────────────────────── */
+    #node-info {
+      position: absolute;
+      width: 220px;
+      background: #0c0c0c;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 3px;
+      padding: 16px;
+      z-index: 30;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      transform: translateY(6px);
+    }
+    #node-info.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    /* bracket corners on info box */
+    #node-info .icn {
+      position: absolute;
+      width: 10px; height: 10px;
+      border-style: solid;
+      pointer-events: none;
+    }
+    #node-info .icn-tl { top:0; left:0;   border-width:1px 0 0 1px; }
+    #node-info .icn-tr { top:0; right:0;  border-width:1px 1px 0 0; }
+    #node-info .icn-bl { bottom:0; left:0;  border-width:0 0 1px 1px; }
+    #node-info .icn-br { bottom:0; right:0; border-width:0 1px 1px 0; }
+
+    .info-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 6px;
+    }
+    .info-title {
+      font-size: 1.05rem;
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      margin-bottom: 10px;
+    }
+    .info-accent-line {
+      height: 1px;
+      margin-bottom: 10px;
+      opacity: 0.4;
+    }
+    .info-desc {
+      font-size: 0.65rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 10px;
+    }
+    .info-stat {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.58rem;
+      color: rgba(255,255,255,0.28);
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .info-stat span:last-child { color: rgba(255,255,255,0.65); }
+    .info-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 10px;
+    }
+    .info-tag {
+      font-size: 0.52rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 2px;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.4);
+    }
+    .info-close {
+      position: absolute;
+      top: 10px; right: 12px;
+      font-size: 0.55rem;
+      color: rgba(255,255,255,0.2);
+      cursor: pointer;
+      letter-spacing: 0.1em;
+    }
+    .info-close:hover { color: rgba(255,255,255,0.6); }
+
+    /* ── BOTTOM BENTO ───────────────────────────────── */
     .bottom-row {
       display: grid;
       grid-template-columns: 27% 1fr 27%;
@@ -140,11 +260,127 @@
     .bl { display: grid; grid-template-rows: 1fr 2fr; gap: 6px; height: 52vh; }
     .bc { display: grid; grid-template-rows: 1fr 1fr; gap: 6px; }
     .br { height: 52vh; }
+
+    /* ── HEATMAP ────────────────────────────────────── */
+    #heatmap-wrap {
+      position: absolute;
+      inset: 0;
+      padding: 10px 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .hm-month-labels {
+      display: flex;
+      margin-left: 28px;
+      flex-shrink: 0;
+    }
+    .hm-month-label {
+      font-size: 0.48rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      font-family: 'NeueMontreal', monospace, sans-serif;
+      flex-shrink: 0;
+    }
+    .hm-body {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+      min-height: 0;
+    }
+    .hm-dow-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      flex-shrink: 0;
+      width: 24px;
+    }
+    .hm-dow {
+      font-size: 0.45rem;
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.22);
+      font-family: 'NeueMontreal', monospace, sans-serif;
+      line-height: 1;
+    }
+    .hm-week-grid {
+      display: flex;
+      gap: 2px;
+      flex: 1;
+      align-items: stretch;
+    }
+    .hm-week-col {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+    .hm-cell {
+      flex: 1;
+      position: relative;
+      border-radius: 0;
+      overflow: hidden;
+      cursor: default;
+      transition: opacity 0.15s;
+    }
+    .hm-cell:hover { opacity: 0.75; }
+    /* scanline overlay on each cell */
+    .hm-cell::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to right,
+        rgba(0,0,0,0.28) 0px,
+        rgba(0,0,0,0.28) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      pointer-events: none;
+    }
+    .hm-cell.faded { opacity: 0.22; }
+    /* bottom month nav */
+    .hm-nav {
+      display: flex;
+      gap: 3px;
+      flex-shrink: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .hm-nav::-webkit-scrollbar { display: none; }
+    .hm-nav-pill {
+      font-size: 0.5rem;
+      letter-spacing: 0.08em;
+      font-family: 'NeueMontreal', monospace, sans-serif;
+      color: rgba(255,255,255,0.28);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0;
+      padding: 3px 7px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      background: transparent;
+    }
+    .hm-nav-pill:hover { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.3); }
+    .hm-nav-pill.active {
+      background: #14294f;
+      color: #9dc6e1;
+      border-color: #477bb0;
+    }
+    .hm-readout {
+      font-size: 0.48rem;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.2);
+      font-family: 'NeueMontreal', monospace, sans-serif;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .hm-readout span { color: #9dc6e1; }
   </style>
 </head>
 <body>
 
-  <!-- ── HERO ─────────────────────────────────────────── -->
   <section class="hero">
     <canvas id="hero-canvas"></canvas>
     <div class="hero-text">
@@ -152,14 +388,13 @@
       <span class="name">Kan</span>
       <div class="sub">
         <span>Graphic Designer</span>
-        <span>Brand · Digital · Motion</span>
-        <span>Vancouver BC — Available</span>
+        <span>Student at PMSS</span>
+        <span>Vancouver BC</span>
       </div>
     </div>
     <div class="scroll-hint">scroll ↓</div>
   </section>
 
-  <!-- ── BENTO ─────────────────────────────────────────── -->
   <section class="bento-page">
 
     <div class="top-row">
@@ -167,10 +402,24 @@
       <div class="panel" id="p-top-right"><div class="inner"></div></div>
     </div>
 
-    <!-- 3D GRAPH PANEL -->
     <div class="panel graph-panel" id="p-graph">
       <canvas id="three-canvas"></canvas>
       <canvas id="label-canvas"></canvas>
+
+      <!-- Info overlay — lives inside the graph panel -->
+      <div id="node-info">
+        <div class="icn icn-tl"></div>
+        <div class="icn icn-tr"></div>
+        <div class="icn icn-bl"></div>
+        <div class="icn icn-br"></div>
+        <div class="info-close" id="info-close">✕ close</div>
+        <div class="info-label" id="info-cluster"></div>
+        <div class="info-title"  id="info-title"></div>
+        <div class="info-accent-line" id="info-line"></div>
+        <div class="info-desc"   id="info-desc"></div>
+        <div id="info-stats"></div>
+        <div class="info-tags"   id="info-tags"></div>
+      </div>
     </div>
 
     <div class="bottom-row">
@@ -179,7 +428,25 @@
         <div class="panel" id="p-bl-bot"><div class="inner"></div></div>
       </div>
       <div class="bc">
-        <div class="panel" id="p-bc-top"><div class="inner"></div></div>
+        <div class="panel" id="p-bc-top">
+          <div id="heatmap-wrap">
+            <div class="hm-month-labels" id="hm-month-labels"></div>
+            <div class="hm-body">
+              <div class="hm-dow-col">
+                <div class="hm-dow">Mon</div>
+                <div class="hm-dow">Tue</div>
+                <div class="hm-dow">Wed</div>
+                <div class="hm-dow">Thu</div>
+                <div class="hm-dow">Fri</div>
+                <div class="hm-dow">Sat</div>
+                <div class="hm-dow">Sun</div>
+              </div>
+              <div class="hm-week-grid" id="hm-week-grid"></div>
+            </div>
+            <div class="hm-readout">Hours this month: <span id="hm-total">-</span></div>
+            <div class="hm-nav" id="hm-nav"></div>
+          </div>
+        </div>
         <div class="panel" id="p-bc-bot"><div class="inner"></div></div>
       </div>
       <div class="panel br" id="p-br"><div class="inner"></div></div>
@@ -188,9 +455,7 @@
   </section>
 
   <script>
-    // ────────────────────────────────────────────────────
-    // CORNER BRACKETS
-    // ────────────────────────────────────────────────────
+    // ── CORNER BRACKETS ──────────────────────────────
     document.querySelectorAll('.panel').forEach(p => {
       ['tl','tr','bl','br'].forEach(pos => {
         const c = document.createElement('div');
@@ -199,143 +464,246 @@
       });
     });
 
-    // ────────────────────────────────────────────────────
-    // HERO — PIXEL CELL GRAPHIC
-    // ────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────
+    // HERO CELL GRAPHIC
+    // ────────────────────────────────────────────────
     const heroCanvas = document.getElementById('hero-canvas');
     const hCtx = heroCanvas.getContext('2d');
+    const CELL=60, GAP=2, STEP=60;
 
-    const CELL = 60, GAP = 2, STEP = 57;
-
-    const PAL = [
-      [10,  10,  14],
-      [14,  24,  52],
-      [28,  58, 110],
-      [55,  105,165],
-      [120, 175,215],
-      [195, 225,248],
-      [230, 242,255],
+    const PAL=[
+      [10,10,14],[14,24,52],[28,58,110],
+      [55,105,165],[120,175,215],[195,225,248],[230,242,255]
     ];
-
-    function sr(s) {
-      const x = Math.sin(s * 127.1 + 311.7) * 43758.5453;
-      return x - Math.floor(x);
+    function sr(s){const x=Math.sin(s*127.1+311.7)*43758.5453;return x-Math.floor(x);}
+    function getBri(c,r,COLS,ROWS){
+      const nx=c/COLS,ny=r/ROWS,cx=0.62,cy=0.52;
+      const dx=(nx-cx)*1.3,dy=(ny-cy)*1.1;
+      const n=(sr(c*0.41+r*0.29)-0.5)*0.18;
+      return Math.pow(Math.max(0,1-(Math.sqrt(dx*dx+dy*dy)+n)/0.95),1.6);
     }
-    function getBrightness(c, r, COLS, ROWS) {
-      const nx = c/COLS, ny = r/ROWS;
-      const cx = 0.62, cy = 0.52;
-      const dx = (nx-cx)*1.3, dy = (ny-cy)*1.1;
-      const dist = Math.sqrt(dx*dx+dy*dy);
-      const n = (sr(c*0.41+r*0.29)-0.5)*0.18;
-      return Math.pow(Math.max(0, 1-(dist+n)/0.95), 1.6);
-    }
-    function palColor(b) {
-      const stops=[0,.12,.28,.50,.70,.88,1];
-      for (let i=0;i<stops.length-1;i++) {
-        if (b<=stops[i+1]) {
-          const t=(b-stops[i])/(stops[i+1]-stops[i]);
-          const a=PAL[i],bv=PAL[i+1];
-          return [
-            Math.round(a[0]+(bv[0]-a[0])*t),
-            Math.round(a[1]+(bv[1]-a[1])*t),
-            Math.round(a[2]+(bv[2]-a[2])*t),
-          ];
+    function palColor(b){
+      const s=[0,.12,.28,.50,.70,.88,1];
+      for(let i=0;i<s.length-1;i++){
+        if(b<=s[i+1]){
+          const t=(b-s[i])/(s[i+1]-s[i]),a=PAL[i],bv=PAL[i+1];
+          return[Math.round(a[0]+(bv[0]-a[0])*t),Math.round(a[1]+(bv[1]-a[1])*t),Math.round(a[2]+(bv[2]-a[2])*t)];
         }
       }
       return PAL[PAL.length-1];
     }
-
-    let heroGrid=[], hW=0, hH=0;
-    let bloomCanvas=null, bCtx=null;
-
-    function buildHeroGrid() {
-      hW = heroCanvas.offsetWidth;
-      hH = heroCanvas.offsetHeight;
-      const COLS = Math.ceil(hW/STEP)+1;
-      const ROWS = Math.ceil(hH/STEP)+1;
+    let heroGrid=[],hW=0,hH=0,bloomC=null,bCtx2=null;
+    function buildHeroGrid(){
+      hW=heroCanvas.offsetWidth; hH=heroCanvas.offsetHeight;
+      const COLS=Math.ceil(hW/STEP)+1,ROWS=Math.ceil(hH/STEP)+1;
       heroGrid=[];
-      for (let r=0;r<ROWS;r++) {
-        for (let c=0;c<COLS;c++) {
-          const bri = getBrightness(c,r,COLS,ROWS);
-          if (bri<0.03) continue;
-          heroGrid.push({
-            x:c*STEP, y:r*STEP, bri,
-            blinkSpeed:  0.4+sr(c*73+r*37)*1.2,
-            blinkPhase:  sr(c*53+r*91+7)*Math.PI*2,
-            blinkDepth:  (0.06+sr(c*29+r*61+13)*0.18)*(0.5+(1-bri)*0.5),
-          });
-        }
+      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+        const bri=getBri(c,r,COLS,ROWS);
+        if(bri<0.03) continue;
+        heroGrid.push({x:c*STEP,y:r*STEP,bri,
+          blinkSpeed:0.4+sr(c*73+r*37)*1.2,
+          blinkPhase:sr(c*53+r*91+7)*Math.PI*2,
+          blinkDepth:(0.06+sr(c*29+r*61+13)*0.18)*(0.5+(1-bri)*0.5)
+        });
       }
-      // Rebuild cached bloom canvas
-      bloomCanvas = document.createElement('canvas');
-      bloomCanvas.width = hW; bloomCanvas.height = hH;
-      bCtx = bloomCanvas.getContext('2d');
+      bloomC=document.createElement('canvas');
+      bloomC.width=hW; bloomC.height=hH;
+      bCtx2=bloomC.getContext('2d');
     }
-
-    function drawHeroFrame(t) {
-      hCtx.fillStyle='#0a0a0a';
-      hCtx.fillRect(0,0,hW,hH);
-      bCtx.clearRect(0,0,hW,hH);
-
+    function drawHeroFrame(t){
+      hCtx.fillStyle='#0a0a0a'; hCtx.fillRect(0,0,hW,hH);
+      bCtx2.clearRect(0,0,hW,hH);
       heroGrid.forEach(({x,y,bri,blinkSpeed,blinkPhase,blinkDepth})=>{
-        const blink = Math.sin(t*blinkSpeed+blinkPhase);
-        const pulsed = Math.max(0,Math.min(1,bri+blink*blinkDepth));
-        const col = palColor(pulsed);
+        const p=Math.max(0,Math.min(1,bri+Math.sin(t*blinkSpeed+blinkPhase)*blinkDepth));
+        const col=palColor(p);
         hCtx.fillStyle=`rgb(${col[0]},${col[1]},${col[2]})`;
         hCtx.fillRect(x,y,CELL,CELL);
         hCtx.fillStyle='rgba(0,0,0,0.20)';
-        for (let lx=x;lx<x+CELL;lx+=4) hCtx.fillRect(lx,y,1,CELL);
-        if (pulsed>0.40) {
-          const alpha=((pulsed-0.40)/0.60)*0.88;
-          bCtx.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
-          bCtx.fillRect(x,y,CELL,CELL);
+        for(let lx=x;lx<x+CELL;lx+=4) hCtx.fillRect(lx,y,1,CELL);
+        if(p>0.40){
+          const a=((p-0.40)/0.60)*0.88;
+          bCtx2.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${a})`;
+          bCtx2.fillRect(x,y,CELL,CELL);
         }
       });
-
-      hCtx.save();
-      hCtx.filter='blur(22px)';
-      hCtx.globalCompositeOperation='screen';
-      hCtx.globalAlpha=0.52;
-      hCtx.drawImage(bloomCanvas,0,0);
-      hCtx.restore();
-
-      hCtx.save();
-      hCtx.filter='blur(7px)';
-      hCtx.globalCompositeOperation='screen';
-      hCtx.globalAlpha=0.38;
-      hCtx.drawImage(bloomCanvas,0,0);
-      hCtx.restore();
+      hCtx.save(); hCtx.filter='blur(22px)';
+      hCtx.globalCompositeOperation='screen'; hCtx.globalAlpha=0.52;
+      hCtx.drawImage(bloomC,0,0); hCtx.restore();
+      hCtx.save(); hCtx.filter='blur(7px)';
+      hCtx.globalCompositeOperation='screen'; hCtx.globalAlpha=0.38;
+      hCtx.drawImage(bloomC,0,0); hCtx.restore();
 
       // Radial edge fade
       const fade=hCtx.createRadialGradient(hW*.60,hH*.50,hH*.06,hW*.50,hH*.48,hH*.80);
-      fade.addColorStop(0,   'rgba(10,10,14,0)');
+      fade.addColorStop(0,'rgba(10,10,14,0)');
       fade.addColorStop(0.45,'rgba(10,10,14,0.08)');
       fade.addColorStop(0.70,'rgba(10,10,14,0.55)');
       fade.addColorStop(0.88,'rgba(10,10,14,0.88)');
-      fade.addColorStop(1,   'rgba(10,10,14,1)');
+      fade.addColorStop(1,'rgba(10,10,14,1)');
       hCtx.fillStyle=fade; hCtx.fillRect(0,0,hW,hH);
 
       // Text-zone mask
       const tm=hCtx.createLinearGradient(0,0,hW*.46,hH*.48);
-      tm.addColorStop(0,   'rgba(10,10,14,0.82)');
+      tm.addColorStop(0,'rgba(10,10,14,0.82)');
       tm.addColorStop(0.55,'rgba(10,10,14,0.08)');
-      tm.addColorStop(1,   'rgba(10,10,14,0)');
+      tm.addColorStop(1,'rgba(10,10,14,0)');
       hCtx.fillStyle=tm; hCtx.fillRect(0,0,hW,hH);
-    }
 
-    function setupHero() {
+      // ── Bottom blend into bento ─────────────────────
+      // Smooth gradient from transparent → #0a0a0a over last 35% of hero
+      const bot=hCtx.createLinearGradient(0,hH*0.65,0,hH);
+      bot.addColorStop(0,'rgba(10,10,10,0)');
+      bot.addColorStop(1,'rgba(10,10,10,1)');
+      hCtx.fillStyle=bot; hCtx.fillRect(0,0,hW,hH);
+    }
+    function setupHero(){
       const dpr=window.devicePixelRatio||1;
-      const w=heroCanvas.offsetWidth, h=heroCanvas.offsetHeight;
+      const w=heroCanvas.offsetWidth,h=heroCanvas.offsetHeight;
       heroCanvas.width=w*dpr; heroCanvas.height=h*dpr;
       hCtx.setTransform(dpr,0,0,dpr,0,0);
       buildHeroGrid();
     }
     setupHero();
-    window.addEventListener('resize',()=>{ hCtx.setTransform(1,0,0,1,0,0); setupHero(); });
+    window.addEventListener('resize',()=>{hCtx.setTransform(1,0,0,1,0,0);setupHero();});
+    let h0=null;
+    function heroLoop(ts){if(!h0)h0=ts;drawHeroFrame((ts-h0)/1000);requestAnimationFrame(heroLoop);}
+    requestAnimationFrame(heroLoop);
 
-    // ────────────────────────────────────────────────────
-    // 3D NETWORK GRAPH
-    // ────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────
+    // NODE DATA — INFO CONTENT
+    // ────────────────────────────────────────────────
+    const NODE_INFO = [
+      {
+        cluster: 'Creative',
+        title: 'Photography',
+        desc: 'Documentary and editorial work centred on natural light and composed silence. Drawn to the space between moments.',
+        stats: [['Experience','4 years'],['Primary body','Sony A7IV'],['Style','Editorial · Documentary']],
+        tags: ['Portrait','Street','Editorial'],
+      },
+      {
+        cluster: 'Creative',
+        title: 'Videography',
+        desc: 'Short-form brand films and personal narratives. Colour grading as a design language, not a correction.',
+        stats: [['Experience','3 years'],['Post','DaVinci Resolve'],['Specialty','Colour · Motion']],
+        tags: ['Brand Film','Colour Grade','Motion'],
+      },
+      {
+        cluster: 'Creative',
+        title: 'Guitar',
+        desc: 'Eight years of playing, mostly self-taught. Fingerpicking and jazz harmony. Music as a parallel design practice.',
+        stats: [['Experience','8 years'],['Style','Fingerpicking · Jazz'],['Influences','Chet Atkins · Joe Pass']],
+        tags: ['Acoustic','Jazz','Ambient'],
+      },
+      {
+        cluster: 'Professional',
+        title: 'Programming',
+        desc: 'Front-end focused. Code used as a design tool — Three.js, animation, and generative graphics are the interest.',
+        stats: [['Experience','5 years'],['Stack','JS · Python · React'],['Focus','Creative code · UI']],
+        tags: ['JavaScript','Three.js','React'],
+      },
+      {
+        cluster: 'Professional',
+        title: 'Business',
+        desc: 'Brand strategy, client scoping, and project delivery. Understanding business context is what separates good design from useful design.',
+        stats: [['Context','Freelance + Studio'],['Focus','Brand Strategy'],['Strength','Client Relations']],
+        tags: ['Strategy','Branding','Scoping'],
+      },
+      {
+        cluster: 'Professional',
+        title: 'Debate',
+        desc: 'Provincial-level competitor. Argumentation, rapid research, and public speaking under pressure.',
+        stats: [['Level','Provincial'],['Format','British Parliamentary'],['Skill','Rhetoric · Research']],
+        tags: ['Public Speaking','Logic','Research'],
+      },
+      {
+        cluster: 'Physical',
+        title: 'Kayaking',
+        desc: 'Pacific coast paddler. Burrard Inlet, Howe Sound, BC interior lakes. Water as reset and perspective.',
+        stats: [['Experience','6 years'],['Waters','Pacific Coast · BC'],['Type','Sea kayak · Touring']],
+        tags: ['Sea Kayak','BC Coast','Outdoors'],
+      },
+      {
+        cluster: 'Physical',
+        title: 'First Aid',
+        desc: 'Standard First Aid + CPR-C certified. Wilderness first aid trained. Preparedness as an extension of care.',
+        stats: [['Certification','Standard FA + CPR-C'],['Additional','Wilderness FA'],['Status','Current']],
+        tags: ['CPR-C','Wilderness','Emergency'],
+      },
+    ];
+
+    // Cluster side: 0=left, 1=right, 2=bottom
+    const CLUSTER_SIDE = [0,0,0, 1,1,1, 2,2];
+
+    // ────────────────────────────────────────────────
+    // INFO PANEL LOGIC
+    // ────────────────────────────────────────────────
+    const nodeInfo   = document.getElementById('node-info');
+    const infoClose  = document.getElementById('info-close');
+    let activeNode   = -1;
+
+    function hexToCss(hex) {
+      const r=(hex>>16)&0xff,g=(hex>>8)&0xff,b=hex&0xff;
+      return `rgb(${r},${g},${b})`;
+    }
+
+    function showInfo(idx, hubColor) {
+      if (activeNode === idx) { hideInfo(); return; }
+      activeNode = idx;
+      const d = NODE_INFO[idx];
+      const col = hexToCss(hubColor);
+
+      document.getElementById('info-cluster').textContent = d.cluster;
+      document.getElementById('info-title').textContent   = d.title;
+      document.getElementById('info-desc').textContent    = d.desc;
+      const line = document.getElementById('info-line');
+      line.style.background = col;
+
+      // bracket corner colors
+      nodeInfo.querySelectorAll('.icn').forEach(c => c.style.borderColor = hexToCss(hubColor).replace('rgb','rgba').replace(')',',0.5)'));
+
+      const statsEl = document.getElementById('info-stats');
+      statsEl.innerHTML = d.stats.map(([k,v])=>
+        `<div class="info-stat"><span>${k}</span><span>${v}</span></div>`
+      ).join('');
+
+      const tagsEl = document.getElementById('info-tags');
+      tagsEl.innerHTML = d.tags.map(t=>`<div class="info-tag">${t}</div>`).join('');
+
+      // Position: left/right/bottom edge of graph panel
+      const side = CLUSTER_SIDE[idx];
+      const pad = 18;
+      nodeInfo.style.top    = '';
+      nodeInfo.style.bottom = '';
+      nodeInfo.style.left   = '';
+      nodeInfo.style.right  = '';
+
+      if (side === 0) {         // left cluster → box on left
+        nodeInfo.style.left   = `${pad}px`;
+        nodeInfo.style.top    = '50%';
+        nodeInfo.style.transform = 'translateY(-50%)';
+      } else if (side === 1) { // right cluster → box on right
+        nodeInfo.style.right  = `${pad}px`;
+        nodeInfo.style.top    = '50%';
+        nodeInfo.style.transform = 'translateY(-50%)';
+      } else {                  // bottom cluster → box bottom-center
+        nodeInfo.style.bottom = `${pad}px`;
+        nodeInfo.style.left   = '50%';
+        nodeInfo.style.transform = 'translateX(-50%)';
+      }
+
+      nodeInfo.classList.add('visible');
+    }
+
+    function hideInfo() {
+      activeNode = -1;
+      nodeInfo.classList.remove('visible');
+    }
+
+    infoClose.addEventListener('click', hideInfo);
+
+    // ────────────────────────────────────────────────
+    // THREE.JS NETWORK
+    // ────────────────────────────────────────────────
     const threeCanvas = document.getElementById('three-canvas');
     const labelCanvas = document.getElementById('label-canvas');
     const lCtx = labelCanvas.getContext('2d');
@@ -344,233 +712,315 @@
     function initThree() {
       const W = threeCanvas.offsetWidth;
       const H = threeCanvas.offsetHeight;
-      threeCanvas.width  = W * (window.devicePixelRatio||1);
-      threeCanvas.height = H * (window.devicePixelRatio||1);
 
-      const renderer = new THREE.WebGLRenderer({
-        canvas: threeCanvas,
-        antialias: true,
-        alpha: true,
-      });
+      const renderer = new THREE.WebGLRenderer({ canvas:threeCanvas, antialias:true, alpha:true });
       renderer.setSize(W, H);
       renderer.setPixelRatio(window.devicePixelRatio||1);
       renderer.setClearColor(0x000000, 0);
 
-      const scene = new THREE.Scene();
+      const scene  = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(52, W/H, 0.1, 100);
       camera.position.z = 11;
 
-      // ── Node data ──────────────────────────────────
-      // Three clusters — positioned to feel like the reference
-      // Creative: Photo, Video, Guitar  → yellow-green
-      // Professional: Programming, Business, Debate → blue
-      // Physical: Kayaking, First Aid  → teal / coral
       const HUBS = [
-        // Creative cluster (left)
+        // Creative (left)
         { label:'Photography', x:-3.2, y: 1.4, z: 0.3, col:0x14294f, r:0.40 },
         { label:'Videography', x:-1.8, y: 2.3, z:-0.5, col:0x1f3f70, r:0.36 },
         { label:'Guitar',      x:-4.0, y:-0.2, z: 0.9, col:0x3a6aa1, r:0.32 },
-        // Professional cluster (right)
+        // Professional (right)
         { label:'Programming', x: 2.4, y: 1.4, z:-0.4, col:0x477bb0, r:0.42 },
         { label:'Business',    x: 3.5, y:-0.3, z: 0.6, col:0x9dc6e1, r:0.38 },
         { label:'Debate',      x: 1.8, y:-1.2, z: 0.7, col:0x4e81b2, r:0.32 },
-        // Physical cluster (bottom-center)
-        { label:'Kayaking',   x:-0.4, y:-2.8, z: 0.9, col:0x122344, r:0.36 },
-        { label:'First Aid',  x: 1.2, y:-2.4, z:-0.6, col:0xe1f1fd, r:0.32 },
+        // Physical (bottom)
+        { label:'Kayaking',    x:-0.4, y:-2.8, z: 0.9, col:0x122344, r:0.36 },
+        { label:'First Aid',   x: 1.2, y:-2.4, z:-0.6, col:0xe1f1fd, r:0.32 },
       ];
 
-      // Hub-to-hub edges [indexA, indexB]
       const HUB_EDGES = [
-        [0,1],[0,2],[1,2],           // creative internal
-        [3,4],[4,5],[3,5],           // professional internal
-        [6,7],                        // physical internal
-        [1,3],[0,3],                 // video/photo → programming (digital tools)
-        [5,7],                        // debate → first aid (leadership)
-        [6,2],                        // kayaking → guitar (leisure)
-        [0,6],[4,3],                 // cross connections
+        [0,1],[0,2],[1,2],
+        [3,4],[4,5],[3,5],
+        [6,7],
+        [1,3],[0,3],
+        [5,7],[6,2],
+        [0,6],[4,3],
       ];
 
       const graphGroup = new THREE.Group();
       scene.add(graphGroup);
 
-      // Build hub meshes
+      // Hub meshes (keep reference for raycasting)
       const hubMeshes = HUBS.map(h => {
-        const geo = new THREE.SphereGeometry(h.r, 20, 20);
-        const mat = new THREE.MeshBasicMaterial({ color: h.col });
-        const mesh = new THREE.Mesh(geo, mat);
+        const mesh = new THREE.Mesh(
+          new THREE.SphereGeometry(h.r, 24, 24),
+          new THREE.MeshBasicMaterial({ color: h.col })
+        );
         mesh.position.set(h.x, h.y, h.z);
         graphGroup.add(mesh);
         return mesh;
       });
 
-      // Glow halos around hubs (slightly larger, transparent)
-      HUBS.forEach((h, i) => {
-        const geo = new THREE.SphereGeometry(h.r * 1.8, 20, 20);
-        const mat = new THREE.MeshBasicMaterial({
-          color: h.col,
-          transparent: true,
-          opacity: 0.08,
-        });
-        const halo = new THREE.Mesh(geo, mat);
+      // Halo glow rings
+      HUBS.forEach((h,i) => {
+        const halo = new THREE.Mesh(
+          new THREE.SphereGeometry(h.r*1.9, 20, 20),
+          new THREE.MeshBasicMaterial({ color:h.col, transparent:true, opacity:0.07 })
+        );
         halo.position.copy(hubMeshes[i].position);
         graphGroup.add(halo);
       });
 
-      // Satellites around each hub
+      // Satellites
       const satPositions = [];
-      HUBS.forEach((h, hi) => {
-        const count = 10 + Math.floor(sr(hi * 97) * 8); // 10–17 per hub
-        for (let i = 0; i < count; i++) {
-          const phi   = sr(hi*41+i*13) * Math.PI * 2;
-          const theta = sr(hi*67+i*29) * Math.PI;
-          const dist  = 0.9 + sr(hi*53+i*17) * 0.9;
-          const sx = h.x + dist * Math.sin(theta) * Math.cos(phi);
-          const sy = h.y + dist * Math.sin(theta) * Math.sin(phi);
-          const sz = h.z + dist * Math.cos(theta);
-          const sr2 = 0.06 + sr(hi*31+i*19) * 0.08;
-          const geo = new THREE.SphereGeometry(sr2, 8, 8);
-          const mat = new THREE.MeshBasicMaterial({
-            color: h.col,
-            transparent: true,
-            opacity: 0.55 + sr(hi*23+i*37)*0.35,
-          });
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.position.set(sx, sy, sz);
+      HUBS.forEach((h,hi) => {
+        const count = 10 + Math.floor(sr(hi*97)*8);
+        for (let i=0;i<count;i++) {
+          const phi  = sr(hi*41+i*13)*Math.PI*2;
+          const theta= sr(hi*67+i*29)*Math.PI;
+          const dist = 0.9+sr(hi*53+i*17)*0.9;
+          const sx=h.x+dist*Math.sin(theta)*Math.cos(phi);
+          const sy=h.y+dist*Math.sin(theta)*Math.sin(phi);
+          const sz=h.z+dist*Math.cos(theta);
+          const mesh=new THREE.Mesh(
+            new THREE.SphereGeometry(0.06+sr(hi*31+i*19)*0.07,8,8),
+            new THREE.MeshBasicMaterial({color:h.col,transparent:true,opacity:0.5+sr(hi*23+i*37)*0.35})
+          );
+          mesh.position.set(sx,sy,sz);
           graphGroup.add(mesh);
-          satPositions.push({ pos:[sx,sy,sz], hubIdx:hi });
+          satPositions.push({pos:[sx,sy,sz],hubIdx:hi});
         }
       });
 
-      // Build all edge geometry in one LineSegments call
-      const lineVerts = [];
-      const lineColors = [];
-
-      function addEdge(ax,ay,az, bx,by,bz, col, alpha) {
-        lineVerts.push(ax,ay,az, bx,by,bz);
-        const r=((col>>16)&0xff)/255;
-        const g=((col>>8)&0xff)/255;
-        const b=(col&0xff)/255;
-        lineColors.push(r,g,b,alpha, r,g,b,alpha);
+      // All edges in one LineSegments
+      const verts=[];
+      function addEdge(ax,ay,az,bx,by,bz){verts.push(ax,ay,az,bx,by,bz);}
+      HUB_EDGES.forEach(([a,b])=>{const ha=HUBS[a],hb=HUBS[b];addEdge(ha.x,ha.y,ha.z,hb.x,hb.y,hb.z);});
+      satPositions.forEach(({pos,hubIdx})=>{const h=HUBS[hubIdx];addEdge(h.x,h.y,h.z,pos[0],pos[1],pos[2]);});
+      for(let i=0;i<satPositions.length;i++) for(let j=i+1;j<satPositions.length;j++){
+        if(satPositions[i].hubIdx!==satPositions[j].hubIdx) continue;
+        if(sr(i*83+j*47)>0.18) continue;
+        const pi=satPositions[i].pos,pj=satPositions[j].pos;
+        const dx=pi[0]-pj[0],dy=pi[1]-pj[1],dz=pi[2]-pj[2];
+        if(dx*dx+dy*dy+dz*dz>4) continue;
+        addEdge(pi[0],pi[1],pi[2],pj[0],pj[1],pj[2]);
       }
+      const lineGeo=new THREE.BufferGeometry();
+      lineGeo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+      graphGroup.add(new THREE.LineSegments(lineGeo,
+        new THREE.LineBasicMaterial({color:0x4477aa,transparent:true,opacity:0.20})));
 
-      // Hub–hub edges
-      HUB_EDGES.forEach(([a,b]) => {
-        const ha=HUBS[a], hb=HUBS[b];
-        const midCol = HUBS[a].col; // use source color
-        addEdge(ha.x,ha.y,ha.z, hb.x,hb.y,hb.z, midCol, 0.28);
+      // ── Mouse tilt ──────────────────────────────────
+      let targetRotX=0,targetRotY=0,curRotX=0,curRotY=0;
+      graphPanel.addEventListener('mousemove',e=>{
+        const r=graphPanel.getBoundingClientRect();
+        targetRotY=((e.clientX-r.left)/r.width-0.5)*1.4;
+        targetRotX=((e.clientY-r.top)/r.height-0.5)*0.8;
       });
+      graphPanel.addEventListener('mouseleave',()=>{targetRotX=0;targetRotY=0;});
 
-      // Hub–satellite edges
-      satPositions.forEach(({ pos, hubIdx }) => {
-        const h = HUBS[hubIdx];
-        addEdge(h.x,h.y,h.z, pos[0],pos[1],pos[2], h.col, 0.13);
-      });
+      // ── Raycasting — click nodes ─────────────────────
+      const raycaster = new THREE.Raycaster();
+      raycaster.params.Mesh = {};
+      const mouse = new THREE.Vector2();
 
-      // A few satellite–satellite edges within same cluster
-      for (let i=0; i<satPositions.length; i++) {
-        for (let j=i+1; j<satPositions.length; j++) {
-          if (satPositions[i].hubIdx !== satPositions[j].hubIdx) continue;
-          if (sr(i*83+j*47) > 0.18) continue; // sparse
-          const pi=satPositions[i].pos, pj=satPositions[j].pos;
-          const dx=pi[0]-pj[0],dy=pi[1]-pj[1],dz=pi[2]-pj[2];
-          if (dx*dx+dy*dy+dz*dz>4) continue; // only nearby
-          addEdge(pi[0],pi[1],pi[2], pj[0],pj[1],pj[2], HUBS[satPositions[i].hubIdx].col, 0.08);
+      graphPanel.addEventListener('click', e => {
+        // Don't trigger if user clicked the info box or close btn
+        if (e.target === nodeInfo || nodeInfo.contains(e.target)) return;
+
+        const rect = threeCanvas.getBoundingClientRect();
+        mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
+        mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
+        raycaster.setFromCamera(mouse, camera);
+
+        // Slightly inflate for easier clicking
+        const hits = raycaster.intersectObjects(hubMeshes);
+        if (hits.length > 0) {
+          const idx = hubMeshes.indexOf(hits[0].object);
+          if (idx !== -1) showInfo(idx, HUBS[idx].col);
+        } else {
+          hideInfo();
         }
-      }
-
-      const lineGeo = new THREE.BufferGeometry();
-      lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(lineVerts, 3));
-      // Use VertexColors for per-edge coloring
-      const lineMat = new THREE.LineBasicMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.22,
       });
-      graphGroup.add(new THREE.LineSegments(lineGeo, lineMat));
 
-      // ── Mouse tilt ─────────────────────────────────
-      let targetRotX=0, targetRotY=0, curRotX=0, curRotY=0;
-      graphPanel.addEventListener('mousemove', e => {
-        const rect = graphPanel.getBoundingClientRect();
-        targetRotY = ((e.clientX-rect.left)/rect.width  - 0.5) * 1.4;
-        targetRotX = ((e.clientY-rect.top) /rect.height - 0.5) * 0.8;
-      });
-      graphPanel.addEventListener('mouseleave', () => { targetRotX=0; targetRotY=0; });
-
-      // ── Labels ─────────────────────────────────────
+      // ── Labels ──────────────────────────────────────
       function renderLabels() {
-        const lW = labelCanvas.offsetWidth;
-        const lH = labelCanvas.offsetHeight;
-        labelCanvas.width  = lW * (window.devicePixelRatio||1);
-        labelCanvas.height = lH * (window.devicePixelRatio||1);
+        const lW=labelCanvas.offsetWidth, lH=labelCanvas.offsetHeight;
+        labelCanvas.width=lW*(window.devicePixelRatio||1);
+        labelCanvas.height=lH*(window.devicePixelRatio||1);
         lCtx.setTransform(window.devicePixelRatio||1,0,0,window.devicePixelRatio||1,0,0);
         lCtx.clearRect(0,0,lW,lH);
-
-        HUBS.forEach((h, i) => {
-          const worldPos = new THREE.Vector3();
-          hubMeshes[i].getWorldPosition(worldPos);
-          const proj = worldPos.clone().project(camera);
-          const sx = (proj.x+1)/2*lW;
-          const sy = (-proj.y+1)/2*lH;
-
-          // Hub color for label
-const r = ((h.col >> 16) & 0xff), 
-      g = ((h.col >> 8) & 0xff), 
-      b = (h.col & 0xff);
-
-// 1. Change name to 'NeueMontreal' 
-// 2. Ensure weight (300) matches your @font-face definition
-lCtx.font = "300 11px 'NeueMontreal', sans-serif";
-
-lCtx.letterSpacing = '0.08em';
-
-lCtx.fillStyle = "rgba(255, 255, 255, 0.92)";
-lCtx.fillText(h.label.toUpperCase(), sx + h.r * 28 + 4, sy + 4);
+        HUBS.forEach((h,i)=>{
+          const wp=new THREE.Vector3();
+          hubMeshes[i].getWorldPosition(wp);
+          const proj=wp.clone().project(camera);
+          const sx=(proj.x+1)/2*lW, sy=(-proj.y+1)/2*lH;
+          const r=(h.col>>16)&0xff,g=(h.col>>8)&0xff,b=h.col&0xff;
+          lCtx.font = "300 10px 'NeueMontreal', sans-serif"; 
+    
+        lCtx.letterSpacing = '0.05em'; // Optional: add tracking for better legibility
+        lCtx.fillStyle = "rgba(255, 255, 255, 1)";
+        lCtx.fillText(h.label.toUpperCase(), sx + h.r * 28 + 4, sy + 4);
         });
       }
 
-      // ── Animate ────────────────────────────────────
-      const clock = new THREE.Clock();
-      function threeLoop() {
+      // ── Animate ─────────────────────────────────────
+      const clock=new THREE.Clock();
+      function threeLoop(){
         requestAnimationFrame(threeLoop);
-        const elapsed = clock.getElapsedTime();
-
-        // Smooth mouse tilt
-        curRotX += (targetRotX-curRotX)*0.04;
-        curRotY += (targetRotY-curRotY)*0.04;
-
-        // Slow auto-rotation + mouse override
-        graphGroup.rotation.y = curRotY + elapsed * 0.04;
-        graphGroup.rotation.x = curRotX;
-
-        renderer.render(scene, camera);
+        const elapsed=clock.getElapsedTime();
+        curRotX+=(targetRotX-curRotX)*0.04;
+        curRotY+=(targetRotY-curRotY)*0.04;
+        graphGroup.rotation.y=curRotY+elapsed*0.04;
+        graphGroup.rotation.x=curRotX;
+        renderer.render(scene,camera);
         renderLabels();
       }
       threeLoop();
 
-      // Handle resize
-      window.addEventListener('resize', () => {
-        const nW = threeCanvas.offsetWidth;
-        const nH = threeCanvas.offsetHeight;
-        renderer.setSize(nW, nH);
-        camera.aspect = nW/nH;
+      window.addEventListener('resize',()=>{
+        const nW=threeCanvas.offsetWidth,nH=threeCanvas.offsetHeight;
+        renderer.setSize(nW,nH);
+        camera.aspect=nW/nH;
         camera.updateProjectionMatrix();
       });
     }
 
-    // Init Three after layout settles
-    requestAnimationFrame(() => initThree());
+    requestAnimationFrame(()=>initThree());
 
-    // ────────────────────────────────────────────────────
-    // HERO ANIMATION LOOP
-    // ────────────────────────────────────────────────────
-    let h0=null;
-    function heroLoop(ts) {
-      if (!h0) h0=ts;
-      drawHeroFrame((ts-h0)/1000);
-      requestAnimationFrame(heroLoop);
-    }
-    requestAnimationFrame(heroLoop);
+    // ────────────────────────────────────────────────
+    // HEATMAP — github-style, weeks × days-of-week
+    // ────────────────────────────────────────────────
+    (function() {
+      const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun',
+                      'Jul','Aug','Sep','Oct','Nov','Dec'];
+      const MONTH_FULL = ['January','February','March','April','May','June',
+                          'July','August','September','October','November','December'];
+
+      // Deterministic fake hours per day (0–10)
+      function hoursForDate(y, m, d) {
+        const v = Math.abs(Math.sin(y*374.1 + m*53.7 + d*127.3) * 43758.5);
+        const n = v - Math.floor(v);
+        const dow = new Date(y, m, d).getDay(); // 0=Sun
+        const isWeekend = dow === 0 || dow === 6;
+        if (n < (isWeekend ? 0.48 : 0.18)) return 0;
+        return Math.round(n * (isWeekend ? 5 : 10) * 10) / 10;
+      }
+
+      // Blue heat scale — no rounded corners, scanlines via CSS ::after
+      function heatBg(h) {
+        if (h <= 0)  return '#111118';
+        if (h < 1.5) return '#0e1e3a';
+        if (h < 3)   return '#14294f';
+        if (h < 4.5) return '#1f3f70';
+        if (h < 6)   return '#3a6aa1';
+        if (h < 8)   return '#477bb0';
+        return '#9dc6e1';
+      }
+      function heatGlow(h) {
+        if (h >= 8)   return '0 0 5px 1px rgba(157,198,225,0.5),0 0 10px 2px rgba(71,123,176,0.28)';
+        if (h >= 6)   return '0 0 3px 1px rgba(71,123,176,0.3)';
+        return 'none';
+      }
+
+      const now = new Date();
+      let activeMonth = now.getMonth();
+      let activeYear  = now.getFullYear();
+
+      // We show the full year of activeYear, highlight activeMonth
+      const grid     = document.getElementById('hm-week-grid');
+      const mlabels  = document.getElementById('hm-month-labels');
+      const totalEl  = document.getElementById('hm-total');
+      const nav      = document.getElementById('hm-nav');
+
+      // Build month nav pills (Jan–Dec for activeYear)
+      function buildNav() {
+        nav.innerHTML = '';
+        MONTHS.forEach((mn, mi) => {
+          const pill = document.createElement('div');
+          pill.className = 'hm-nav-pill' + (mi === activeMonth ? ' active' : '');
+          pill.textContent = mn + ' \'' + String(activeYear).slice(2);
+          pill.addEventListener('click', () => { activeMonth = mi; render(); });
+          nav.appendChild(pill);
+        });
+        // Scroll active pill into view
+        const activePill = nav.querySelector('.active');
+        if (activePill) activePill.scrollIntoView({inline:'center', behavior:'smooth'});
+      }
+
+      function render() {
+        grid.innerHTML = '';
+        mlabels.innerHTML = '';
+
+        // Full year: Jan 1 → Dec 31 of activeYear
+        const yearStart = new Date(activeYear, 0, 1);
+        // Offset: make Mon = index 0 (JS: Sun=0 Mon=1... so (dow+6)%7)
+        const startOffset = (yearStart.getDay() + 6) % 7;
+
+        // Total weeks needed
+        const daysInYear = ((activeYear % 4 === 0 && activeYear % 100 !== 0) || activeYear % 400 === 0) ? 366 : 365;
+        const totalWeeks = Math.ceil((daysInYear + startOffset) / 7);
+
+        // Month label positions: track which week each month starts on
+        const monthWeekStart = {};
+        for (let dayIdx = 0; dayIdx < daysInYear; dayIdx++) {
+          const d = new Date(activeYear, 0, 1 + dayIdx);
+          if (d.getDate() === 1) {
+            monthWeekStart[d.getMonth()] = Math.floor((dayIdx + startOffset) / 7);
+          }
+        }
+
+        // Build month label row — flex children sized to week fractions
+        // We'll position them absolutely relative to a wrapper
+        mlabels.style.position = 'relative';
+        mlabels.style.height = '14px';
+        mlabels.style.marginLeft = '28px';
+        MONTHS.forEach((mn, mi) => {
+          const weekIdx = monthWeekStart[mi];
+          if (weekIdx === undefined) return;
+          const pct = (weekIdx / totalWeeks) * 100;
+          const el = document.createElement('div');
+          el.className = 'hm-month-label';
+          el.textContent = mn;
+          el.style.cssText = `position:absolute;left:${pct}%;`;
+          mlabels.appendChild(el);
+        });
+
+        // Compute month total for activeMonth
+        const daysInActive = new Date(activeYear, activeMonth + 1, 0).getDate();
+        let monthTotal = 0;
+        for (let d = 1; d <= daysInActive; d++) monthTotal += hoursForDate(activeYear, activeMonth, d);
+        totalEl.textContent = Math.round(monthTotal * 10) / 10 + ' hrs';
+
+        // Build week columns
+        for (let w = 0; w < totalWeeks; w++) {
+          const col = document.createElement('div');
+          col.className = 'hm-week-col';
+          for (let dow = 0; dow < 7; dow++) {
+            const dayIdx = w * 7 + dow - startOffset;
+            const cell = document.createElement('div');
+            cell.className = 'hm-cell';
+            if (dayIdx < 0 || dayIdx >= daysInYear) {
+              cell.style.background = 'transparent';
+              cell.style.pointerEvents = 'none';
+            } else {
+              const d = new Date(activeYear, 0, 1 + dayIdx);
+              const dm = d.getMonth(), dd = d.getDate();
+              const h = hoursForDate(activeYear, dm, dd);
+              cell.style.background = heatBg(h);
+              cell.style.boxShadow  = heatGlow(h);
+              // Fade weeks outside active month
+              if (dm !== activeMonth) cell.classList.add('faded');
+              cell.title = `${MONTH_FULL[dm]} ${dd}: ${h}h`;
+            }
+            col.appendChild(cell);
+          }
+          grid.appendChild(col);
+        }
+
+        buildNav();
+      }
+
+      render();
+    })();
   </script>
 
 </body>
