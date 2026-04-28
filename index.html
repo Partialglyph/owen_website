@@ -166,6 +166,8 @@ body {
     #node-info {
       position: absolute;
       width: 220px;
+      top: 0;
+      bottom: 0;
       background: #0c0c0c;
       border: 1px solid rgba(255,255,255,0.14);
       border-radius: 3px;
@@ -174,12 +176,16 @@ body {
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.22s ease, transform 0.22s ease;
-      transform: translateY(6px);
+      transform: translateX(-8px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
     }
+    #node-info::-webkit-scrollbar { display: none; }
     #node-info.visible {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(0);
+      transform: translateX(0);
     }
     /* bracket corners on info box */
     #node-info .icn {
@@ -316,13 +322,16 @@ body {
       flex: 1;
     }
     .hm-cell {
-      flex: 1;
+      width: 100%;
+      aspect-ratio: 1 / 1;
       position: relative;
       border-radius: 0;
       overflow: hidden;
       cursor: default;
       transition: opacity 0.15s;
+      flex-shrink: 0;
     }
+    .hm-week-col { align-items: flex-start; }
     .hm-cell:hover { opacity: 0.75; }
     /* scanline overlay on each cell */
     .hm-cell::after {
@@ -377,6 +386,157 @@ body {
       flex-shrink: 0;
     }
     .hm-readout span { color: #9dc6e1; }
+
+    /* ── FAN ALBUM ─────────────────────────────────── */
+    .top-name { flex-direction: column; }
+
+    #fan-album {
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Perspective container */
+    #fan-stage {
+      position: absolute;
+      inset: 0;
+      bottom: 36px;
+      perspective: 580px;
+      perspective-origin: 50% 42%;
+    }
+
+    /* Tilted ring — rotateX gives the overhead "book spread" look */
+    #fan-ring {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      transform: rotateX(16deg);
+    }
+
+    .fan-card {
+      position: absolute;
+      width: 149.4px;
+      height: 197.6px;
+      left: calc(50% - 54px);
+      top: calc(50% - 76px);
+      border-radius: 2px;
+      border: 1px solid rgba(255,255,255,0.07);
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Blueprint grid on card body */
+    .fan-card-body {
+      position: absolute;
+      inset: 0;
+      bottom: 26px;
+    }
+
+    /* Scanline overlay — direct match to site heatmap cells */
+    .fan-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to right,
+        rgba(0,0,0,0.26) 0px,
+        rgba(0,0,0,0.26) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* Caption strip */
+    .fan-card-strip {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 26px;
+      background: rgba(4,8,18,0.72);
+      border-top: 1px solid rgba(255,255,255,0.055);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 6px;
+      z-index: 2;
+    }
+    .fan-card-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .fan-card-num {
+      font-family: 'NeueMontreal', monospace, sans-serif;
+      font-size: 0.40rem;
+      letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.26);
+    }
+
+    /* Bracket corners — mirrors site .cn style */
+    .fan-cn {
+      position: absolute;
+      width: 7px; height: 7px;
+      border-style: solid;
+      border-color: rgba(255,255,255,0.16);
+      pointer-events: none;
+      z-index: 4;
+      transition: border-color 0.3s;
+    }
+    .fan-cn-tl { top:4px;    left:4px;   border-width:1px 0 0 1px; }
+    .fan-cn-tr { top:4px;    right:4px;  border-width:1px 1px 0 0; }
+    .fan-cn-bl { bottom:30px; left:4px;  border-width:0 0 1px 1px; }
+    .fan-cn-br { bottom:30px; right:4px; border-width:0 1px 1px 0; }
+
+    .fan-card.fan-active {
+      border-color: rgba(71,123,176,0.52);
+    }
+    .fan-card.fan-active .fan-cn {
+      border-color: rgba(71,123,176,0.7);
+    }
+
+    #fan-controls {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .fan-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.11);
+      color: rgba(255,255,255,0.32);
+      width: 22px; height: 22px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 0.68rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.18s, color 0.18s;
+      font-family: 'NeueMontreal', sans-serif;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .fan-btn:hover {
+      border-color: rgba(71,123,176,0.55);
+      color: rgba(157,198,225,0.9);
+    }
+    #fan-counter {
+      font-family: 'NeueMontreal', sans-serif;
+      font-size: 0.46rem;
+      letter-spacing: 0.14em;
+      color: rgba(255,255,255,0.18);
+      min-width: 28px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -398,7 +558,19 @@ body {
   <section class="bento-page">
 
     <div class="top-row">
-      <div class="top-name"><h2>Owen Kan</h2></div>
+      <div class="top-name">
+        <h2>Owen Kan</h2>
+        <div id="fan-album">
+          <div id="fan-stage">
+              <div id="fan-ring"></div>
+            </div>
+          <div id="fan-controls">
+            <button class="fan-btn" id="fan-prev">&#8592;</button>
+            <span id="fan-counter">1 / 8</span>
+            <button class="fan-btn" id="fan-next">&#8594;</button>
+          </div>
+        </div>
+      </div>
       <div class="panel" id="p-top-right"><div class="inner"></div></div>
     </div>
 
@@ -677,17 +849,20 @@ body {
       nodeInfo.style.left   = '';
       nodeInfo.style.right  = '';
 
-      if (side === 0) {         // left cluster → box on left
-        nodeInfo.style.left   = `${pad}px`;
-        nodeInfo.style.top    = '50%';
-        nodeInfo.style.transform = 'translateY(-50%)';
-      } else if (side === 1) { // right cluster → box on right
-        nodeInfo.style.right  = `${pad}px`;
-        nodeInfo.style.top    = '50%';
-        nodeInfo.style.transform = 'translateY(-50%)';
+      if (side === 0) {         // left cluster → panel hugs left edge, full height
+        nodeInfo.style.left   = `0`;
+        nodeInfo.style.top    = `0`;
+        nodeInfo.style.bottom = `0`;
+        nodeInfo.style.transform = 'translateX(0)';
+      } else if (side === 1) { // right cluster → panel hugs right edge, full height
+        nodeInfo.style.right  = `0`;
+        nodeInfo.style.top    = `0`;
+        nodeInfo.style.bottom = `0`;
+        nodeInfo.style.transform = 'translateX(0)';
       } else {                  // bottom cluster → box bottom-center
-        nodeInfo.style.bottom = `${pad}px`;
+        nodeInfo.style.bottom = `18px`;
         nodeInfo.style.left   = '50%';
+        nodeInfo.style.top    = 'auto';
         nodeInfo.style.transform = 'translateX(-50%)';
       }
 
@@ -1020,6 +1195,112 @@ body {
       }
 
       render();
+    })();
+
+    // ── FAN ALBUM ────────────────────────────────────
+    (function() {
+      const CARD_W  = 108, CARD_H = 152;
+      const RADIUS  = 300;
+      // Blue palette — pulls from the site's heatmap/graph colours
+      const PALETTE = [
+        { base:'#0d1c36', grad:'#1a3460', dot:'#3a6aa1' },
+        { base:'#0f2040', grad:'#1e3d6e', dot:'#477bb0' },
+        { base:'#112338', grad:'#1f3858', dot:'#3a6aa1' },
+        { base:'#152b50', grad:'#274880', dot:'#9dc6e1' },
+        { base:'#1a3258', grad:'#2c5090', dot:'#9dc6e1' },
+        { base:'#1c3860', grad:'#32609e', dot:'#c8e2f5' },
+        { base:'#0a1626', grad:'#142540', dot:'#3a6aa1' },
+        { base:'#101e38', grad:'#1c3460', dot:'#477bb0' },
+      ];
+
+      const ring    = document.getElementById('fan-ring');
+      const counter = document.getElementById('fan-counter');
+      const prevBtn = document.getElementById('fan-prev');
+      const nextBtn = document.getElementById('fan-next');
+
+      const N = PALETTE.length;
+      // Continuous offset — never clamp, avoids wrap-glitch
+      let offset = 0;
+
+      const cards = PALETTE.map((c, i) => {
+        const card = document.createElement('div');
+        card.className = 'fan-card';
+
+        // Body: blueprint grid + colour gradient
+        const body = document.createElement('div');
+        body.className = 'fan-card-body';
+        body.style.backgroundImage = [
+          // Subtle grid lines
+          'repeating-linear-gradient(0deg,   transparent 0, transparent 13px, rgba(255,255,255,0.022) 13px, rgba(255,255,255,0.022) 14px)',
+          'repeating-linear-gradient(90deg,  transparent 0, transparent 13px, rgba(255,255,255,0.022) 13px, rgba(255,255,255,0.022) 14px)',
+          // Colour gradient
+          `linear-gradient(148deg, ${c.grad}cc 0%, ${c.base} 48%, #050c18 100%)`
+        ].join(',');
+        card.appendChild(body);
+
+        // Top specular highlight — thin bright line at top edge
+        const spec = document.createElement('div');
+        spec.style.cssText = 'position:absolute;top:0;left:0;right:0;height:1px;background:rgba(157,198,225,0.12);z-index:2;';
+        card.appendChild(spec);
+
+        // Caption strip
+        const strip = document.createElement('div');
+        strip.className = 'fan-card-strip';
+        const dot = document.createElement('div');
+        dot.className = 'fan-card-dot';
+        dot.style.background  = c.dot;
+        dot.style.boxShadow   = `0 0 5px 1px ${c.dot}90`;
+        const num = document.createElement('div');
+        num.className = 'fan-card-num';
+        num.textContent = String(i + 1).padStart(2, '0');
+        strip.appendChild(dot);
+        strip.appendChild(num);
+        card.appendChild(strip);
+
+        // Bracket corners
+        ['tl','tr','bl','br'].forEach(pos => {
+          const cn = document.createElement('div');
+          cn.className = `fan-cn fan-cn-${pos}`;
+          card.appendChild(cn);
+        });
+
+        // Click — shortest-path jump
+        card.addEventListener('click', () => {
+          const cur   = ((offset % N) + N) % N;
+          let   delta = i - cur;
+          if (delta >  N / 2) delta -= N;
+          if (delta < -N / 2) delta += N;
+          offset += delta;
+          applyRender(true);
+        });
+
+        ring.appendChild(card);
+        return card;
+      });
+
+      function applyRender(animated) {
+        const step = 360 / N;
+        const cur  = ((offset % N) + N) % N;
+        counter.textContent = (cur + 1) + ' / ' + N;
+
+        cards.forEach((card, i) => {
+          const deg = (i - offset) * step;
+
+          card.style.transition = animated
+            ? 'transform 0.58s cubic-bezier(0.34, 1.06, 0.64, 1)'
+            : 'none';
+
+          card.style.transform = `rotateY(${deg}deg) translateZ(${RADIUS}px)`;
+          card.classList.toggle('fan-active', i === cur);
+        });
+      }
+
+      prevBtn.addEventListener('click', e => { e.stopPropagation(); offset--; applyRender(true); });
+      nextBtn.addEventListener('click', e => { e.stopPropagation(); offset++; applyRender(true); });
+
+      // Fire after two frames so the ring has real dimensions
+      requestAnimationFrame(() => requestAnimationFrame(() => applyRender(false)));
+      window.addEventListener('resize', () => applyRender(false));
     })();
   </script>
 
