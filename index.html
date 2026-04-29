@@ -322,16 +322,14 @@ body {
       flex: 1;
     }
     .hm-cell {
-      width: 100%;
-      aspect-ratio: 1 / 1;
+      flex: 1;
       position: relative;
       border-radius: 0;
       overflow: hidden;
       cursor: default;
       transition: opacity 0.15s;
-      flex-shrink: 0;
     }
-    .hm-week-col { align-items: flex-start; }
+    .hm-week-col { align-items: stretch; }
     .hm-cell:hover { opacity: 0.75; }
     /* scanline overlay on each cell */
     .hm-cell::after {
@@ -387,6 +385,202 @@ body {
     }
     .hm-readout span { color: #9dc6e1; }
 
+    /* ── GRAPH SHADER OVERLAY ───────────────────────── */
+    #graph-shader {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent 0px, transparent 39px,
+          rgba(71,123,176,0.045) 39px, rgba(71,123,176,0.045) 40px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent 0px, transparent 39px,
+          rgba(71,123,176,0.045) 39px, rgba(71,123,176,0.045) 40px
+        );
+    }
+
+    /* ── PROJECT CARDS ──────────────────────────────── */
+    #proj-list {
+      position: absolute;
+      inset: 0;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .proj-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2px;
+      flex-shrink: 0;
+    }
+    .proj-header-label {
+      font-size: 0.44rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.22);
+      font-family: 'NeueMontreal', monospace, sans-serif;
+    }
+    .proj-header-count {
+      font-size: 0.44rem;
+      letter-spacing: 0.10em;
+      color: rgba(71,123,176,0.6);
+      font-family: 'NeueMontreal', monospace, sans-serif;
+    }
+    .proj-card {
+      flex: 1;
+      min-height: 0;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 2px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      background: rgba(255,255,255,0.015);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .proj-card:hover {
+      border-color: rgba(71,123,176,0.28);
+      background: rgba(20,41,79,0.18);
+    }
+    .proj-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .proj-title {
+      font-size: 0.64rem;
+      font-weight: 300;
+      letter-spacing: 0.02em;
+      color: rgba(255,255,255,0.82);
+      font-family: 'NeueMontreal', sans-serif;
+      line-height: 1.2;
+    }
+    .proj-pct {
+      font-size: 0.55rem;
+      letter-spacing: 0.08em;
+      color: rgba(157,198,225,0.8);
+      font-family: 'NeueMontreal', monospace, sans-serif;
+      flex-shrink: 0;
+    }
+    .proj-desc {
+      font-size: 0.50rem;
+      color: rgba(255,255,255,0.30);
+      line-height: 1.5;
+      letter-spacing: 0.02em;
+      font-family: 'NeueMontreal', sans-serif;
+      margin-top: 3px;
+    }
+    .proj-bar-wrap {
+      margin-top: 6px;
+    }
+    .proj-bar {
+      display: flex;
+      gap: 2px;
+      height: 8px;
+      align-items: stretch;
+    }
+    .proj-seg {
+      flex: 1;
+      border-radius: 0;
+    }
+    .proj-seg.filled {
+      background: rgba(157,198,225,0.75);
+      box-shadow: 0 0 4px 0px rgba(157,198,225,0.30);
+    }
+    .proj-seg.empty {
+      background: rgba(255,255,255,0.07);
+    }
+    .proj-bar-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+    .proj-bar-label {
+      font-size: 0.40rem;
+      letter-spacing: 0.10em;
+      color: rgba(255,255,255,0.18);
+      font-family: 'NeueMontreal', monospace, sans-serif;
+    }
+    .proj-status-dot {
+      display: inline-block;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .proj-view-btn {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 8px 16px;
+      border: 1px solid rgba(71,123,176,0.35);
+      border-radius: 2px;
+      font-family: 'NeueMontreal', monospace, sans-serif;
+      font-size: 0.48rem;
+      letter-spacing: 0.16em;
+      color: rgba(157,198,225,0.7);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .proj-view-btn:hover {
+      border-color: rgba(157,198,225,0.55);
+      color: #9dc6e1;
+      background: rgba(71,123,176,0.10);
+    }
+
+    /* ── GLOBE ──────────────────────────────────────── */
+    #globe-wrap {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    #globe-canvas { display: block; }
+    #globe-loc {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #globe-loc-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #9dc6e1;
+      box-shadow: 0 0 6px 2px rgba(157,198,225,0.55);
+      flex-shrink: 0;
+      animation: locPulse 2.2s ease-in-out infinite;
+    }
+    @keyframes locPulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.7); }
+    }
+    #globe-loc-text {
+      font-family: 'NeueMontreal', monospace, sans-serif;
+      font-size: 0.50rem;
+      letter-spacing: 0.16em;
+      color: rgba(255,255,255,0.38);
+      text-transform: uppercase;
+    }
+    #globe-loc-sub {
+      font-family: 'NeueMontreal', monospace, sans-serif;
+      font-size: 0.42rem;
+      letter-spacing: 0.10em;
+      color: rgba(157,198,225,0.45);
+      margin-top: 2px;
+    }
+
     /* ── FAN ALBUM ─────────────────────────────────── */
     .top-name { flex-direction: column; }
 
@@ -417,88 +611,19 @@ body {
 
     .fan-card {
       position: absolute;
-      width: 149.4px;
-      height: 197.6px;
-      left: calc(50% - 54px);
-      top: calc(50% - 76px);
-      border-radius: 2px;
-      border: 1px solid rgba(255,255,255,0.07);
+      width: 160px;
+      height: 220px;
+      left: calc(50% - 80px);
+      top: calc(50% - 70px);
+      border-radius: 3px;
+      border: 1px solid rgba(255,255,255,0.06);
       overflow: hidden;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       cursor: pointer;
       user-select: none;
     }
-
-    /* Blueprint grid on card body */
-    .fan-card-body {
-      position: absolute;
-      inset: 0;
-      bottom: 26px;
-    }
-
-    /* Scanline overlay — direct match to site heatmap cells */
-    .fan-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        to right,
-        rgba(0,0,0,0.26) 0px,
-        rgba(0,0,0,0.26) 1px,
-        transparent 1px,
-        transparent 3px
-      );
-      pointer-events: none;
-      z-index: 3;
-    }
-
-    /* Caption strip */
-    .fan-card-strip {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 26px;
-      background: rgba(4,8,18,0.72);
-      border-top: 1px solid rgba(255,255,255,0.055);
-      display: flex;
-      align-items: center;
-      padding: 0 8px;
-      gap: 6px;
-      z-index: 2;
-    }
-    .fan-card-dot {
-      width: 4px; height: 4px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .fan-card-num {
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      font-size: 0.40rem;
-      letter-spacing: 0.18em;
-      color: rgba(255,255,255,0.26);
-    }
-
-    /* Bracket corners — mirrors site .cn style */
-    .fan-cn {
-      position: absolute;
-      width: 7px; height: 7px;
-      border-style: solid;
-      border-color: rgba(255,255,255,0.16);
-      pointer-events: none;
-      z-index: 4;
-      transition: border-color 0.3s;
-    }
-    .fan-cn-tl { top:4px;    left:4px;   border-width:1px 0 0 1px; }
-    .fan-cn-tr { top:4px;    right:4px;  border-width:1px 1px 0 0; }
-    .fan-cn-bl { bottom:30px; left:4px;  border-width:0 0 1px 1px; }
-    .fan-cn-br { bottom:30px; right:4px; border-width:0 1px 1px 0; }
-
-    .fan-card.fan-active {
-      border-color: rgba(71,123,176,0.52);
-    }
-    .fan-card.fan-active .fan-cn {
-      border-color: rgba(71,123,176,0.7);
-    }
+    .fan-card.fan-active { border-color: rgba(71,123,176,0.45); }
 
     #fan-controls {
       position: absolute;
@@ -577,6 +702,7 @@ body {
     <div class="panel graph-panel" id="p-graph">
       <canvas id="three-canvas"></canvas>
       <canvas id="label-canvas"></canvas>
+      <div id="graph-shader"></div>
 
       <!-- Info overlay — lives inside the graph panel -->
       <div id="node-info">
@@ -597,7 +723,18 @@ body {
     <div class="bottom-row">
       <div class="bl">
         <div class="panel" id="p-bl-top"><div class="inner"></div></div>
-        <div class="panel" id="p-bl-bot"><div class="inner"></div></div>
+        <div class="panel" id="p-bl-bot">
+          <div id="globe-wrap">
+            <canvas id="globe-canvas"></canvas>
+            <div id="globe-loc">
+              <div id="globe-loc-dot"></div>
+              <div>
+                <div id="globe-loc-text">Vancouver, CA</div>
+                <div id="globe-loc-sub">49.25° N · 123.12° W</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="bc">
         <div class="panel" id="p-bc-top">
@@ -621,7 +758,31 @@ body {
         </div>
         <div class="panel" id="p-bc-bot"><div class="inner"></div></div>
       </div>
-      <div class="panel br" id="p-br"><div class="inner"></div></div>
+      <div class="panel br" id="p-br">
+        <div id="proj-list">
+          <div class="proj-header">
+            <span class="proj-header-label">Active Project</span>
+            <span class="proj-header-count">01</span>
+          </div>
+          <div class="proj-card" style="flex:1;">
+            <div>
+              <div class="proj-card-top">
+                <div class="proj-title">Shipping Price Forecasting Algorithm</div>
+                <div class="proj-pct">12%</div>
+              </div>
+              <div class="proj-desc">A machine learning model to predict international shipping costs based on route, carrier, weight, and seasonal demand. Currently in research and data pipeline design.</div>
+            </div>
+            <div class="proj-bar-wrap">
+              <div class="proj-bar" id="proj-bar-0"></div>
+              <div class="proj-bar-meta">
+                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#3a6aa1;box-shadow:0 0 4px #3a6aa1aa;"></span>Early Stage</span>
+                <span class="proj-bar-label">12 / 100</span>
+              </div>
+            </div>
+            <a href="shipping-forecast.html" class="proj-view-btn">View Project →</a>
+          </div>
+        </div>
+      </div>
     </div>
 
   </section>
@@ -1143,20 +1304,24 @@ body {
           }
         }
 
-        // Build month label row — flex children sized to week fractions
-        // We'll position them absolutely relative to a wrapper
+        // Build month label row — positioned by pixel after grid renders
         mlabels.style.position = 'relative';
         mlabels.style.height = '14px';
         mlabels.style.marginLeft = '28px';
-        MONTHS.forEach((mn, mi) => {
-          const weekIdx = monthWeekStart[mi];
-          if (weekIdx === undefined) return;
-          const pct = (weekIdx / totalWeeks) * 100;
-          const el = document.createElement('div');
-          el.className = 'hm-month-label';
-          el.textContent = mn;
-          el.style.cssText = `position:absolute;left:${pct}%;`;
-          mlabels.appendChild(el);
+
+        // Defer label positioning until grid has rendered dimensions
+        requestAnimationFrame(() => {
+          const gridW = grid.offsetWidth || 1;
+          MONTHS.forEach((mn, mi) => {
+            const weekIdx = monthWeekStart[mi];
+            if (weekIdx === undefined) return;
+            const el = document.createElement('div');
+            el.className = 'hm-month-label';
+            el.textContent = mn;
+            const px = (weekIdx / totalWeeks) * gridW;
+            el.style.cssText = `position:absolute;left:${px}px;`;
+            mlabels.appendChild(el);
+          });
         });
 
         // Compute month total for activeMonth
@@ -1197,20 +1362,29 @@ body {
       render();
     })();
 
+    // ── PROJECT PROGRESS BARS ────────────────────────
+    (function() {
+      const SEGS = 28;
+      const bar = document.getElementById('proj-bar-0');
+      if (!bar) return;
+      const filled = Math.round(0.12 * SEGS);
+      for (let i = 0; i < SEGS; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'proj-seg ' + (i < filled ? 'filled' : 'empty');
+        if (i < filled) { seg.style.background = '#3a6aa1'; seg.style.opacity = 0.5 + 0.5*(i/filled); }
+        bar.appendChild(seg);
+      }
+    })();
+
     // ── FAN ALBUM ────────────────────────────────────
     (function() {
-      const CARD_W  = 108, CARD_H = 152;
-      const RADIUS  = 300;
-      // Blue palette — pulls from the site's heatmap/graph colours
-      const PALETTE = [
-        { base:'#0d1c36', grad:'#1a3460', dot:'#3a6aa1' },
-        { base:'#0f2040', grad:'#1e3d6e', dot:'#477bb0' },
-        { base:'#112338', grad:'#1f3858', dot:'#3a6aa1' },
-        { base:'#152b50', grad:'#274880', dot:'#9dc6e1' },
-        { base:'#1a3258', grad:'#2c5090', dot:'#9dc6e1' },
-        { base:'#1c3860', grad:'#32609e', dot:'#c8e2f5' },
-        { base:'#0a1626', grad:'#142540', dot:'#3a6aa1' },
-        { base:'#101e38', grad:'#1c3460', dot:'#477bb0' },
+      const CARD_W  = 160, CARD_H = 220;
+      const RADIUS  = 310;
+
+      const COLORS = [
+        '#0d1c36','#0f2040','#112338',
+        '#152b50','#1a3258','#1c3860',
+        '#0a1626','#101e38',
       ];
 
       const ring    = document.getElementById('fan-ring');
@@ -1218,53 +1392,14 @@ body {
       const prevBtn = document.getElementById('fan-prev');
       const nextBtn = document.getElementById('fan-next');
 
-      const N = PALETTE.length;
-      // Continuous offset — never clamp, avoids wrap-glitch
+      const N = COLORS.length;
       let offset = 0;
 
-      const cards = PALETTE.map((c, i) => {
+      const cards = COLORS.map((col, i) => {
         const card = document.createElement('div');
         card.className = 'fan-card';
+        card.style.background = col;
 
-        // Body: blueprint grid + colour gradient
-        const body = document.createElement('div');
-        body.className = 'fan-card-body';
-        body.style.backgroundImage = [
-          // Subtle grid lines
-          'repeating-linear-gradient(0deg,   transparent 0, transparent 13px, rgba(255,255,255,0.022) 13px, rgba(255,255,255,0.022) 14px)',
-          'repeating-linear-gradient(90deg,  transparent 0, transparent 13px, rgba(255,255,255,0.022) 13px, rgba(255,255,255,0.022) 14px)',
-          // Colour gradient
-          `linear-gradient(148deg, ${c.grad}cc 0%, ${c.base} 48%, #050c18 100%)`
-        ].join(',');
-        card.appendChild(body);
-
-        // Top specular highlight — thin bright line at top edge
-        const spec = document.createElement('div');
-        spec.style.cssText = 'position:absolute;top:0;left:0;right:0;height:1px;background:rgba(157,198,225,0.12);z-index:2;';
-        card.appendChild(spec);
-
-        // Caption strip
-        const strip = document.createElement('div');
-        strip.className = 'fan-card-strip';
-        const dot = document.createElement('div');
-        dot.className = 'fan-card-dot';
-        dot.style.background  = c.dot;
-        dot.style.boxShadow   = `0 0 5px 1px ${c.dot}90`;
-        const num = document.createElement('div');
-        num.className = 'fan-card-num';
-        num.textContent = String(i + 1).padStart(2, '0');
-        strip.appendChild(dot);
-        strip.appendChild(num);
-        card.appendChild(strip);
-
-        // Bracket corners
-        ['tl','tr','bl','br'].forEach(pos => {
-          const cn = document.createElement('div');
-          cn.className = `fan-cn fan-cn-${pos}`;
-          card.appendChild(cn);
-        });
-
-        // Click — shortest-path jump
         card.addEventListener('click', () => {
           const cur   = ((offset % N) + N) % N;
           let   delta = i - cur;
@@ -1285,11 +1420,9 @@ body {
 
         cards.forEach((card, i) => {
           const deg = (i - offset) * step;
-
           card.style.transition = animated
             ? 'transform 0.58s cubic-bezier(0.34, 1.06, 0.64, 1)'
             : 'none';
-
           card.style.transform = `rotateY(${deg}deg) translateZ(${RADIUS}px)`;
           card.classList.toggle('fan-active', i === cur);
         });
@@ -1298,10 +1431,152 @@ body {
       prevBtn.addEventListener('click', e => { e.stopPropagation(); offset--; applyRender(true); });
       nextBtn.addEventListener('click', e => { e.stopPropagation(); offset++; applyRender(true); });
 
-      // Fire after two frames so the ring has real dimensions
       requestAnimationFrame(() => requestAnimationFrame(() => applyRender(false)));
       window.addEventListener('resize', () => applyRender(false));
     })();
+    // ── GLOBE ─────────────────────────────────────────
+    (function() {
+      const canvas = document.getElementById('globe-canvas');
+      if (!canvas) return;
+      const panel = document.getElementById('p-bl-bot'); // has real dimensions
+
+      const dpr = window.devicePixelRatio || 1;
+      const ctx  = canvas.getContext('2d');
+
+      function resize() {
+        const w = panel.offsetWidth  || 160;
+        const h = panel.offsetHeight || 160;
+        const size = Math.floor(Math.min(w, h) * 0.70);
+        canvas.width        = size * dpr;
+        canvas.height       = size * dpr;
+        canvas.style.width  = size + 'px';
+        canvas.style.height = size + 'px';
+      }
+      window.addEventListener('resize', resize);
+
+      const VAN_LAT = 49.25 * Math.PI / 180;
+      const VAN_LNG = -123.1 * Math.PI / 180;
+      let rot = 0;
+
+      function project(lat, lng, R) {
+        const x = Math.cos(lat) * Math.sin(lng + rot);
+        const y = Math.sin(lat);
+        const z = Math.cos(lat) * Math.cos(lng + rot);
+        return { x: x * R, y: -y * R, z };
+      }
+
+      // Simplified continent outlines [lng, lat] degrees
+      const LANDS = [
+        [[-168,72],[-140,72],[-120,70],[-95,75],[-80,68],[-65,68],[-60,47],[-70,45],[-75,43],[-80,25],[-87,15],[-83,8],[-78,8],[-105,20],[-112,22],[-117,30],[-120,35],[-124,48],[-130,54],[-140,58],[-155,60],[-165,60],[-168,72]],
+        [[-44,84],[-20,83],[-18,77],[-25,71],[-44,70],[-52,69],[-55,72],[-44,84]],
+        [[-80,12],[-65,12],[-60,7],[-52,5],[-50,0],[-35,-8],[-35,-20],[-48,-28],[-52,-35],[-58,-40],[-63,-50],[-68,-55],[-72,-50],[-75,-40],[-81,-10],[-80,12]],
+        [[-10,36],[2,44],[18,40],[28,40],[30,42],[36,37],[36,45],[32,52],[28,60],[18,60],[10,56],[0,52],[-5,48],[-8,44],[-10,36]],
+        [[-18,15],[-15,20],[-8,24],[0,30],[12,32],[25,30],[35,22],[42,12],[50,12],[44,-12],[38,-20],[32,-30],[26,-35],[18,-35],[12,-20],[8,-5],[0,5],[-8,5],[-15,10],[-18,15]],
+        [[36,37],[40,38],[55,22],[70,20],[80,10],[100,5],[115,5],[120,10],[125,15],[130,32],[140,36],[145,45],[140,52],[130,55],[120,60],[100,65],[80,68],[60,70],[40,70],[36,60],[26,55],[30,48],[36,45],[36,37]],
+        [[114,-22],[120,-20],[125,-15],[132,-12],[140,-18],[148,-20],[152,-25],[154,-28],[148,-38],[144,-40],[140,-38],[132,-35],[120,-34],[115,-32],[114,-22]],
+      ];
+
+      function drawGlobe() {
+        const W = canvas.width  / dpr;
+        const H = canvas.height / dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+
+        const cx = W / 2, cy = H / 2;
+        const R  = W * 0.44;
+
+        // Background sphere
+        const grad = ctx.createRadialGradient(cx - R*0.2, cy - R*0.2, R*0.1, cx, cy, R);
+        grad.addColorStop(0, 'rgba(20,41,79,0.18)');
+        grad.addColorStop(1, 'rgba(4,8,18,0.06)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Outer ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(71,123,176,0.22)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        // Latitude lines
+        [-60,-45,-30,-15,0,15,30,45,60].forEach(latDeg => {
+          const lat = latDeg * Math.PI / 180;
+          ctx.beginPath();
+          let pen = false;
+          for (let a = 0; a <= 360; a += 3) {
+            const p = project(lat, a * Math.PI / 180, R);
+            if (p.z > 0) {
+              pen ? ctx.lineTo(cx + p.x, cy + p.y) : ctx.moveTo(cx + p.x, cy + p.y);
+              pen = true;
+            } else { pen = false; }
+          }
+          ctx.strokeStyle = latDeg === 0 ? 'rgba(71,123,176,0.28)' : 'rgba(71,123,176,0.11)';
+          ctx.lineWidth   = latDeg === 0 ? 0.9 : 0.6;
+          ctx.stroke();
+        });
+
+        // Longitude lines
+        for (let lngDeg = 0; lngDeg < 360; lngDeg += 20) {
+          ctx.beginPath();
+          let pen = false;
+          for (let a = -90; a <= 90; a += 3) {
+            const p = project(a * Math.PI / 180, lngDeg * Math.PI / 180, R);
+            if (p.z > 0) {
+              pen ? ctx.lineTo(cx + p.x, cy + p.y) : ctx.moveTo(cx + p.x, cy + p.y);
+              pen = true;
+            } else { pen = false; }
+          }
+          ctx.strokeStyle = 'rgba(71,123,176,0.09)';
+          ctx.lineWidth   = 0.6;
+          ctx.stroke();
+        }
+
+        // Continent outlines
+        ctx.strokeStyle = 'rgba(100,160,220,0.42)';
+        ctx.lineWidth   = 1.1;
+        LANDS.forEach(poly => {
+          ctx.beginPath();
+          let pen = false;
+          poly.forEach(([lngD, latD]) => {
+            const p = project(latD * Math.PI/180, lngD * Math.PI/180, R);
+            if (p.z > 0) {
+              pen ? ctx.lineTo(cx + p.x, cy + p.y) : ctx.moveTo(cx + p.x, cy + p.y);
+              pen = true;
+            } else { pen = false; }
+          });
+          ctx.stroke();
+        });
+
+        // Vancouver dot
+        const vp = project(VAN_LAT, VAN_LNG, R);
+        if (vp.z > 0) {
+          const vx = cx + vp.x, vy = cy + vp.y;
+          const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 600);
+          ctx.beginPath();
+          ctx.arc(vx, vy, 4 + pulse * 3, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(157,198,225,${0.12 + pulse * 0.14})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(vx, vy, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle   = '#9dc6e1';
+          ctx.shadowColor = '#9dc6e1';
+          ctx.shadowBlur  = 6;
+          ctx.fill();
+          ctx.shadowBlur  = 0;
+        }
+
+        rot += 0.003;
+        requestAnimationFrame(drawGlobe);
+      }
+
+      // Defer until browser has computed layout
+      requestAnimationFrame(() => { resize(); requestAnimationFrame(drawGlobe); });
+    })();
+
   </script>
 
 </body>
