@@ -1306,9 +1306,11 @@ body {
           pill.addEventListener('click', () => { activeMonth = mi; render(); });
           nav.appendChild(pill);
         });
-        // Scroll active pill into view
+        // Scroll active pill into view within the nav strip only (no page scroll)
         const activePill = nav.querySelector('.active');
-        if (activePill) activePill.scrollIntoView({block:'nearest', inline:'center', behavior:'smooth'});
+        if (activePill) {
+          nav.scrollLeft = activePill.offsetLeft - (nav.offsetWidth / 2) + (activePill.offsetWidth / 2);
+        }
       }
 
       function render() {
