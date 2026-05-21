@@ -518,25 +518,6 @@ body {
       margin-right: 4px;
       vertical-align: middle;
     }
-    .proj-view-btn {
-      display: inline-block;
-      margin-top: 16px;
-      padding: 8px 16px;
-      border: 1px solid rgba(71,123,176,0.35);
-      border-radius: 2px;
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      font-size: 0.48rem;
-      letter-spacing: 0.16em;
-      color: rgba(157,198,225,0.7);
-      text-decoration: none;
-      text-transform: uppercase;
-      transition: border-color 0.2s, color 0.2s, background 0.2s;
-    }
-    .proj-view-btn:hover {
-      border-color: rgba(157,198,225,0.55);
-      color: #9dc6e1;
-      background: rgba(71,123,176,0.10);
-    }
 
     /* ── GLOBE ──────────────────────────────────────── */
     #globe-wrap {
@@ -597,33 +578,29 @@ body {
       position: absolute;
       inset: 0;
       bottom: 36px;
-      perspective: 580px;
-      perspective-origin: 50% 42%;
+      perspective: 900px;
+      perspective-origin: 50% 50%;
+      overflow: visible;
     }
 
-    /* Tilted ring — rotateX gives the overhead "book spread" look */
+    /* Ring — no tilt, cards placed by JS */
     #fan-ring {
       position: absolute;
       inset: 0;
       transform-style: preserve-3d;
-      transform: rotateX(16deg);
     }
 
     .fan-card {
       position: absolute;
-      width: 160px;
-      height: 220px;
-      left: calc(50% - 80px);
-      top: calc(50% - 70px);
+      /* width/height set by JS to fill stage */
       border-radius: 3px;
       border: 1px solid rgba(255,255,255,0.06);
       overflow: hidden;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
       cursor: pointer;
       user-select: none;
+      will-change: transform, opacity;
     }
-    .fan-card.fan-active { border-color: rgba(71,123,176,0.45); }
+    .fan-card.fan-active { border-color: rgba(71,123,176,0.35); }
 
     #fan-controls {
       position: absolute;
@@ -761,25 +738,76 @@ body {
       <div class="panel br" id="p-br">
         <div id="proj-list">
           <div class="proj-header">
-            <span class="proj-header-label">Active Project</span>
-            <span class="proj-header-count">01</span>
+            <span class="proj-header-label">Current Projects</span>
+            <span class="proj-header-count">04</span>
           </div>
-          <div class="proj-card" style="flex:1;">
+          <!-- Card 1 -->
+          <div class="proj-card">
             <div>
               <div class="proj-card-top">
-                <div class="proj-title">Shipping Price Forecasting Algorithm</div>
-                <div class="proj-pct">12%</div>
+                <div class="proj-title">Portfolio Site</div>
+                <div class="proj-pct">78%</div>
               </div>
-              <div class="proj-desc">A machine learning model to predict international shipping costs based on route, carrier, weight, and seasonal demand. Currently in research and data pipeline design.</div>
+              <div class="proj-desc">Personal site built in HTML/CSS/JS with Three.js network and motion systems.</div>
             </div>
             <div class="proj-bar-wrap">
               <div class="proj-bar" id="proj-bar-0"></div>
               <div class="proj-bar-meta">
+                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#9dc6e1;box-shadow:0 0 4px #9dc6e1aa;"></span>In Progress</span>
+                <span class="proj-bar-label">78 / 100</span>
+              </div>
+            </div>
+          </div>
+          <!-- Card 2 -->
+          <div class="proj-card">
+            <div>
+              <div class="proj-card-top">
+                <div class="proj-title">Brand Identity — Apex</div>
+                <div class="proj-pct">55%</div>
+              </div>
+              <div class="proj-desc">Full visual identity system for a local architecture studio. Mark, type, and colour.</div>
+            </div>
+            <div class="proj-bar-wrap">
+              <div class="proj-bar" id="proj-bar-1"></div>
+              <div class="proj-bar-meta">
+                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#477bb0;box-shadow:0 0 4px #477bb0aa;"></span>In Progress</span>
+                <span class="proj-bar-label">55 / 100</span>
+              </div>
+            </div>
+          </div>
+          <!-- Card 3 -->
+          <div class="proj-card">
+            <div>
+              <div class="proj-card-top">
+                <div class="proj-title">Short Film — Inlet</div>
+                <div class="proj-pct">30%</div>
+              </div>
+              <div class="proj-desc">Documentary short on Burrard Inlet. Shot on Sony A7IV, edited in DaVinci Resolve.</div>
+            </div>
+            <div class="proj-bar-wrap">
+              <div class="proj-bar" id="proj-bar-2"></div>
+              <div class="proj-bar-meta">
                 <span class="proj-bar-label"><span class="proj-status-dot" style="background:#3a6aa1;box-shadow:0 0 4px #3a6aa1aa;"></span>Early Stage</span>
+                <span class="proj-bar-label">30 / 100</span>
+              </div>
+            </div>
+          </div>
+          <!-- Card 4 -->
+          <div class="proj-card">
+            <div>
+              <div class="proj-card-top">
+                <div class="proj-title">Generative Type Tool</div>
+                <div class="proj-pct">12%</div>
+              </div>
+              <div class="proj-desc">Canvas-based tool for generating kinetic type layouts driven by audio input.</div>
+            </div>
+            <div class="proj-bar-wrap">
+              <div class="proj-bar" id="proj-bar-3"></div>
+              <div class="proj-bar-meta">
+                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#14294f;box-shadow:0 0 4px #3a6aa1aa;"></span>Concept</span>
                 <span class="proj-bar-label">12 / 100</span>
               </div>
             </div>
-            <a href="shipping-forecast.html" class="proj-view-btn">View Project →</a>
           </div>
         </div>
       </div>
@@ -1365,40 +1393,76 @@ body {
     // ── PROJECT PROGRESS BARS ────────────────────────
     (function() {
       const SEGS = 28;
-      const bar = document.getElementById('proj-bar-0');
-      if (!bar) return;
-      const filled = Math.round(0.12 * SEGS);
-      for (let i = 0; i < SEGS; i++) {
-        const seg = document.createElement('div');
-        seg.className = 'proj-seg ' + (i < filled ? 'filled' : 'empty');
-        if (i < filled) { seg.style.background = '#3a6aa1'; seg.style.opacity = 0.5 + 0.5*(i/filled); }
-        bar.appendChild(seg);
-      }
+      const projects = [
+        { id: 'proj-bar-0', pct: 78, color: '#9dc6e1' },
+        { id: 'proj-bar-1', pct: 55, color: '#477bb0' },
+        { id: 'proj-bar-2', pct: 30, color: '#3a6aa1' },
+        { id: 'proj-bar-3', pct: 12, color: '#1f3f70' },
+      ];
+      projects.forEach(({ id, pct, color }) => {
+        const bar = document.getElementById(id);
+        if (!bar) return;
+        const filled = Math.round(pct / 100 * SEGS);
+        for (let i = 0; i < SEGS; i++) {
+          const seg = document.createElement('div');
+          seg.className = 'proj-seg ' + (i < filled ? 'filled' : 'empty');
+          if (i < filled) {
+            // Slight gradient fade toward the fill edge
+            const fade = 0.5 + 0.5 * (i / filled);
+            seg.style.background = color;
+            seg.style.opacity = fade;
+          }
+          bar.appendChild(seg);
+        }
+      });
     })();
 
     // ── FAN ALBUM ────────────────────────────────────
     (function() {
-      const CARD_W  = 160, CARD_H = 220;
-      const RADIUS  = 310;
-
-      const COLORS = [
-        '#0d1c36','#0f2040','#112338',
-        '#152b50','#1a3258','#1c3860',
-        '#0a1626','#101e38',
+      // ── YOUR PHOTOS ── update filenames/extensions as needed
+      const PHOTOS = [
+        { src: '_UYU5063.jpg',                                   label: 'Photo 1' },
+        { src: 'IMG-20251112-WA0006.jpg',                        label: 'Photo 2' },
+        { src: 'tmp_66489b32-aec7-46ed-bcec-aeca9d5...jpg',      label: 'Photo 3' },
       ];
 
       const ring    = document.getElementById('fan-ring');
+      const stage   = document.getElementById('fan-stage');
       const counter = document.getElementById('fan-counter');
       const prevBtn = document.getElementById('fan-prev');
       const nextBtn = document.getElementById('fan-next');
 
-      const N = COLORS.length;
+      const N = PHOTOS.length;
       let offset = 0;
+      counter.textContent = '1 / ' + N;
 
-      const cards = COLORS.map((col, i) => {
+      // ── Measure stage and size cards to fill it ──────
+      function getCardSize() {
+        const sw = stage.offsetWidth  || 300;
+        const sh = stage.offsetHeight || 400;
+        // Target aspect ratio 3:4 (portrait photos).
+        // Fill ~88% of the shorter constraint.
+        let w = sw * 0.88;
+        let h = w * (4 / 3);
+        if (h > sh * 0.92) {
+          h = sh * 0.92;
+          w = h * (3 / 4);
+        }
+        return { w: Math.round(w), h: Math.round(h) };
+      }
+
+      // ── Build cards ──────────────────────────────────
+      const cards = PHOTOS.map(({ src, label }, i) => {
         const card = document.createElement('div');
         card.className = 'fan-card';
-        card.style.background = col;
+        card.style.background = '#0d1c36';
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = label;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center;display:block;pointer-events:none;user-select:none;';
+        img.onerror = () => { img.style.display = 'none'; };
+        card.appendChild(img);
 
         card.addEventListener('click', () => {
           const cur   = ((offset % N) + N) % N;
@@ -1413,71 +1477,100 @@ body {
         return card;
       });
 
+      // ── Layout: active card fills stage, side cards peek ─
       function applyRender(animated) {
-        const step = 360 / N;
-        const cur  = ((offset % N) + N) % N;
+        const cur = ((offset % N) + N) % N;
         counter.textContent = (cur + 1) + ' / ' + N;
 
+        const { w, h } = getCardSize();
+        const sw = stage.offsetWidth  || 300;
+        const sh = stage.offsetHeight || 400;
+
+        // How far side cards slide out (so they just peek at the edge)
+        const peekX    = sw * 0.46;   // horizontal shift for side cards
+        const sideAngle = 28;          // Y-rotation for side cards (degrees)
+        const sideScale = 0.82;        // slightly smaller
+
         cards.forEach((card, i) => {
-          const deg = (i - offset) * step;
-          card.style.transition = animated
-            ? 'transform 0.58s cubic-bezier(0.34, 1.06, 0.64, 1)'
+          // Relative position to active: -1, 0, +1
+          let rel = i - cur;
+          if (rel >  N / 2) rel -= N;
+          if (rel < -N / 2) rel += N;
+
+          // Size all cards identically
+          card.style.width  = w + 'px';
+          card.style.height = h + 'px';
+          card.style.left   = Math.round((sw - w) / 2) + 'px';
+          card.style.top    = Math.round((sh - h) / 2) + 'px';
+
+          const trans = animated
+            ? 'transform 0.52s cubic-bezier(0.34,1.06,0.64,1), opacity 0.52s ease'
             : 'none';
-          card.style.transform = `rotateY(${deg}deg) translateZ(${RADIUS}px)`;
-          card.classList.toggle('fan-active', i === cur);
+          card.style.transition = trans;
+
+          if (rel === 0) {
+            // Active — front and centre, full opacity
+            card.style.transform  = 'translateX(0px) rotateY(0deg) scale(1)';
+            card.style.opacity    = '1';
+            card.style.zIndex     = '10';
+          } else {
+            // Side cards — angled and dimmed so they clearly peek out
+            const sign = rel > 0 ? 1 : -1;
+            card.style.transform  = `translateX(${sign * peekX}px) rotateY(${sign * sideAngle}deg) scale(${sideScale})`;
+            card.style.opacity    = '0.28';
+            card.style.zIndex     = '5';
+          }
+
+          card.classList.toggle('fan-active', rel === 0);
         });
       }
 
       prevBtn.addEventListener('click', e => { e.stopPropagation(); offset--; applyRender(true); });
       nextBtn.addEventListener('click', e => { e.stopPropagation(); offset++; applyRender(true); });
 
-      requestAnimationFrame(() => requestAnimationFrame(() => applyRender(false)));
+      // Re-layout on resize
       window.addEventListener('resize', () => applyRender(false));
+
+      // Initial render after layout is ready
+      requestAnimationFrame(() => requestAnimationFrame(() => applyRender(false)));
     })();
     // ── GLOBE ─────────────────────────────────────────
     (function() {
       const canvas = document.getElementById('globe-canvas');
       if (!canvas) return;
-      const panel = document.getElementById('p-bl-bot'); // has real dimensions
-
-      const dpr = window.devicePixelRatio || 1;
-      const ctx  = canvas.getContext('2d');
+      const wrap = document.getElementById('globe-wrap');
 
       function resize() {
-        const w = panel.offsetWidth  || 160;
-        const h = panel.offsetHeight || 160;
-        const size = Math.floor(Math.min(w, h) * 0.70);
-        canvas.width        = size * dpr;
-        canvas.height       = size * dpr;
+        const w = wrap.offsetWidth;
+        const h = wrap.offsetHeight - 40; // reserve space for label
+        const size = Math.min(w, h) * 0.82;
+        canvas.width  = size * (window.devicePixelRatio || 1);
+        canvas.height = size * (window.devicePixelRatio || 1);
         canvas.style.width  = size + 'px';
         canvas.style.height = size + 'px';
       }
+      resize();
       window.addEventListener('resize', resize);
 
+      const ctx = canvas.getContext('2d');
+
+      // Vancouver: lat 49.25N, lng -123.1W
       const VAN_LAT = 49.25 * Math.PI / 180;
       const VAN_LNG = -123.1 * Math.PI / 180;
+
       let rot = 0;
 
       function project(lat, lng, R) {
-        const x = Math.cos(lat) * Math.sin(lng + rot);
-        const y = Math.sin(lat);
-        const z = Math.cos(lat) * Math.cos(lng + rot);
-        return { x: x * R, y: -y * R, z };
+        // Rotate by rot around Y axis
+        const x0 = Math.cos(lat) * Math.sin(lng + rot);
+        const y0 = Math.sin(lat);
+        const z0 = Math.cos(lat) * Math.cos(lng + rot);
+        return { x: x0 * R, y: -y0 * R, z: z0 };
       }
 
-      // Simplified continent outlines [lng, lat] degrees
-      const LANDS = [
-        [[-168,72],[-140,72],[-120,70],[-95,75],[-80,68],[-65,68],[-60,47],[-70,45],[-75,43],[-80,25],[-87,15],[-83,8],[-78,8],[-105,20],[-112,22],[-117,30],[-120,35],[-124,48],[-130,54],[-140,58],[-155,60],[-165,60],[-168,72]],
-        [[-44,84],[-20,83],[-18,77],[-25,71],[-44,70],[-52,69],[-55,72],[-44,84]],
-        [[-80,12],[-65,12],[-60,7],[-52,5],[-50,0],[-35,-8],[-35,-20],[-48,-28],[-52,-35],[-58,-40],[-63,-50],[-68,-55],[-72,-50],[-75,-40],[-81,-10],[-80,12]],
-        [[-10,36],[2,44],[18,40],[28,40],[30,42],[36,37],[36,45],[32,52],[28,60],[18,60],[10,56],[0,52],[-5,48],[-8,44],[-10,36]],
-        [[-18,15],[-15,20],[-8,24],[0,30],[12,32],[25,30],[35,22],[42,12],[50,12],[44,-12],[38,-20],[32,-30],[26,-35],[18,-35],[12,-20],[8,-5],[0,5],[-8,5],[-15,10],[-18,15]],
-        [[36,37],[40,38],[55,22],[70,20],[80,10],[100,5],[115,5],[120,10],[125,15],[130,32],[140,36],[145,45],[140,52],[130,55],[120,60],[100,65],[80,68],[60,70],[40,70],[36,60],[26,55],[30,48],[36,45],[36,37]],
-        [[114,-22],[120,-20],[125,-15],[132,-12],[140,-18],[148,-20],[152,-25],[154,-28],[148,-38],[144,-40],[140,-38],[132,-35],[120,-34],[115,-32],[114,-22]],
-      ];
-
       function drawGlobe() {
-        const W = canvas.width  / dpr;
+        const dpr = window.devicePixelRatio || 1;
+        const W = canvas.width / dpr;
         const H = canvas.height / dpr;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, W, H);
@@ -1502,79 +1595,76 @@ body {
         ctx.stroke();
 
         // Latitude lines
-        [-60,-45,-30,-15,0,15,30,45,60].forEach(latDeg => {
+        const LATS = [-60,-45,-30,-15,0,15,30,45,60];
+        LATS.forEach(latDeg => {
           const lat = latDeg * Math.PI / 180;
-          ctx.beginPath();
-          let pen = false;
+          const pts = [];
           for (let a = 0; a <= 360; a += 3) {
-            const p = project(lat, a * Math.PI / 180, R);
-            if (p.z > 0) {
-              pen ? ctx.lineTo(cx + p.x, cy + p.y) : ctx.moveTo(cx + p.x, cy + p.y);
-              pen = true;
-            } else { pen = false; }
+            const lng = a * Math.PI / 180;
+            const p = project(lat, lng, R);
+            if (p.z > 0) pts.push({ x: cx + p.x, y: cy + p.y, vis: true });
+            else if (pts.length && pts[pts.length-1].vis) pts.push(null);
           }
+          let started = false;
+          ctx.beginPath();
+          pts.forEach(pt => {
+            if (!pt) { started = false; return; }
+            if (!started) { ctx.moveTo(pt.x, pt.y); started = true; }
+            else ctx.lineTo(pt.x, pt.y);
+          });
           ctx.strokeStyle = latDeg === 0 ? 'rgba(71,123,176,0.28)' : 'rgba(71,123,176,0.11)';
-          ctx.lineWidth   = latDeg === 0 ? 0.9 : 0.6;
+          ctx.lineWidth = latDeg === 0 ? 0.9 : 0.6;
           ctx.stroke();
         });
 
         // Longitude lines
         for (let lngDeg = 0; lngDeg < 360; lngDeg += 20) {
-          ctx.beginPath();
-          let pen = false;
+          const lng = lngDeg * Math.PI / 180;
+          const pts = [];
           for (let a = -90; a <= 90; a += 3) {
-            const p = project(a * Math.PI / 180, lngDeg * Math.PI / 180, R);
-            if (p.z > 0) {
-              pen ? ctx.lineTo(cx + p.x, cy + p.y) : ctx.moveTo(cx + p.x, cy + p.y);
-              pen = true;
-            } else { pen = false; }
+            const lat = a * Math.PI / 180;
+            const p = project(lat, lng, R);
+            if (p.z > 0) pts.push({ x: cx + p.x, y: cy + p.y });
+            else if (pts.length) pts.push(null);
           }
+          let started = false;
+          ctx.beginPath();
+          pts.forEach(pt => {
+            if (!pt) { started = false; return; }
+            if (!started) { ctx.moveTo(pt.x, pt.y); started = true; }
+            else ctx.lineTo(pt.x, pt.y);
+          });
           ctx.strokeStyle = 'rgba(71,123,176,0.09)';
-          ctx.lineWidth   = 0.6;
+          ctx.lineWidth = 0.6;
           ctx.stroke();
         }
-
-        // Continent outlines
-        ctx.strokeStyle = 'rgba(100,160,220,0.42)';
-        ctx.lineWidth   = 1.1;
-        LANDS.forEach(poly => {
-          ctx.beginPath();
-          let pen = false;
-          poly.forEach(([lngD, latD]) => {
-            const p = project(latD * Math.PI/180, lngD * Math.PI/180, R);
-            if (p.z > 0) {
-              pen ? ctx.lineTo(cx + p.x, cy + p.y) : ctx.moveTo(cx + p.x, cy + p.y);
-              pen = true;
-            } else { pen = false; }
-          });
-          ctx.stroke();
-        });
 
         // Vancouver dot
         const vp = project(VAN_LAT, VAN_LNG, R);
         if (vp.z > 0) {
           const vx = cx + vp.x, vy = cy + vp.y;
+          // Pulse ring
           const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 600);
           ctx.beginPath();
           ctx.arc(vx, vy, 4 + pulse * 3, 0, Math.PI * 2);
           ctx.strokeStyle = `rgba(157,198,225,${0.12 + pulse * 0.14})`;
           ctx.lineWidth = 0.8;
           ctx.stroke();
+          // Core dot
           ctx.beginPath();
           ctx.arc(vx, vy, 2.5, 0, Math.PI * 2);
-          ctx.fillStyle   = '#9dc6e1';
+          ctx.fillStyle = '#9dc6e1';
           ctx.shadowColor = '#9dc6e1';
-          ctx.shadowBlur  = 6;
+          ctx.shadowBlur = 6;
           ctx.fill();
-          ctx.shadowBlur  = 0;
+          ctx.shadowBlur = 0;
         }
 
         rot += 0.003;
         requestAnimationFrame(drawGlobe);
       }
 
-      // Defer until browser has computed layout
-      requestAnimationFrame(() => { resize(); requestAnimationFrame(drawGlobe); });
+      requestAnimationFrame(drawGlobe);
     })();
 
   </script>
