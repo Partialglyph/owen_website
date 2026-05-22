@@ -1553,7 +1553,6 @@ body {
         canvas.style.width  = size + 'px';
         canvas.style.height = size + 'px';
       }
-      resize();
       window.addEventListener('resize', resize);
 
       const ctx = canvas.getContext('2d');
@@ -1706,7 +1705,16 @@ body {
         requestAnimationFrame(drawGlobe);
       }
 
-      requestAnimationFrame(drawGlobe);
+      // Defer first resize until layout is settled, then start the loop
+      requestAnimationFrame(() => {
+        resize();
+        // If layout still not ready (e.g. display:none parent), retry once more
+        if (canvas.width === 0 || canvas.height === 0) {
+          requestAnimationFrame(() => { resize(); requestAnimationFrame(drawGlobe); });
+        } else {
+          requestAnimationFrame(drawGlobe);
+        }
+      });
     })();
 
   </script>
