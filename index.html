@@ -3,1721 +3,451 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Owen Kan</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <title>Drill Study Guide — St. John Ambulance</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-@font-face {
-  font-family: 'NeueMontreal';
-  /* Match the "Thin" file for your Light/300 weight */
-  src: url('fonts/PPNeueMontreal-Thin.otf') format('opentype');
-  font-weight: 300;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'NeueMontreal';
-  /* Match the "Medium" file */
-  src: url('fonts/PPNeueMontreal-Medium.otf') format('opentype');
-  font-weight: 500;
-  font-style: normal;
-}
-
-/* Update the body to use NeueMontreal as the primary font */
-body {
-  background: #0a0a0a;
-  color: #ffffff;
-  font-family: 'NeueMontreal', Arial, sans-serif;
-  overflow-x: hidden;
-}
-
-/* Update Name and Title weights to match your font-face (300/500) */
-.hero-text .name {
-  font-weight: 300; /* Uses Thin/Light */
-}
-
-.top-name h2, .info-title {
-  font-family: 'NeueMontreal', sans-serif;
-  font-weight: 300;
-}
-
-/* Update Subtext and Stats to the Medium weight */
-.hero-text .sub span, .info-label, .info-tag, .info-stat {
-  font-family: 'NeueMontreal', sans-serif;
-  font-weight: 300; /* Uses Medium */
-}
-
-    /* ── HERO ───────────────────────────────────────── */
-    .hero {
-      width: 100%;
-      height: 100vh;
-      position: relative;
-      overflow: hidden;
-    }
-    #hero-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%; height: 100%;
-      display: block;
-    }
-    .hero-text {
-      position: absolute;
-      top: 8vh; left: 5vw;
-      z-index: 10;
-      pointer-events: none;
-    }
-    .hero-text .name {
-      display: block;
-      font-size: clamp(3rem, 7vw, 6.5rem);
-      font-weight: 300;
-      line-height: 0.93;
-      letter-spacing: -0.025em;
-    }
-    .hero-text .sub {
-      margin-top: 1.2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .hero-text .sub span {
-      font-size: clamp(0.58rem, 0.9vw, 0.74rem);
-      letter-spacing: 0.12em;
-      /* Change 'uppercase' to 'none' for normal case */
-      text-transform: none; 
-      /* Change the opacity from 0.38 to 1 for solid white */
-      color: rgba(255, 255, 255, 1); 
-    }
-    .scroll-hint {
-      position: absolute;
-      bottom: 3vh; left: 5vw;
-      font-size: 0.56rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.18);
-      z-index: 10;
-    }
-
-    /* ── BENTO ──────────────────────────────────────── */
-    .bento-page {
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .panel {
-      background: #0c0c0c;
-      border: 1px solid rgba(255,255,255,0.11);
-      border-radius: 3px;
-      position: relative;
-    }
-    .panel .inner {
-      position: absolute;
-      inset: 0;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-    }
-    .cn {
-      position: absolute;
-      width: 12px; height: 12px;
-      border-color: rgba(255,255,255,0.28);
-      border-style: solid;
-      pointer-events: none;
-      z-index: 10;
-    }
-    .cn-tl { top:0;    left:0;  border-width:1px 0 0 1px; }
-    .cn-tr { top:0;    right:0; border-width:1px 1px 0 0; }
-    .cn-bl { bottom:0; left:0;  border-width:0 0 1px 1px; }
-    .cn-br { bottom:0; right:0; border-width:0 1px 1px 0; }
-
-    .top-row {
-      display: grid;
-      grid-template-columns: 1fr 22%;
-      gap: 6px;
-      height: 48vh;
-    }
-    .top-name {
-      padding: 18px 20px;
-      display: flex;
-      align-items: flex-start;
-    }
-    .top-name h2 {
-      font-size: clamp(1.6rem, 3vw, 2.8rem);
-      font-weight: 300;
-      letter-spacing: -0.01em;
-    }
-
-    /* ── GRAPH PANEL ────────────────────────────────── */
-    .graph-panel {
-      height: 70vh;
-      cursor: crosshair;
-      overflow: hidden;
-    }
-    #three-canvas, #label-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%; height: 100%;
-      display: block;
-    }
-    #label-canvas { pointer-events: none; }
-
-    /* ── INFO OVERLAY ───────────────────────────────── */
-    #node-info {
-      position: absolute;
-      width: 220px;
-      top: 0;
-      bottom: 0;
-      background: #0c0c0c;
-      border: 1px solid rgba(255,255,255,0.14);
-      border-radius: 3px;
-      padding: 16px;
-      z-index: 30;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.22s ease, transform 0.22s ease;
-      transform: translateX(-8px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      scrollbar-width: none;
-    }
-    #node-info::-webkit-scrollbar { display: none; }
-    #node-info.visible {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateX(0);
-    }
-    /* bracket corners on info box */
-    #node-info .icn {
-      position: absolute;
-      width: 10px; height: 10px;
-      border-style: solid;
-      pointer-events: none;
-    }
-    #node-info .icn-tl { top:0; left:0;   border-width:1px 0 0 1px; }
-    #node-info .icn-tr { top:0; right:0;  border-width:1px 1px 0 0; }
-    #node-info .icn-bl { bottom:0; left:0;  border-width:0 0 1px 1px; }
-    #node-info .icn-br { bottom:0; right:0; border-width:0 1px 1px 0; }
-
-    .info-label {
-      font-size: 0.58rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-      margin-bottom: 6px;
-    }
-    .info-title {
-      font-size: 1.05rem;
-      font-weight: 300;
-      letter-spacing: -0.01em;
-      margin-bottom: 10px;
-    }
-    .info-accent-line {
-      height: 1px;
-      margin-bottom: 10px;
-      opacity: 0.4;
-    }
-    .info-desc {
-      font-size: 0.65rem;
-      line-height: 1.6;
-      color: rgba(255,255,255,0.55);
-      margin-bottom: 10px;
-    }
-    .info-stat {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.58rem;
-      color: rgba(255,255,255,0.28);
-      letter-spacing: 0.06em;
-      margin-bottom: 4px;
-    }
-    .info-stat span:last-child { color: rgba(255,255,255,0.65); }
-    .info-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 10px;
-    }
-    .info-tag {
-      font-size: 0.52rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: 2px;
-      border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.4);
-    }
-    .info-close {
-      position: absolute;
-      top: 10px; right: 12px;
-      font-size: 0.55rem;
-      color: rgba(255,255,255,0.2);
-      cursor: pointer;
-      letter-spacing: 0.1em;
-    }
-    .info-close:hover { color: rgba(255,255,255,0.6); }
-
-    /* ── BOTTOM BENTO ───────────────────────────────── */
-    .bottom-row {
-      display: grid;
-      grid-template-columns: 27% 1fr 27%;
-      gap: 6px;
-    }
-    .bl { display: grid; grid-template-rows: 1fr 2fr; gap: 6px; height: 52vh; }
-    .bc { display: grid; grid-template-rows: 1fr 1fr; gap: 6px; }
-    .br { height: 52vh; }
-
-    /* ── HEATMAP ────────────────────────────────────── */
-    #heatmap-wrap {
-      position: absolute;
-      inset: 0;
-      padding: 10px 12px 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .hm-month-labels {
-      display: flex;
-      margin-left: 28px;
-      flex-shrink: 0;
-    }
-    .hm-month-label {
-      font-size: 0.48rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.25);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      flex-shrink: 0;
-    }
-    .hm-body {
-      display: flex;
-      gap: 4px;
-      flex: 1;
-      min-height: 0;
-    }
-    .hm-dow-col {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      flex-shrink: 0;
-      width: 24px;
-    }
-    .hm-dow {
-      font-size: 0.45rem;
-      letter-spacing: 0.06em;
-      color: rgba(255,255,255,0.22);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      line-height: 1;
-    }
-    .hm-week-grid {
-      display: flex;
-      gap: 2px;
-      flex: 1;
-      align-items: stretch;
-    }
-    .hm-week-col {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-    }
-    .hm-cell {
-      flex: 1;
-      position: relative;
-      border-radius: 0;
-      overflow: hidden;
-      cursor: default;
-      transition: opacity 0.15s;
-    }
-    .hm-week-col { align-items: stretch; }
-    .hm-cell:hover { opacity: 0.75; }
-    /* scanline overlay on each cell */
-    .hm-cell::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        to right,
-        rgba(0,0,0,0.28) 0px,
-        rgba(0,0,0,0.28) 1px,
-        transparent 1px,
-        transparent 3px
-      );
-      pointer-events: none;
-    }
-    .hm-cell.faded { opacity: 0.22; }
-    /* bottom month nav */
-    .hm-nav {
-      display: flex;
-      gap: 3px;
-      flex-shrink: 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .hm-nav::-webkit-scrollbar { display: none; }
-    .hm-nav-pill {
-      font-size: 0.5rem;
-      letter-spacing: 0.08em;
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      color: rgba(255,255,255,0.28);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0;
-      padding: 3px 7px;
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-      background: transparent;
-    }
-    .hm-nav-pill:hover { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.3); }
-    .hm-nav-pill.active {
-      background: #14294f;
-      color: #9dc6e1;
-      border-color: #477bb0;
-    }
-    .hm-readout {
-      font-size: 0.48rem;
-      letter-spacing: 0.08em;
-      color: rgba(255,255,255,0.2);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      text-align: right;
-      flex-shrink: 0;
-    }
-    .hm-readout span { color: #9dc6e1; }
-
-    /* ── GRAPH SHADER OVERLAY ───────────────────────── */
-    #graph-shader {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 5;
-      background:
-        repeating-linear-gradient(
-          0deg,
-          transparent 0px, transparent 39px,
-          rgba(71,123,176,0.045) 39px, rgba(71,123,176,0.045) 40px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent 0px, transparent 39px,
-          rgba(71,123,176,0.045) 39px, rgba(71,123,176,0.045) 40px
-        );
-    }
-
-    /* ── PROJECT CARDS ──────────────────────────────── */
-    #proj-list {
-      position: absolute;
-      inset: 0;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .proj-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 2px;
-      flex-shrink: 0;
-    }
-    .proj-header-label {
-      font-size: 0.44rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.22);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-    }
-    .proj-header-count {
-      font-size: 0.44rem;
-      letter-spacing: 0.10em;
-      color: rgba(71,123,176,0.6);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-    }
-    .proj-card {
-      flex: 1;
-      min-height: 0;
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 2px;
-      padding: 10px 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-      background: rgba(255,255,255,0.015);
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .proj-card:hover {
-      border-color: rgba(71,123,176,0.28);
-      background: rgba(20,41,79,0.18);
-    }
-    .proj-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 6px;
-    }
-    .proj-title {
-      font-size: 0.64rem;
-      font-weight: 300;
-      letter-spacing: 0.02em;
-      color: rgba(255,255,255,0.82);
-      font-family: 'NeueMontreal', sans-serif;
-      line-height: 1.2;
-    }
-    .proj-pct {
-      font-size: 0.55rem;
-      letter-spacing: 0.08em;
-      color: rgba(157,198,225,0.8);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      flex-shrink: 0;
-    }
-    .proj-desc {
-      font-size: 0.50rem;
-      color: rgba(255,255,255,0.30);
-      line-height: 1.5;
-      letter-spacing: 0.02em;
-      font-family: 'NeueMontreal', sans-serif;
-      margin-top: 3px;
-    }
-    .proj-bar-wrap {
-      margin-top: 6px;
-    }
-    .proj-bar {
-      display: flex;
-      gap: 2px;
-      height: 8px;
-      align-items: stretch;
-    }
-    .proj-seg {
-      flex: 1;
-      border-radius: 0;
-    }
-    .proj-seg.filled {
-      background: rgba(157,198,225,0.75);
-      box-shadow: 0 0 4px 0px rgba(157,198,225,0.30);
-    }
-    .proj-seg.empty {
-      background: rgba(255,255,255,0.07);
-    }
-    .proj-bar-meta {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 4px;
-    }
-    .proj-bar-label {
-      font-size: 0.40rem;
-      letter-spacing: 0.10em;
-      color: rgba(255,255,255,0.18);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-    }
-    .proj-status-dot {
-      display: inline-block;
-      width: 4px; height: 4px;
-      border-radius: 50%;
-      margin-right: 4px;
-      vertical-align: middle;
-    }
-
-    /* ── GLOBE ──────────────────────────────────────── */
-    #globe-wrap {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    #globe-canvas { display: block; }
-    #globe-loc {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    #globe-loc-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: #9dc6e1;
-      box-shadow: 0 0 6px 2px rgba(157,198,225,0.55);
-      flex-shrink: 0;
-      animation: locPulse 2.2s ease-in-out infinite;
-    }
-    @keyframes locPulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: 0.4; transform: scale(0.7); }
-    }
-    #globe-loc-text {
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      font-size: 0.50rem;
-      letter-spacing: 0.16em;
-      color: rgba(255,255,255,0.38);
-      text-transform: uppercase;
-    }
-    #globe-loc-sub {
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      font-size: 0.42rem;
-      letter-spacing: 0.10em;
-      color: rgba(157,198,225,0.45);
-      margin-top: 2px;
-    }
-
-    /* ── FAN ALBUM ─────────────────────────────────── */
-    .top-name { flex-direction: column; }
-
-    #fan-album {
-      flex: 1;
-      width: 100%;
-      min-height: 0;
-      position: relative;
-      overflow: hidden;
-      clip-path: inset(0);
-    }
-
-    /* Perspective container */
-    #fan-stage {
-      position: absolute;
-      inset: 0;
-      bottom: 36px;
-      perspective: 900px;
-      perspective-origin: 50% 50%;
-      overflow: hidden;
-    }
-
-    /* Ring — no tilt, cards placed by JS */
-    #fan-ring {
-      position: absolute;
-      inset: 0;
-      transform-style: preserve-3d;
-    }
-
-    .fan-card {
-      position: absolute;
-      /* width/height set by JS to fill stage */
-      border-radius: 3px;
-      border: 1px solid rgba(255,255,255,0.06);
-      overflow: hidden;
-      cursor: pointer;
-      user-select: none;
-      will-change: transform, opacity;
-    }
-    .fan-card.fan-active { border-color: rgba(71,123,176,0.35); }
-
-    #fan-controls {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-    .fan-btn {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.11);
-      color: rgba(255,255,255,0.32);
-      width: 22px; height: 22px;
-      border-radius: 2px;
-      cursor: pointer;
-      font-size: 0.68rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: border-color 0.18s, color 0.18s;
-      font-family: 'NeueMontreal', sans-serif;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-    .fan-btn:hover {
-      border-color: rgba(71,123,176,0.55);
-      color: rgba(157,198,225,0.9);
-    }
-    #fan-counter {
-      font-family: 'NeueMontreal', sans-serif;
-      font-size: 0.46rem;
-      letter-spacing: 0.14em;
-      color: rgba(255,255,255,0.18);
-      min-width: 28px;
-      text-align: center;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f1114; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
   </style>
 </head>
 <body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
 
-  <section class="hero">
-    <canvas id="hero-canvas"></canvas>
-    <div class="hero-text">
-      <span class="name">Owen</span>
-      <span class="name">Kan</span>
-      <div class="sub">
-        <span>Graphic Designer</span>
-        <span>Student at PMSS</span>
-        <span>Vancouver BC</span>
-      </div>
-    </div>
-    <div class="scroll-hint">scroll ↓</div>
-  </section>
-
-  <section class="bento-page">
-
-    <div class="top-row">
-      <div class="top-name">
-        <h2>Owen Kan</h2>
-        <div id="fan-album">
-          <div id="fan-stage">
-              <div id="fan-ring"></div>
-            </div>
-          <div id="fan-controls">
-            <button class="fan-btn" id="fan-prev">&#8592;</button>
-            <span id="fan-counter">1 / 8</span>
-            <button class="fan-btn" id="fan-next">&#8594;</button>
-          </div>
-        </div>
-      </div>
-      <div class="panel" id="p-top-right"><div class="inner"></div></div>
-    </div>
-
-    <div class="panel graph-panel" id="p-graph">
-      <canvas id="three-canvas"></canvas>
-      <canvas id="label-canvas"></canvas>
-      <div id="graph-shader"></div>
-
-      <!-- Info overlay — lives inside the graph panel -->
-      <div id="node-info">
-        <div class="icn icn-tl"></div>
-        <div class="icn icn-tr"></div>
-        <div class="icn icn-bl"></div>
-        <div class="icn icn-br"></div>
-        <div class="info-close" id="info-close">✕ close</div>
-        <div class="info-label" id="info-cluster"></div>
-        <div class="info-title"  id="info-title"></div>
-        <div class="info-accent-line" id="info-line"></div>
-        <div class="info-desc"   id="info-desc"></div>
-        <div id="info-stats"></div>
-        <div class="info-tags"   id="info-tags"></div>
-      </div>
-    </div>
-
-    <div class="bottom-row">
-      <div class="bl">
-        <div class="panel" id="p-bl-top"><div class="inner"></div></div>
-        <div class="panel" id="p-bl-bot">
-          <div id="globe-wrap">
-            <canvas id="globe-canvas"></canvas>
-            <div id="globe-loc">
-              <div id="globe-loc-dot"></div>
-              <div>
-                <div id="globe-loc-text">Vancouver, CA</div>
-                <div id="globe-loc-sub">49.25° N · 123.12° W</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="bc">
-        <div class="panel" id="p-bc-top">
-          <div id="heatmap-wrap">
-            <div class="hm-month-labels" id="hm-month-labels"></div>
-            <div class="hm-body">
-              <div class="hm-dow-col">
-                <div class="hm-dow">Mon</div>
-                <div class="hm-dow">Tue</div>
-                <div class="hm-dow">Wed</div>
-                <div class="hm-dow">Thu</div>
-                <div class="hm-dow">Fri</div>
-                <div class="hm-dow">Sat</div>
-                <div class="hm-dow">Sun</div>
-              </div>
-              <div class="hm-week-grid" id="hm-week-grid"></div>
-            </div>
-            <div class="hm-readout">Hours this month: <span id="hm-total">-</span></div>
-            <div class="hm-nav" id="hm-nav"></div>
-          </div>
-        </div>
-        <div class="panel" id="p-bc-bot"><div class="inner"></div></div>
-      </div>
-      <div class="panel br" id="p-br">
-        <div id="proj-list">
-          <div class="proj-header">
-            <span class="proj-header-label">Current Projects</span>
-            <span class="proj-header-count">04</span>
-          </div>
-          <!-- Card 1 -->
-          <div class="proj-card">
-            <div>
-              <div class="proj-card-top">
-                <div class="proj-title">Portfolio Site</div>
-                <div class="proj-pct">78%</div>
-              </div>
-              <div class="proj-desc">Personal site built in HTML/CSS/JS with Three.js network and motion systems.</div>
-            </div>
-            <div class="proj-bar-wrap">
-              <div class="proj-bar" id="proj-bar-0"></div>
-              <div class="proj-bar-meta">
-                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#9dc6e1;box-shadow:0 0 4px #9dc6e1aa;"></span>In Progress</span>
-                <span class="proj-bar-label">78 / 100</span>
-              </div>
-            </div>
-          </div>
-          <!-- Card 2 -->
-          <div class="proj-card">
-            <div>
-              <div class="proj-card-top">
-                <div class="proj-title">Brand Identity — Apex</div>
-                <div class="proj-pct">55%</div>
-              </div>
-              <div class="proj-desc">Full visual identity system for a local architecture studio. Mark, type, and colour.</div>
-            </div>
-            <div class="proj-bar-wrap">
-              <div class="proj-bar" id="proj-bar-1"></div>
-              <div class="proj-bar-meta">
-                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#477bb0;box-shadow:0 0 4px #477bb0aa;"></span>In Progress</span>
-                <span class="proj-bar-label">55 / 100</span>
-              </div>
-            </div>
-          </div>
-          <!-- Card 3 -->
-          <div class="proj-card">
-            <div>
-              <div class="proj-card-top">
-                <div class="proj-title">Short Film — Inlet</div>
-                <div class="proj-pct">30%</div>
-              </div>
-              <div class="proj-desc">Documentary short on Burrard Inlet. Shot on Sony A7IV, edited in DaVinci Resolve.</div>
-            </div>
-            <div class="proj-bar-wrap">
-              <div class="proj-bar" id="proj-bar-2"></div>
-              <div class="proj-bar-meta">
-                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#3a6aa1;box-shadow:0 0 4px #3a6aa1aa;"></span>Early Stage</span>
-                <span class="proj-bar-label">30 / 100</span>
-              </div>
-            </div>
-          </div>
-          <!-- Card 4 -->
-          <div class="proj-card">
-            <div>
-              <div class="proj-card-top">
-                <div class="proj-title">Generative Type Tool</div>
-                <div class="proj-pct">12%</div>
-              </div>
-              <div class="proj-desc">Canvas-based tool for generating kinetic type layouts driven by audio input.</div>
-            </div>
-            <div class="proj-bar-wrap">
-              <div class="proj-bar" id="proj-bar-3"></div>
-              <div class="proj-bar-meta">
-                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#14294f;box-shadow:0 0 4px #3a6aa1aa;"></span>Concept</span>
-                <span class="proj-bar-label">12 / 100</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </section>
-
-  <script>
-    // ── CORNER BRACKETS ──────────────────────────────
-    document.querySelectorAll('.panel').forEach(p => {
-      ['tl','tr','bl','br'].forEach(pos => {
-        const c = document.createElement('div');
-        c.className = `cn cn-${pos}`;
-        p.appendChild(c);
-      });
-    });
-
-    // ────────────────────────────────────────────────
-    // HERO CELL GRAPHIC
-    // ────────────────────────────────────────────────
-    const heroCanvas = document.getElementById('hero-canvas');
-    const hCtx = heroCanvas.getContext('2d');
-    const CELL=60, GAP=2, STEP=60;
-
-    const PAL=[
-      [10,10,14],[14,24,52],[28,58,110],
-      [55,105,165],[120,175,215],[195,225,248],[230,242,255]
-    ];
-    function sr(s){const x=Math.sin(s*127.1+311.7)*43758.5453;return x-Math.floor(x);}
-    function getBri(c,r,COLS,ROWS){
-      const nx=c/COLS,ny=r/ROWS,cx=0.62,cy=0.52;
-      const dx=(nx-cx)*1.3,dy=(ny-cy)*1.1;
-      const n=(sr(c*0.41+r*0.29)-0.5)*0.18;
-      return Math.pow(Math.max(0,1-(Math.sqrt(dx*dx+dy*dy)+n)/0.95),1.6);
-    }
-    function palColor(b){
-      const s=[0,.12,.28,.50,.70,.88,1];
-      for(let i=0;i<s.length-1;i++){
-        if(b<=s[i+1]){
-          const t=(b-s[i])/(s[i+1]-s[i]),a=PAL[i],bv=PAL[i+1];
-          return[Math.round(a[0]+(bv[0]-a[0])*t),Math.round(a[1]+(bv[1]-a[1])*t),Math.round(a[2]+(bv[2]-a[2])*t)];
-        }
-      }
-      return PAL[PAL.length-1];
-    }
-    let heroGrid=[],hW=0,hH=0,bloomC=null,bCtx2=null;
-    function buildHeroGrid(){
-      hW=heroCanvas.offsetWidth; hH=heroCanvas.offsetHeight;
-      const COLS=Math.ceil(hW/STEP)+1,ROWS=Math.ceil(hH/STEP)+1;
-      heroGrid=[];
-      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
-        const bri=getBri(c,r,COLS,ROWS);
-        if(bri<0.03) continue;
-        heroGrid.push({x:c*STEP,y:r*STEP,bri,
-          blinkSpeed:0.4+sr(c*73+r*37)*1.2,
-          blinkPhase:sr(c*53+r*91+7)*Math.PI*2,
-          blinkDepth:(0.06+sr(c*29+r*61+13)*0.18)*(0.5+(1-bri)*0.5)
-        });
-      }
-      bloomC=document.createElement('canvas');
-      bloomC.width=hW; bloomC.height=hH;
-      bCtx2=bloomC.getContext('2d');
-    }
-    function drawHeroFrame(t){
-      hCtx.fillStyle='#0a0a0a'; hCtx.fillRect(0,0,hW,hH);
-      bCtx2.clearRect(0,0,hW,hH);
-      heroGrid.forEach(({x,y,bri,blinkSpeed,blinkPhase,blinkDepth})=>{
-        const p=Math.max(0,Math.min(1,bri+Math.sin(t*blinkSpeed+blinkPhase)*blinkDepth));
-        const col=palColor(p);
-        hCtx.fillStyle=`rgb(${col[0]},${col[1]},${col[2]})`;
-        hCtx.fillRect(x,y,CELL,CELL);
-        hCtx.fillStyle='rgba(0,0,0,0.20)';
-        for(let lx=x;lx<x+CELL;lx+=4) hCtx.fillRect(lx,y,1,CELL);
-        if(p>0.40){
-          const a=((p-0.40)/0.60)*0.88;
-          bCtx2.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${a})`;
-          bCtx2.fillRect(x,y,CELL,CELL);
-        }
-      });
-      hCtx.save(); hCtx.filter='blur(22px)';
-      hCtx.globalCompositeOperation='screen'; hCtx.globalAlpha=0.52;
-      hCtx.drawImage(bloomC,0,0); hCtx.restore();
-      hCtx.save(); hCtx.filter='blur(7px)';
-      hCtx.globalCompositeOperation='screen'; hCtx.globalAlpha=0.38;
-      hCtx.drawImage(bloomC,0,0); hCtx.restore();
-
-      // Radial edge fade
-      const fade=hCtx.createRadialGradient(hW*.60,hH*.50,hH*.06,hW*.50,hH*.48,hH*.80);
-      fade.addColorStop(0,'rgba(10,10,14,0)');
-      fade.addColorStop(0.45,'rgba(10,10,14,0.08)');
-      fade.addColorStop(0.70,'rgba(10,10,14,0.55)');
-      fade.addColorStop(0.88,'rgba(10,10,14,0.88)');
-      fade.addColorStop(1,'rgba(10,10,14,1)');
-      hCtx.fillStyle=fade; hCtx.fillRect(0,0,hW,hH);
-
-      // Text-zone mask
-      const tm=hCtx.createLinearGradient(0,0,hW*.46,hH*.48);
-      tm.addColorStop(0,'rgba(10,10,14,0.82)');
-      tm.addColorStop(0.55,'rgba(10,10,14,0.08)');
-      tm.addColorStop(1,'rgba(10,10,14,0)');
-      hCtx.fillStyle=tm; hCtx.fillRect(0,0,hW,hH);
-
-      // ── Bottom blend into bento ─────────────────────
-      // Smooth gradient from transparent → #0a0a0a over last 35% of hero
-      const bot=hCtx.createLinearGradient(0,hH*0.65,0,hH);
-      bot.addColorStop(0,'rgba(10,10,10,0)');
-      bot.addColorStop(1,'rgba(10,10,10,1)');
-      hCtx.fillStyle=bot; hCtx.fillRect(0,0,hW,hH);
-    }
-    function setupHero(){
-      const dpr=window.devicePixelRatio||1;
-      const w=heroCanvas.offsetWidth,h=heroCanvas.offsetHeight;
-      heroCanvas.width=w*dpr; heroCanvas.height=h*dpr;
-      hCtx.setTransform(dpr,0,0,dpr,0,0);
-      buildHeroGrid();
-    }
-    setupHero();
-    window.addEventListener('resize',()=>{hCtx.setTransform(1,0,0,1,0,0);setupHero();});
-    let h0=null;
-    function heroLoop(ts){if(!h0)h0=ts;drawHeroFrame((ts-h0)/1000);requestAnimationFrame(heroLoop);}
-    requestAnimationFrame(heroLoop);
-
-    // ────────────────────────────────────────────────
-    // NODE DATA — INFO CONTENT
-    // ────────────────────────────────────────────────
-    const NODE_INFO = [
+    const studyData = [
       {
-        cluster: 'Creative',
-        title: 'Photography',
-        desc: 'Documentary and editorial work centred on natural light and composed silence. Drawn to the space between moments.',
-        stats: [['Experience','4 years'],['Primary body','Sony A7IV'],['Style','Editorial · Documentary']],
-        tags: ['Portrait','Street','Editorial'],
+        category: "Commands & Structure",
+        icon: "📢",
+        questions: [
+          { q: "What are the three parts of a drill command?", a: "1) Preliminary — information about intent, given in clear deliberate tone. 2) Cautionary — warning, given as a loud extended call. 3) Executive — signal for movement, given as a distinct sharp command with full voice power." },
+          { q: "Give an example showing all three parts of a command.", a: "\"Division will turn to the right\" (Preliminary), \"right ----\" (Cautionary), \"TURN\" (Executive)." },
+          { q: "What position should the commander be in when giving commands?", a: "The Attention position." },
+          { q: "What command corrects mistakes by the commander or members?", a: "\"As you were.\" Members resume the last position before the command." },
+          { q: "How should commands be given in places of worship?", a: "In a subdued tone." },
+          { q: "When teaching new drill moves, what is the recommended method?", a: "Demonstrate, explain, and execute once again. Break complex movements down and teach them \"by numbers.\"" },
+          { q: "What position should members be in during long explanations?", a: "Stand Easy." },
+          { q: "What alternative formation can be used for teaching particular moves?", a: "A horseshoe formation (instead of the traditional rectangular squadron)." },
+          { q: "Which direction should the division face when forming up outdoors?", a: "Facing the sun." },
+        ],
       },
       {
-        cluster: 'Creative',
-        title: 'Videography',
-        desc: 'Short-form brand films and personal narratives. Colour grading as a design language, not a correction.',
-        stats: [['Experience','3 years'],['Post','DaVinci Resolve'],['Specialty','Colour · Motion']],
-        tags: ['Brand Film','Colour Grade','Motion'],
+        category: "Cadence & Timing",
+        icon: "🥁",
+        questions: [
+          { q: "What is the rate of movement for Quick March?", a: "116 paces per minute." },
+          { q: "On which foot is the HALT command called?", a: "On the LEFT foot (when the left heel strikes the ground)." },
+          { q: "On which foot is About Turn on the march called?", a: "On the LEFT foot." },
+          { q: "On which foot is Left Turn on the march called?", a: "On the RIGHT foot." },
+          { q: "On which foot is Right Turn on the march called?", a: "On the LEFT foot." },
+          { q: "On which foot is Mark Time called during quick march?", a: "On the LEFT foot." },
+          { q: "On which foot is Change Step called when marking time?", a: "On either foot." },
+          { q: "On which foot is Eyes Right/Left called while marching?", a: "On the LEFT foot." },
+          { q: "On which foot is Eyes Front called while marching?", a: "On the LEFT foot." },
+          { q: "On which foot is the Halt called when marking time?", a: "On the LEFT foot." },
+          { q: "How long is the pause during a front salute before bringing the arm down?", a: "A pause equal to two paces in quick time (\"two-three-down\")." },
+          { q: "How long is the pause during a left/right salute before returning to front?", a: "A pause equal to four paces in quick time (\"one-two-two-three-down\")." },
+        ],
       },
       {
-        cluster: 'Creative',
-        title: 'Guitar',
-        desc: 'Eight years of playing, mostly self-taught. Fingerpicking and jazz harmony. Music as a parallel design practice.',
-        stats: [['Experience','8 years'],['Style','Fingerpicking · Jazz'],['Influences','Chet Atkins · Joe Pass']],
-        tags: ['Acoustic','Jazz','Ambient'],
+        category: "Verbal Commands",
+        icon: "🗣️",
+        questions: [
+          { q: "What is the command to bring members from Stand at Ease to Attention?", a: "\"Squad/Division, Atten ---- TION\"" },
+          { q: "What is the command to go from Attention to Stand at Ease?", a: "\"Squad/Division, Stand at ---- EASE\"" },
+          { q: "What is the command to go from Stand at Ease to Stand Easy?", a: "\"Squad/Division, Stand ---- EASY\"" },
+          { q: "What is the command for a stationary Right Turn?", a: "\"Squad/Division will (Direction*), Right ---- TURN\" (* Direction: Turn to the Right / Turn to the Left / Advance / Retire)" },
+          { q: "What is the command for a stationary Left Turn?", a: "\"Squad/Division will (Direction*), Left ---- TURN\"" },
+          { q: "What is the command for a stationary About Turn?", a: "\"Squad/Division will (Direction*), About ---- TURN\"" },
+          { q: "What is the command for Dressing?", a: "\"Squad/Division, Dressing, Right ------ DRESS\" (followed later by \"Eyes ---- FRONT\")" },
+          { q: "What is the command for Quick March?", a: "\"Squad/Division, by the (x), Quick ---- MARCH\" (x = centre, left, or right)" },
+          { q: "What is the command for Halt?", a: "\"Squad/Division ---- HALT\"" },
+          { q: "What is the command for Mark Time from a halt?", a: "\"Squad/Division, Mark ---- TIME\"" },
+          { q: "What is the command for Mark Time while marching in quick time?", a: "\"Squad/Division, Mark ---- TIME\" (called on LEFT foot)" },
+          { q: "What is the command to resume marching from Mark Time?", a: "\"Squad/Division, Quick ---- MARCH\" or \"Squad/Division, Forward ---- MARCH\"" },
+          { q: "What is the command to halt while marking time?", a: "\"Squad/Division ---- HALT\" (called on LEFT foot)" },
+          { q: "What is the command for Change Step while marking time?", a: "\"Squad/Division, Change ---- STEP\"" },
+          { q: "What is the command for Paces Forward?", a: "\"Squad/Division, # Paces Forward ---- MARCH\" (# = number of paces, max 3)" },
+          { q: "What is the command for Paces to the Rear?", a: "\"Squad/Division, # Paces Step Back ---- MARCH\" (max 3)" },
+          { q: "What is the command for Side Pace?", a: "\"Squad/Division, # Paces Right/Left Close ---- MARCH\" (generally max 8 at a time)" },
+          { q: "What is the command for Open Order March (3 ranks)?", a: "\"Squad/Division, Open order ---- MARCH\"" },
+          { q: "What is the command for Close Order March?", a: "\"Squad/Division, Close order ---- MARCH\"" },
+          { q: "What is the command for Wheeling?", a: "\"Squad/Division, by the Left/Right, Left/Right ---- WHEEL\"" },
+          { q: "What is the command for About Turn on the march?", a: "\"Squad/Division, About ---- TURN\" (called on LEFT foot)" },
+          { q: "What is the command for Left Turn on the march?", a: "\"Squad/Division, Left ---- TURN\" (called on RIGHT foot)" },
+          { q: "What is the command for Right Turn on the march?", a: "\"Squad/Division, Right ---- TURN\" (called on LEFT foot)" },
+          { q: "What is the command for a front salute when halted?", a: "\"Squad/Division, to the front ---- SALUTE\"" },
+          { q: "What is the command for a left/right salute when halted?", a: "\"Squad/Division, to the left/right ---- SALUTE\"" },
+          { q: "What is the command for Eyes Right/Left while marching?", a: "\"Eyes ---- Left/Right\" (called on LEFT foot)" },
+          { q: "What is the command for Eyes Front while marching?", a: "\"Eyes ---- FRONT\" (called on LEFT foot)" },
+          { q: "What is the command for Fall In?", a: "First: \"(Rank and name), right ---- MARKER\". Then: \"Division/Squad will form three/two ranks, fall ---- IN\"" },
+          { q: "What is the command for Fall Out?", a: "\"Division/Squad fall ---- OUT\" (or \"Division/Squad dis ---- MISS\")" },
+          { q: "What is the command for Formal Dismissal?", a: "\"Division/Squad dis ---- MISS\"" },
+          { q: "What is the command to call the Right Marker?", a: "\"(Rank and name of right marker), right ---- MARKER\"" },
+          { q: "What are the Sizing commands in order?", a: "1) Call right marker. 2) \"Sizing, tallest on the right, shortest on the left, in single rank ---- SIZE\". 3) \"From the right ---- NUMBER\". 4) \"Right marker stand fast\". 5) \"Odd numbers one pace forward, even numbers one pace step back ---- MARCH\". 6) \"Stand fast the right hand man\". 7) \"Front rank will turn to the right, rear rank will turn to the left, ranks.... right and left ---- TURN\". 8) \"Form three ranks, quick ---- MARCH\"." },
+          { q: "What is the command for Changing Direction on the march?", a: "\"Squad/Division, (At the Halt)* Change Direction, Left/Right, Left/Right ---- FORM\" (called on RIGHT/LEFT foot)" },
+          { q: "What is the command for forming single file from the halt?", a: "\"Single file from the right (/left), quick ---- MARCH\"" },
+          { q: "What is the command for forming single file on the march?", a: "\"Single file from the right (/left), Remainder Mark ---- TIME\" (called on LEFT foot)" },
+          { q: "What is the command for reforming squad in line from single file (from halt)?", a: "\"On the left (/right), Reform Line, Remainder Quick ---- MARCH\"" },
+          { q: "What is the command for reforming squad in line from single file (on the march)?", a: "\"On the left (/right), Reform Line, Remainder Mark ---- TIME\" (called on LEFT foot)" },
+        ],
       },
       {
-        cluster: 'Professional',
-        title: 'Programming',
-        desc: 'Front-end focused. Code used as a design tool — Three.js, animation, and generative graphics are the interest.',
-        stats: [['Experience','5 years'],['Stack','JS · Python · React'],['Focus','Creative code · UI']],
-        tags: ['JavaScript','Three.js','React'],
+        category: "Max Steps & Paces",
+        icon: "👟",
+        questions: [
+          { q: "What is the maximum number of paces forward or backward that can be commanded?", a: "Not to exceed 3 paces." },
+          { q: "What is the general limit for side paces at a time?", a: "Generally not exceeding 8 paces at a time." },
+          { q: "Do arms swing during paces forward, backward, or sideways?", a: "No. Arms do NOT swing." },
+          { q: "How many paces forward does the front rank march during Open Order March (3 ranks)?", a: "2½ paces forward (no arm swing). The rear rank marches 2½ paces backward. Middle rank stays still." },
+          { q: "For a 2-rank Open Order March, what happens?", a: "Only the rear rank marches 2½ paces backward. Front rank stays still." },
+          { q: "How many paces does a wheeling file turn through?", a: "Each file turns 90 degrees in 5 paces." },
+          { q: "How many paces in front of the Commander does the Right Marker stand?", a: "3 paces in front of the Commander." },
+          { q: "How many paces does the leading person march forward during Change Direction (Form)?", a: "5 paces forward." },
+          { q: "How many paces in front of the presenter do you halt when Coming Forward?", a: "2 paces in front of the presenter." },
+          { q: "How many full paces minimum must the division march when falling out?", a: "At least 3 full paces (or off the grounds)." },
+          { q: "What happens at the end of a side pace sequence?", a: "The squad halts automatically." },
+          { q: "During paces forward/backward, what happens as the last step completes?", a: "The opposite foot bends the knee (thigh at 45°), then is brought smartly back down." },
+        ],
       },
       {
-        cluster: 'Professional',
-        title: 'Business',
-        desc: 'Brand strategy, client scoping, and project delivery. Understanding business context is what separates good design from useful design.',
-        stats: [['Context','Freelance + Studio'],['Focus','Brand Strategy'],['Strength','Client Relations']],
-        tags: ['Strategy','Branding','Scoping'],
+        category: "Stationary Positions",
+        icon: "🧍",
+        questions: [
+          { q: "Describe the Attention position (feet, arms, hands, eyes).", a: "Feet turned out at 45°, knees straight. Shoulders back and down. Arms straight at sides with no gaps. Fists slightly clenched, palms toward thighs. Thumbs on side seams pointing down (NOT inside fists). Eyes straight ahead, slightly above horizon. No movement permitted." },
+          { q: "Describe Stand at Ease (hands, feet, movement).", a: "Feet shoulder width apart at heels, turned out 45°. Hands behind back — right hand back on left palm, thumbs crossed right over left, fingers not bent. Knees straight. No movement permitted despite being a relaxed position." },
+          { q: "What movement is permitted during Stand Easy?", a: "Limited upper body movement only (e.g. adjust uniform). Lower body below the waist must not move. No slouching, talking, or unnecessary movement." },
+          { q: "Describe the Bend the Knee position.", a: "Thigh raised at 45° from horizontal. Knee and ankle relaxed, lower leg hanging straight down. Toes point forward and downward. Arms held at sides as in Attention. Wrists must NOT bend." },
+          { q: "What should members do when they hear a preliminary/cautionary command while at Stand Easy?", a: "Automatically return to Stand at Ease — body erect, arms tightened, eyes looking forward and slightly above the horizon. Count for 3 seconds before making any movement when first entering Stand Easy." },
+          { q: "When transitioning from Stand at Ease to Attention, which leg moves?", a: "The LEFT leg lifts (bend the knee), then comes smartly into position beside the right. Right leg stays still. Count: 1-2." },
+          { q: "When transitioning from Attention to Stand at Ease, describe the movement.", a: "Lift the left leg, bend the left knee, while sliding arms across the body towards the back (arms do NOT swing outwards) and lowering the left leg. Count: 1-2." },
+          { q: "When going from Stand at Ease to Stand Easy, what do you do first?", a: "Slide arms to the sides of the body (fists as in Attention), then count for 3 seconds before making any movement." },
+          { q: "On a preliminary/cautionary command (e.g. \"Division\" or \"Squad\"), what happens if members are at Stand at Ease?", a: "Members sharply and succinctly straighten the body, tighten the arms, and eyes look straight to the front, slightly above the horizon." },
+        ],
       },
       {
-        cluster: 'Professional',
-        title: 'Debate',
-        desc: 'Provincial-level competitor. Argumentation, rapid research, and public speaking under pressure.',
-        stats: [['Level','Provincial'],['Format','British Parliamentary'],['Skill','Rhetoric · Research']],
-        tags: ['Public Speaking','Logic','Research'],
+        category: "Turns (Stationary)",
+        icon: "🔄",
+        questions: [
+          { q: "For a stationary Right Turn, what do you pivot on?", a: "Pivot on the RIGHT heel and LEFT toes. Right toes and left heel are raised. Weight ends on the right foot." },
+          { q: "For a stationary Left Turn, what do you pivot on?", a: "Pivot on the LEFT heel and RIGHT toes. Left toes and right heel are raised. Weight ends on the left foot." },
+          { q: "In which direction is the About Turn always made?", a: "Always by turning to the RIGHT (180 degrees). Pivot on right heel and left toes." },
+          { q: "What is the stepping sequence for all three stationary turns?", a: "ONE — execute the turn. TWO, THREE — bend the knee (opposite foot up, thigh at 45°). ONE — bring foot smartly down to Attention." },
+          { q: "For Right Turn and About Turn, which foot bends the knee after the turn?", a: "The LEFT foot bends the knee, then comes down smartly next to the right." },
+          { q: "For Left Turn, which foot bends the knee after the turn?", a: "The RIGHT foot bends the knee, then comes down smartly next to the left." },
+          { q: "What should the upper body be doing during a stationary turn?", a: "Body erect, knees straight, upper part of the body rigid. Thighs \"locked\" after the pivot." },
+        ],
       },
       {
-        cluster: 'Physical',
-        title: 'Kayaking',
-        desc: 'Pacific coast paddler. Burrard Inlet, Howe Sound, BC interior lakes. Water as reset and perspective.',
-        stats: [['Experience','6 years'],['Waters','Pacific Coast · BC'],['Type','Sea kayak · Touring']],
-        tags: ['Sea Kayak','BC Coast','Outdoors'],
+        category: "Turns & Marching",
+        icon: "🚶",
+        questions: [
+          { q: "What is the counting sequence for About Turn on the march?", a: "\"Check, T, L, V, Right\" — completed in five paces. Then LEFT foot full pace to resume marching with full arm swing." },
+          { q: "Describe the CHECK step in About Turn on the march.", a: "A half pace forward with the right foot. Arms swung to half height." },
+          { q: "Describe the T shape in About Turn on the march.", a: "Left foot stomps perpendicular to the right foot (forming a T). Right foot points forward, left foot is perpendicular. Arms tight against torso. Body is 45° clockwise from original direction." },
+          { q: "Describe the L shape in About Turn on the march.", a: "Right foot stomps forming an L. Left foot at 90° and right foot at 180° from original direction. Arms tight against torso. Body is 135° clockwise." },
+          { q: "Describe the V shape in About Turn on the march.", a: "Left foot stomps forming a V (like attention stance). Body has completely turned 180° from original direction." },
+          { q: "What is the sequence for Right Turn on the march?", a: "CHECK (right foot half pace forward) → T (left foot stomps perpendicular to right, forming T shape, body 45° clockwise) → FORWARD (right foot half pace) → LEFT (left foot full pace, resume marching with arm swing)." },
+          { q: "What is the sequence for Left Turn on the march?", a: "CHECK (left foot half pace forward) → T (right foot stomps perpendicular, forming T shape) → LEFT (left foot full pace forward, resume marching with arm swing)." },
+          { q: "What is the halting sequence by numbers?", a: "HALT (on left heel) → CHECK (full pace right foot, arms swing) → ONE (half pace, arms half swing) → TWO (bend right knee thigh 45°, arms to sides, right foot smartly down beside left, resume Attention)." },
+          { q: "Should members bend their knees during T, L, V in About Turn?", a: "Yes — members should bend their knee with thighs at 45° from horizontal during T, L, V." },
+          { q: "During Quick March, how high should the forward arm swing?", a: "Up to the shirt's first button level. Elbows must not bend. Base of thumb points to front, in line with the arm. Rear arm swings as far back as it can." },
+          { q: "How should fists be held during marching?", a: "Slightly clenched fists with the bases of the thumbs lying completely flat on top and in line with the arm." },
+          { q: "Where should members look while marching?", a: "Towards the persons' head in front of them." },
+        ],
       },
       {
-        cluster: 'Physical',
-        title: 'First Aid',
-        desc: 'Standard First Aid + CPR-C certified. Wilderness first aid trained. Preparedness as an extension of care.',
-        stats: [['Certification','Standard FA + CPR-C'],['Additional','Wilderness FA'],['Status','Current']],
-        tags: ['CPR-C','Wilderness','Emergency'],
+        category: "Wheeling & Direction",
+        icon: "↩️",
+        questions: [
+          { q: "What is wheeling used for?", a: "To change the marching direction of the squadron while marching in quick time." },
+          { q: "How many paces does each file use to complete a wheel?", a: "Each file turns 90° in 5 paces." },
+          { q: "During wheeling, how does step size vary by position?", a: "Inner person: smaller steps, very slight arm swing. Middle person: normal distance, normal swing. Outer person: larger steps, normal arm swing height." },
+          { q: "When should wheeling vs. left/right form be used?", a: "Wheeling: fewer than 6 members in a line. Left/Right Form: 6 or more members in a line." },
+          { q: "During Change Direction by Form on the march, what do the two groups do simultaneously?", a: "a) Leading person on the directing flank makes a left/right turn on the march. b) All other members make a left/right incline (45° turn, no T formed by feet)." },
+          { q: "What happens if \"at the Halt\" is NOT given in a Change Direction command?", a: "The squadron marks time instead of halting on the new alignment. Commander then gives \"Forward ---- MARCH\" or \"---- HALT\"." },
+          { q: "Can Change Direction by Form be done from a halted position?", a: "Yes. The leading person turns, the rest incline, and on \"Quick ---- MARCH\" members proceed to take up positions." },
+        ],
+      },
+      {
+        category: "Mark Time",
+        icon: "⏸️",
+        questions: [
+          { q: "Describe Mark Time foot movement.", a: "Each foot is raised alternately. Lower leg hangs perpendicular to the ground. Ankle relaxed, toes pointed forwards and downwards." },
+          { q: "When transitioning from quick march to mark time, what happens?", a: "Called on LEFT foot. Complete pace with right foot. Left foot comes forward checking to a half-pace while cutting arm swing. Begin marking time with the right foot." },
+          { q: "How do you resume marching from mark time?", a: "On \"Quick ---- MARCH\" (called on LEFT foot). Complete right foot movement, then begin quick march starting with left foot." },
+          { q: "How does Change Step work during mark time?", a: "Two successive movements with the same foot, then resume alternate movements. Used to self-correct if marking time with the wrong foot." },
+          { q: "How do you halt from mark time?", a: "Called on LEFT foot. Right foot brought smartly down beside the left. Resume Attention." },
+          { q: "Should members speed up when transitioning from march to mark time?", a: "No. It should be done in the same cadence as quick march." },
+        ],
+      },
+      {
+        category: "Formation & Organization",
+        icon: "🔲",
+        questions: [
+          { q: "What are rows and columns called in a squadron formation?", a: "Rows = RANKS. Columns = FILES. Maximum 3 ranks, no maximum files." },
+          { q: "How many ranks should be formed based on member count?", a: "5 or fewer: single rank. 6–9: two ranks. 10 or more: three ranks." },
+          { q: "What is a blank file and where is it positioned?", a: "An incomplete file when total members aren't a multiple of the number of ranks. Formed on the second file from the left. With 1 member short (3 ranks), only F1 is empty. With 2 short, F1 and F2 are empty." },
+          { q: "Where does a single person in the blank file stand?", a: "In the front-most rank (the rank that faces the direction the squad is facing in Attention)." },
+          { q: "Who is typically selected as the Right Marker?", a: "The highest-ranking NCO, or if all NCOs are same rank the tallest NCO, or the tallest member if no NCO is present." },
+          { q: "How does the Right Marker respond when called?", a: "Come to Attention, reply \"Yes, (Sir/Ma'am or Sergeant/Corporal)\", march in quick time to stand 3 paces in front of the Commander." },
+          { q: "During Roll Call, what position should members be in?", a: "Stand at Ease. When name is called: come to Attention, reply, stay at Attention until the next name is called and answered, then return to Stand at Ease." },
+          { q: "By convention, who does the person doing Roll Call NOT call out?", a: "Divisional members with a higher rank than the person conducting the Roll Call." },
+          { q: "What happens during Fall Out?", a: "1) Right turn. 2) Pause. 3) March in quick time off the grounds (at least 3 full paces)." },
+          { q: "How does Formal Dismissal differ from Fall Out?", a: "After the right turn, members SALUTE first, then march forward and break off." },
+          { q: "Once the squadron is formed, what is fixed?", a: "The direction — Left, Right, Advance, and Retire are fixed once formation is established." },
+        ],
+      },
+      {
+        category: "Saluting & Ceremonial",
+        icon: "🎖️",
+        questions: [
+          { q: "Describe the proper salute position.", a: "Right hand brought up by shortest distance. Thumb and fingers fully extended and together. Palm tilted 45° toward front. Forefinger at edge of right eyebrow. Wrist straight. Elbow in line and square with right shoulder." },
+          { q: "Where should your eyes be directed during a salute?", a: "Looking at the person being saluted in the eyes." },
+          { q: "When is saluting NOT required?", a: "When head dress has been removed. Instead, members should come to attention until being acknowledged." },
+          { q: "If a return salute is expected, when do you lower your hand?", a: "Keep the right arm up until the person being saluted has completed their return salute and put their hand down." },
+          { q: "During Eyes Right/Left while marching, who does NOT turn their head?", a: "The Right Marker does not turn his/her head." },
+          { q: "What do commanders do during Eyes Right/Left?", a: "Commanders should salute on behalf of the unit." },
+          { q: "What is the sequence for Eyes Right while marching?", a: "Called on LEFT foot. CHECK (full pace with right foot). OVER (head turned smartly to the right). Arms continue to swing normally." },
+          { q: "What is the sequence for Eyes Front while marching?", a: "Called on LEFT foot. CHECK (full pace with right foot, arms checked to sides). FORWARD (head turned to front)." },
+          { q: "Describe the full procedure for Coming Forward to receive a presentation/award.", a: "Attention → reply \"Yes Sir/Ma'am\" → 1 pace forward → right turn → march to right flank → left wheel → march to presenter → halt 2 paces away → right turn & salute → 1 pace forward → shake right hand, receive with left → 1 pace back → salute → left turn → quick march → return via left flank → left wheel → halt → left turn → 1 pace forward → Stand at Ease." },
+        ],
+      },
+      {
+        category: "Dressing & Sizing",
+        icon: "📏",
+        questions: [
+          { q: "What does the Right Marker do during dressing?", a: "Remains at Attention for the entire duration of the dressing." },
+          { q: "During dressing, what do front rank members do?", a: "Raise right arm to the right at shoulder height (back of hand faces up) and turn head to the right." },
+          { q: "What do rightmost file members do differently during dressing?", a: "Raise right arm to the FRONT at shoulder height and continue to face forward (not to the right)." },
+          { q: "If there isn't enough space for arms to fully extend, what do front rank members do?", a: "Raise their arms behind the member to the immediate right." },
+          { q: "Should members adjust arm height to match their neighbour's shoulder?", a: "No. Each member should raise the arm to their OWN shoulder height, parallel to the ground." },
+          { q: "After dressing alignment, what do members pause for before shuffling?", a: "Two paces in quick time (\"Two, Three — MOVE\")." },
+          { q: "How does the commander inspect dressing?", a: "Proceeds to the right of each rank, checks alignment, may request specific members to adjust (\"fourth man up a bit\"), asks others to follow through, then calls each rank steady (\"Front/Centre/Rear rank steady\"), says \"Division/Squad steady\", and returns to position." },
+          { q: "What command ends the dressing?", a: "\"Eyes ---- FRONT\" — front rank silently drops arms to sides, all members swiftly turn heads to face front." },
+          { q: "During sizing, what is the formation order?", a: "Tallest on the right, shortest on the left, in single rank." },
+          { q: "During sizing numbering, what does the last member say?", a: "Adds \"Sir\" or \"Ma'am\" after their number." },
+          { q: "During sizing, do arms swing when odd/even numbers step forward/back?", a: "No. Arms do NOT swing." },
+        ],
+      },
+      {
+        category: "Single File & Reform",
+        icon: "📐",
+        questions: [
+          { q: "When forming single file from the halt, what does the directing flank file do?", a: "Marches forward in single file in quick time." },
+          { q: "When forming single file from the halt, what do remaining members do?", a: "Mark time, then each file successively leads off and wheels following the file on their immediate right (or left)." },
+          { q: "When forming single file on the march, what foot do remaining members step off with?", a: "The LEFT foot first, once the file on their immediate right/left is clear." },
+          { q: "When reforming squad in line from single file (from halt), what does the leading file do?", a: "The leading file stands fast." },
+          { q: "When reforming squad in line from single file (on the march), what does the leading file do?", a: "The leading file marks time." },
+          { q: "What do remaining members do when reforming line?", a: "Step off / reform squadron in line formation by forming files successively, and halt (or mark time) once in position." },
+        ],
+      },
+      {
+        category: "Uniform & Deportment",
+        icon: "👔",
+        questions: [
+          { q: "When is limited uniform adjustment permitted during drill?", a: "Only during Stand Easy — limited upper body movement is allowed." },
+          { q: "Where should thumbs rest during Attention?", a: "On the side seams of the trousers, pointing towards the ground. NOT inside the fists." },
+          { q: "How should fists be positioned during Attention?", a: "Slightly clenched, palms turned towards the thighs. Wrists straight." },
+          { q: "What is the proper hand position behind the back during Stand at Ease?", a: "Back of right hand on palm of left hand. Thumbs crossed right over left. Do not bend fingers." },
+          { q: "Should there be gaps between arms and the body during Attention?", a: "No. No gaps should be found between the arms and sides of the body." },
+          { q: "Should there be gaps between arms and the body during Stand at Ease?", a: "No. No gaps should be found between arms and sides of the body." },
+          { q: "What common mistake do members make during turns regarding their eyes?", a: "Looking down at their feet. Eyes/sightlines should remain slightly above the horizon." },
+        ],
       },
     ];
 
-    // Cluster side: 0=left, 1=right, 2=bottom
-    const CLUSTER_SIDE = [0,0,0, 1,1,1, 2,2];
+    function DrillStudyGuide() {
+      const [activeCategory, setActiveCategory] = useState(0);
+      const [revealedAnswers, setRevealedAnswers] = useState({});
+      const [quizMode, setQuizMode] = useState(false);
+      const [quizQuestions, setQuizQuestions] = useState([]);
+      const [quizIndex, setQuizIndex] = useState(0);
+      const [quizRevealed, setQuizRevealed] = useState(false);
+      const [score, setScore] = useState({ correct: 0, total: 0 });
 
-    // ────────────────────────────────────────────────
-    // INFO PANEL LOGIC
-    // ────────────────────────────────────────────────
-    const nodeInfo   = document.getElementById('node-info');
-    const infoClose  = document.getElementById('info-close');
-    let activeNode   = -1;
+      const totalQuestions = studyData.reduce((sum, c) => sum + c.questions.length, 0);
 
-    function hexToCss(hex) {
-      const r=(hex>>16)&0xff,g=(hex>>8)&0xff,b=hex&0xff;
-      return `rgb(${r},${g},${b})`;
-    }
+      const toggleAnswer = (qIdx) => {
+        const key = `${activeCategory}-${qIdx}`;
+        setRevealedAnswers((prev) => ({ ...prev, [key]: !prev[key] }));
+      };
 
-    function showInfo(idx, hubColor) {
-      if (activeNode === idx) { hideInfo(); return; }
-      activeNode = idx;
-      const d = NODE_INFO[idx];
-      const col = hexToCss(hubColor);
+      const revealAll = () => {
+        const newRevealed = { ...revealedAnswers };
+        studyData[activeCategory].questions.forEach((_, qi) => { newRevealed[`${activeCategory}-${qi}`] = true; });
+        setRevealedAnswers(newRevealed);
+      };
 
-      document.getElementById('info-cluster').textContent = d.cluster;
-      document.getElementById('info-title').textContent   = d.title;
-      document.getElementById('info-desc').textContent    = d.desc;
-      const line = document.getElementById('info-line');
-      line.style.background = col;
+      const hideAll = () => {
+        const newRevealed = { ...revealedAnswers };
+        studyData[activeCategory].questions.forEach((_, qi) => { newRevealed[`${activeCategory}-${qi}`] = false; });
+        setRevealedAnswers(newRevealed);
+      };
 
-      // bracket corner colors
-      nodeInfo.querySelectorAll('.icn').forEach(c => c.style.borderColor = hexToCss(hubColor).replace('rgb','rgba').replace(')',',0.5)'));
-
-      const statsEl = document.getElementById('info-stats');
-      statsEl.innerHTML = d.stats.map(([k,v])=>
-        `<div class="info-stat"><span>${k}</span><span>${v}</span></div>`
-      ).join('');
-
-      const tagsEl = document.getElementById('info-tags');
-      tagsEl.innerHTML = d.tags.map(t=>`<div class="info-tag">${t}</div>`).join('');
-
-      // Position: left/right/bottom edge of graph panel
-      const side = CLUSTER_SIDE[idx];
-      const pad = 18;
-      nodeInfo.style.top    = '';
-      nodeInfo.style.bottom = '';
-      nodeInfo.style.left   = '';
-      nodeInfo.style.right  = '';
-
-      if (side === 0) {         // left cluster → panel hugs left edge, full height
-        nodeInfo.style.left   = `0`;
-        nodeInfo.style.top    = `0`;
-        nodeInfo.style.bottom = `0`;
-        nodeInfo.style.transform = 'translateX(0)';
-      } else if (side === 1) { // right cluster → panel hugs right edge, full height
-        nodeInfo.style.right  = `0`;
-        nodeInfo.style.top    = `0`;
-        nodeInfo.style.bottom = `0`;
-        nodeInfo.style.transform = 'translateX(0)';
-      } else {                  // bottom cluster → box bottom-center
-        nodeInfo.style.bottom = `18px`;
-        nodeInfo.style.left   = '50%';
-        nodeInfo.style.top    = 'auto';
-        nodeInfo.style.transform = 'translateX(-50%)';
-      }
-
-      nodeInfo.classList.add('visible');
-    }
-
-    function hideInfo() {
-      activeNode = -1;
-      nodeInfo.classList.remove('visible');
-    }
-
-    infoClose.addEventListener('click', hideInfo);
-
-    // ────────────────────────────────────────────────
-    // THREE.JS NETWORK
-    // ────────────────────────────────────────────────
-    const threeCanvas = document.getElementById('three-canvas');
-    const labelCanvas = document.getElementById('label-canvas');
-    const lCtx = labelCanvas.getContext('2d');
-    const graphPanel = document.getElementById('p-graph');
-
-    function initThree() {
-      const W = threeCanvas.offsetWidth;
-      const H = threeCanvas.offsetHeight;
-
-      const renderer = new THREE.WebGLRenderer({ canvas:threeCanvas, antialias:true, alpha:true });
-      renderer.setSize(W, H);
-      renderer.setPixelRatio(window.devicePixelRatio||1);
-      renderer.setClearColor(0x000000, 0);
-
-      const scene  = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(52, W/H, 0.1, 100);
-      camera.position.z = 11;
-
-      const HUBS = [
-        // Creative (left)
-        { label:'Photography', x:-3.2, y: 1.4, z: 0.3, col:0x14294f, r:0.40 },
-        { label:'Videography', x:-1.8, y: 2.3, z:-0.5, col:0x1f3f70, r:0.36 },
-        { label:'Guitar',      x:-4.0, y:-0.2, z: 0.9, col:0x3a6aa1, r:0.32 },
-        // Professional (right)
-        { label:'Programming', x: 2.4, y: 1.4, z:-0.4, col:0x477bb0, r:0.42 },
-        { label:'Business',    x: 3.5, y:-0.3, z: 0.6, col:0x9dc6e1, r:0.38 },
-        { label:'Debate',      x: 1.8, y:-1.2, z: 0.7, col:0x4e81b2, r:0.32 },
-        // Physical (bottom)
-        { label:'Kayaking',    x:-0.4, y:-2.8, z: 0.9, col:0x122344, r:0.36 },
-        { label:'First Aid',   x: 1.2, y:-2.4, z:-0.6, col:0xe1f1fd, r:0.32 },
-      ];
-
-      const HUB_EDGES = [
-        [0,1],[0,2],[1,2],
-        [3,4],[4,5],[3,5],
-        [6,7],
-        [1,3],[0,3],
-        [5,7],[6,2],
-        [0,6],[4,3],
-      ];
-
-      const graphGroup = new THREE.Group();
-      scene.add(graphGroup);
-
-      // Hub meshes (keep reference for raycasting)
-      const hubMeshes = HUBS.map(h => {
-        const mesh = new THREE.Mesh(
-          new THREE.SphereGeometry(h.r, 24, 24),
-          new THREE.MeshBasicMaterial({ color: h.col })
+      const startQuiz = (count = 20) => {
+        const all = studyData.flatMap((cat, ci) =>
+          cat.questions.map((q, qi) => ({ ...q, category: cat.category, icon: cat.icon, key: `${ci}-${qi}` }))
         );
-        mesh.position.set(h.x, h.y, h.z);
-        graphGroup.add(mesh);
-        return mesh;
-      });
+        const shuffled = [...all].sort(() => Math.random() - 0.5).slice(0, count);
+        setQuizQuestions(shuffled);
+        setQuizIndex(0);
+        setQuizRevealed(false);
+        setScore({ correct: 0, total: 0 });
+        setQuizMode(true);
+      };
 
-      // Halo glow rings
-      HUBS.forEach((h,i) => {
-        const halo = new THREE.Mesh(
-          new THREE.SphereGeometry(h.r*1.9, 20, 20),
-          new THREE.MeshBasicMaterial({ color:h.col, transparent:true, opacity:0.07 })
-        );
-        halo.position.copy(hubMeshes[i].position);
-        graphGroup.add(halo);
-      });
+      const startCategoryQuiz = (catIndex) => {
+        const cat = studyData[catIndex];
+        const shuffled = [...cat.questions]
+          .map((q, qi) => ({ ...q, category: cat.category, icon: cat.icon, key: `${catIndex}-${qi}` }))
+          .sort(() => Math.random() - 0.5);
+        setQuizQuestions(shuffled);
+        setQuizIndex(0);
+        setQuizRevealed(false);
+        setScore({ correct: 0, total: 0 });
+        setQuizMode(true);
+      };
 
-      // Satellites
-      const satPositions = [];
-      HUBS.forEach((h,hi) => {
-        const count = 10 + Math.floor(sr(hi*97)*8);
-        for (let i=0;i<count;i++) {
-          const phi  = sr(hi*41+i*13)*Math.PI*2;
-          const theta= sr(hi*67+i*29)*Math.PI;
-          const dist = 0.9+sr(hi*53+i*17)*0.9;
-          const sx=h.x+dist*Math.sin(theta)*Math.cos(phi);
-          const sy=h.y+dist*Math.sin(theta)*Math.sin(phi);
-          const sz=h.z+dist*Math.cos(theta);
-          const mesh=new THREE.Mesh(
-            new THREE.SphereGeometry(0.06+sr(hi*31+i*19)*0.07,8,8),
-            new THREE.MeshBasicMaterial({color:h.col,transparent:true,opacity:0.5+sr(hi*23+i*37)*0.35})
-          );
-          mesh.position.set(sx,sy,sz);
-          graphGroup.add(mesh);
-          satPositions.push({pos:[sx,sy,sz],hubIdx:hi});
-        }
-      });
-
-      // All edges in one LineSegments
-      const verts=[];
-      function addEdge(ax,ay,az,bx,by,bz){verts.push(ax,ay,az,bx,by,bz);}
-      HUB_EDGES.forEach(([a,b])=>{const ha=HUBS[a],hb=HUBS[b];addEdge(ha.x,ha.y,ha.z,hb.x,hb.y,hb.z);});
-      satPositions.forEach(({pos,hubIdx})=>{const h=HUBS[hubIdx];addEdge(h.x,h.y,h.z,pos[0],pos[1],pos[2]);});
-      for(let i=0;i<satPositions.length;i++) for(let j=i+1;j<satPositions.length;j++){
-        if(satPositions[i].hubIdx!==satPositions[j].hubIdx) continue;
-        if(sr(i*83+j*47)>0.18) continue;
-        const pi=satPositions[i].pos,pj=satPositions[j].pos;
-        const dx=pi[0]-pj[0],dy=pi[1]-pj[1],dz=pi[2]-pj[2];
-        if(dx*dx+dy*dy+dz*dz>4) continue;
-        addEdge(pi[0],pi[1],pi[2],pj[0],pj[1],pj[2]);
-      }
-      const lineGeo=new THREE.BufferGeometry();
-      lineGeo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
-      graphGroup.add(new THREE.LineSegments(lineGeo,
-        new THREE.LineBasicMaterial({color:0x4477aa,transparent:true,opacity:0.20})));
-
-      // ── Mouse tilt ──────────────────────────────────
-      let targetRotX=0,targetRotY=0,curRotX=0,curRotY=0;
-      graphPanel.addEventListener('mousemove',e=>{
-        const r=graphPanel.getBoundingClientRect();
-        targetRotY=((e.clientX-r.left)/r.width-0.5)*1.4;
-        targetRotX=((e.clientY-r.top)/r.height-0.5)*0.8;
-      });
-      graphPanel.addEventListener('mouseleave',()=>{targetRotX=0;targetRotY=0;});
-
-      // ── Raycasting — click nodes ─────────────────────
-      const raycaster = new THREE.Raycaster();
-      raycaster.params.Mesh = {};
-      const mouse = new THREE.Vector2();
-
-      graphPanel.addEventListener('click', e => {
-        // Don't trigger if user clicked the info box or close btn
-        if (e.target === nodeInfo || nodeInfo.contains(e.target)) return;
-
-        const rect = threeCanvas.getBoundingClientRect();
-        mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
-        mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
-        raycaster.setFromCamera(mouse, camera);
-
-        // Slightly inflate for easier clicking
-        const hits = raycaster.intersectObjects(hubMeshes);
-        if (hits.length > 0) {
-          const idx = hubMeshes.indexOf(hits[0].object);
-          if (idx !== -1) showInfo(idx, HUBS[idx].col);
+      const markQuiz = (gotIt) => {
+        setScore((prev) => ({ correct: prev.correct + (gotIt ? 1 : 0), total: prev.total + 1 }));
+        if (quizIndex < quizQuestions.length - 1) {
+          setQuizIndex((i) => i + 1);
+          setQuizRevealed(false);
         } else {
-          hideInfo();
+          setQuizIndex(-1);
         }
-      });
+      };
 
-      // ── Labels ──────────────────────────────────────
-      function renderLabels() {
-        const lW=labelCanvas.offsetWidth, lH=labelCanvas.offsetHeight;
-        labelCanvas.width=lW*(window.devicePixelRatio||1);
-        labelCanvas.height=lH*(window.devicePixelRatio||1);
-        lCtx.setTransform(window.devicePixelRatio||1,0,0,window.devicePixelRatio||1,0,0);
-        lCtx.clearRect(0,0,lW,lH);
-        HUBS.forEach((h,i)=>{
-          const wp=new THREE.Vector3();
-          hubMeshes[i].getWorldPosition(wp);
-          const proj=wp.clone().project(camera);
-          const sx=(proj.x+1)/2*lW, sy=(-proj.y+1)/2*lH;
-          const r=(h.col>>16)&0xff,g=(h.col>>8)&0xff,b=h.col&0xff;
-          lCtx.font = "300 10px 'NeueMontreal', sans-serif"; 
-    
-        lCtx.letterSpacing = '0.05em'; // Optional: add tracking for better legibility
-        lCtx.fillStyle = "rgba(255, 255, 255, 1)";
-        lCtx.fillText(h.label.toUpperCase(), sx + h.r * 28 + 4, sy + 4);
-        });
-      }
+      const currentCat = studyData[activeCategory];
 
-      // ── Animate ─────────────────────────────────────
-      const clock=new THREE.Clock();
-      function threeLoop(){
-        requestAnimationFrame(threeLoop);
-        const elapsed=clock.getElapsedTime();
-        curRotX+=(targetRotX-curRotX)*0.04;
-        curRotY+=(targetRotY-curRotY)*0.04;
-        graphGroup.rotation.y=curRotY+elapsed*0.04;
-        graphGroup.rotation.x=curRotX;
-        renderer.render(scene,camera);
-        renderLabels();
-      }
-      threeLoop();
+      return (
+        <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif", minHeight: "100vh", background: "#0f1114", color: "#e8e4dc", padding: 0, margin: 0 }}>
+          {/* Header */}
+          <div style={{ borderBottom: "1px solid rgba(255,255,255,0.08)", padding: "24px 20px 18px", background: "linear-gradient(180deg, rgba(200,16,46,0.08) 0%, transparent 100%)" }}>
+            <div style={{ fontSize: 11, letterSpacing: 3, textTransform: "uppercase", color: "#c8102e", fontFamily: "system-ui, sans-serif", fontWeight: 600, marginBottom: 6 }}>
+              St. John Ambulance — Drill Study Guide
+            </div>
+            <h1 style={{ fontSize: 24, fontWeight: 400, margin: "4px 0 4px", letterSpacing: -0.3, lineHeight: 1.2 }}>
+              Basic Drill Manual
+              <span style={{ fontSize: 14, color: "rgba(232,228,220,0.4)", fontStyle: "italic", marginLeft: 10 }}>{totalQuestions} questions</span>
+            </h1>
+            <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
+              <button onClick={() => setQuizMode(false)} style={{ padding: "7px 16px", fontSize: 13, fontFamily: "system-ui, sans-serif", border: !quizMode ? "1px solid #c8102e" : "1px solid rgba(255,255,255,0.08)", background: !quizMode ? "rgba(200,16,46,0.15)" : "transparent", color: !quizMode ? "#c8102e" : "rgba(232,228,220,0.45)", borderRadius: 6, cursor: "pointer", fontWeight: 600 }}>📖 Study</button>
+              <button onClick={() => startQuiz(20)} style={{ padding: "7px 16px", fontSize: 13, fontFamily: "system-ui, sans-serif", border: quizMode ? "1px solid #d4a843" : "1px solid rgba(255,255,255,0.08)", background: quizMode ? "rgba(212,168,67,0.15)" : "transparent", color: quizMode ? "#d4a843" : "rgba(232,228,220,0.45)", borderRadius: 6, cursor: "pointer", fontWeight: 600 }}>🎯 Quiz (20 Random)</button>
+            </div>
+          </div>
 
-      window.addEventListener('resize',()=>{
-        const nW=threeCanvas.offsetWidth,nH=threeCanvas.offsetHeight;
-        renderer.setSize(nW,nH);
-        camera.aspect=nW/nH;
-        camera.updateProjectionMatrix();
-      });
+          {!quizMode ? (
+            <div style={{ display: "flex", minHeight: "calc(100vh - 130px)" }}>
+              {/* Sidebar */}
+              <div style={{ width: 230, minWidth: 230, borderRight: "1px solid rgba(255,255,255,0.08)", padding: "10px 0", overflowY: "auto", maxHeight: "calc(100vh - 130px)" }}>
+                {studyData.map((cat, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center" }}>
+                    <button onClick={() => setActiveCategory(i)} style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, padding: "9px 14px", border: "none", background: i === activeCategory ? "rgba(200,16,46,0.1)" : "transparent", borderLeft: i === activeCategory ? "3px solid #c8102e" : "3px solid transparent", color: i === activeCategory ? "#fff" : "rgba(232,228,220,0.5)", cursor: "pointer", fontSize: 12.5, fontFamily: "system-ui, sans-serif", textAlign: "left" }}>
+                      <span style={{ fontSize: 14 }}>{cat.icon}</span>
+                      <span style={{ flex: 1 }}>{cat.category}</span>
+                      <span style={{ fontSize: 10, background: "rgba(255,255,255,0.05)", padding: "1px 6px", borderRadius: 8, color: "rgba(232,228,220,0.3)" }}>{cat.questions.length}</span>
+                    </button>
+                    <button onClick={() => startCategoryQuiz(i)} title={`Quiz: ${cat.category}`} style={{ padding: "4px 8px", border: "none", background: "transparent", color: "rgba(232,228,220,0.2)", cursor: "pointer", fontSize: 12, fontFamily: "system-ui", marginRight: 4 }}>🎯</button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Main */}
+              <div style={{ flex: 1, padding: "18px 24px", overflowY: "auto", maxHeight: "calc(100vh - 130px)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+                  <h2 style={{ fontSize: 18, fontWeight: 400, margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 22 }}>{currentCat.icon}</span>
+                    {currentCat.category}
+                  </h2>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={revealAll} style={{ padding: "4px 12px", fontSize: 11, fontFamily: "system-ui", border: "1px solid rgba(255,255,255,0.08)", background: "transparent", color: "rgba(232,228,220,0.4)", borderRadius: 5, cursor: "pointer" }}>Show All</button>
+                    <button onClick={hideAll} style={{ padding: "4px 12px", fontSize: 11, fontFamily: "system-ui", border: "1px solid rgba(255,255,255,0.08)", background: "transparent", color: "rgba(232,228,220,0.4)", borderRadius: 5, cursor: "pointer" }}>Hide All</button>
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {currentCat.questions.map((item, qi) => {
+                    const key = `${activeCategory}-${qi}`;
+                    const revealed = revealedAnswers[key];
+                    return (
+                      <div key={qi} onClick={() => toggleAnswer(qi)} style={{ background: revealed ? "rgba(200,16,46,0.03)" : "rgba(255,255,255,0.03)", border: `1px solid ${revealed ? "rgba(200,16,46,0.15)" : "rgba(255,255,255,0.06)"}`, borderRadius: 8, padding: "14px 18px", cursor: "pointer", transition: "all 0.15s" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>
+                          <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5, fontFamily: "system-ui, sans-serif", fontWeight: 500, color: "#fff" }}>
+                            <span style={{ color: "#c8102e", marginRight: 7, fontSize: 11, fontWeight: 700 }}>Q{qi + 1}</span>
+                            {item.q}
+                          </p>
+                          <span style={{ fontSize: 10, color: "rgba(232,228,220,0.25)", fontFamily: "system-ui", whiteSpace: "nowrap", marginTop: 2 }}>{revealed ? "▲" : "▼"}</span>
+                        </div>
+                        {revealed && (
+                          <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                            <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6, color: "rgba(232,228,220,0.75)", fontFamily: "system-ui, sans-serif" }}>{item.a}</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div style={{ maxWidth: 600, margin: "0 auto", padding: "28px 20px" }}>
+              {quizIndex === -1 ? (
+                <div style={{ textAlign: "center", paddingTop: 36 }}>
+                  <div style={{ fontSize: 44, marginBottom: 14 }}>{score.correct / score.total >= 0.8 ? "🎖️" : score.correct / score.total >= 0.5 ? "📋" : "📖"}</div>
+                  <h2 style={{ fontSize: 26, fontWeight: 400, margin: "0 0 6px" }}>{score.correct} / {score.total}</h2>
+                  <p style={{ color: "rgba(232,228,220,0.45)", fontFamily: "system-ui", fontSize: 13, margin: "0 0 28px" }}>
+                    {score.correct / score.total >= 0.8 ? "Excellent drill knowledge!" : score.correct / score.total >= 0.5 ? "Good effort — review the areas you missed." : "Keep studying — you'll get there."}
+                  </p>
+                  <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                    <button onClick={() => startQuiz(20)} style={{ padding: "10px 24px", fontSize: 13, fontFamily: "system-ui", border: "1px solid #c8102e", background: "rgba(200,16,46,0.15)", color: "#c8102e", borderRadius: 7, cursor: "pointer", fontWeight: 600 }}>Try Again (20)</button>
+                    <button onClick={() => startQuiz(totalQuestions)} style={{ padding: "10px 24px", fontSize: 13, fontFamily: "system-ui", border: "1px solid #d4a843", background: "rgba(212,168,67,0.1)", color: "#d4a843", borderRadius: 7, cursor: "pointer", fontWeight: 600 }}>Full Test ({totalQuestions})</button>
+                    <button onClick={() => setQuizMode(false)} style={{ padding: "10px 24px", fontSize: 13, fontFamily: "system-ui", border: "1px solid rgba(255,255,255,0.08)", background: "transparent", color: "rgba(232,228,220,0.5)", borderRadius: 7, cursor: "pointer" }}>Back to Study</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, fontFamily: "system-ui", fontSize: 12, color: "rgba(232,228,220,0.35)" }}>
+                    <span>Question {quizIndex + 1} / {quizQuestions.length}</span>
+                    <span style={{ color: "#d4a843" }}>✓ {score.correct} / {score.total}</span>
+                  </div>
+                  <div style={{ height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 3, marginBottom: 28, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${(quizIndex / quizQuestions.length) * 100}%`, background: "#c8102e", borderRadius: 3, transition: "width 0.3s" }} />
+                  </div>
+                  <div style={{ fontSize: 10, color: "rgba(232,228,220,0.25)", fontFamily: "system-ui", textTransform: "uppercase", letterSpacing: 2, marginBottom: 8 }}>
+                    {quizQuestions[quizIndex].icon} {quizQuestions[quizIndex].category}
+                  </div>
+                  <h3 style={{ fontSize: 17, fontWeight: 400, lineHeight: 1.5, margin: "0 0 24px", fontFamily: "system-ui, sans-serif" }}>
+                    {quizQuestions[quizIndex].q}
+                  </h3>
+                  {!quizRevealed ? (
+                    <button onClick={() => setQuizRevealed(true)} style={{ padding: "12px 28px", fontSize: 13, fontFamily: "system-ui", border: "1px solid #d4a843", background: "rgba(212,168,67,0.08)", color: "#d4a843", borderRadius: 7, cursor: "pointer", fontWeight: 600, width: "100%" }}>Reveal Answer</button>
+                  ) : (
+                    <>
+                      <div style={{ background: "rgba(212,168,67,0.05)", border: "1px solid rgba(212,168,67,0.12)", borderRadius: 8, padding: "16px 20px", marginBottom: 20 }}>
+                        <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6, color: "rgba(232,228,220,0.8)", fontFamily: "system-ui, sans-serif" }}>{quizQuestions[quizIndex].a}</p>
+                      </div>
+                      <div style={{ display: "flex", gap: 10 }}>
+                        <button onClick={() => markQuiz(true)} style={{ flex: 1, padding: "12px 20px", fontSize: 13, fontFamily: "system-ui", border: "1px solid rgba(76,175,80,0.35)", background: "rgba(76,175,80,0.08)", color: "#81c784", borderRadius: 7, cursor: "pointer", fontWeight: 600 }}>✓ Got It</button>
+                        <button onClick={() => markQuiz(false)} style={{ flex: 1, padding: "12px 20px", fontSize: 13, fontFamily: "system-ui", border: "1px solid rgba(244,67,54,0.25)", background: "rgba(244,67,54,0.06)", color: "#e57373", borderRadius: 7, cursor: "pointer", fontWeight: 600 }}>✗ Missed It</button>
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      );
     }
 
-    requestAnimationFrame(()=>initThree());
-
-    // ────────────────────────────────────────────────
-    // HEATMAP — github-style, weeks × days-of-week
-    // ────────────────────────────────────────────────
-    (function() {
-      const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun',
-                      'Jul','Aug','Sep','Oct','Nov','Dec'];
-      const MONTH_FULL = ['January','February','March','April','May','June',
-                          'July','August','September','October','November','December'];
-
-      // Deterministic fake hours per day (0–10)
-      function hoursForDate(y, m, d) {
-        const v = Math.abs(Math.sin(y*374.1 + m*53.7 + d*127.3) * 43758.5);
-        const n = v - Math.floor(v);
-        const dow = new Date(y, m, d).getDay(); // 0=Sun
-        const isWeekend = dow === 0 || dow === 6;
-        if (n < (isWeekend ? 0.48 : 0.18)) return 0;
-        return Math.round(n * (isWeekend ? 5 : 10) * 10) / 10;
-      }
-
-      // Blue heat scale — no rounded corners, scanlines via CSS ::after
-      function heatBg(h) {
-        if (h <= 0)  return '#111118';
-        if (h < 1.5) return '#0e1e3a';
-        if (h < 3)   return '#14294f';
-        if (h < 4.5) return '#1f3f70';
-        if (h < 6)   return '#3a6aa1';
-        if (h < 8)   return '#477bb0';
-        return '#9dc6e1';
-      }
-      function heatGlow(h) {
-        if (h >= 8)   return '0 0 5px 1px rgba(157,198,225,0.5),0 0 10px 2px rgba(71,123,176,0.28)';
-        if (h >= 6)   return '0 0 3px 1px rgba(71,123,176,0.3)';
-        return 'none';
-      }
-
-      const now = new Date();
-      let activeMonth = now.getMonth();
-      let activeYear  = now.getFullYear();
-
-      // We show the full year of activeYear, highlight activeMonth
-      const grid     = document.getElementById('hm-week-grid');
-      const mlabels  = document.getElementById('hm-month-labels');
-      const totalEl  = document.getElementById('hm-total');
-      const nav      = document.getElementById('hm-nav');
-
-      // Build month nav pills (Jan–Dec for activeYear)
-      function buildNav() {
-        nav.innerHTML = '';
-        MONTHS.forEach((mn, mi) => {
-          const pill = document.createElement('div');
-          pill.className = 'hm-nav-pill' + (mi === activeMonth ? ' active' : '');
-          pill.textContent = mn + ' \'' + String(activeYear).slice(2);
-          pill.addEventListener('click', () => { activeMonth = mi; render(); });
-          nav.appendChild(pill);
-        });
-        // Scroll active pill into view within the nav strip only (no page scroll)
-        const activePill = nav.querySelector('.active');
-        if (activePill) {
-          nav.scrollLeft = activePill.offsetLeft - (nav.offsetWidth / 2) + (activePill.offsetWidth / 2);
-        }
-      }
-
-      function render() {
-        grid.innerHTML = '';
-        mlabels.innerHTML = '';
-
-        // Full year: Jan 1 → Dec 31 of activeYear
-        const yearStart = new Date(activeYear, 0, 1);
-        // Offset: make Mon = index 0 (JS: Sun=0 Mon=1... so (dow+6)%7)
-        const startOffset = (yearStart.getDay() + 6) % 7;
-
-        // Total weeks needed
-        const daysInYear = ((activeYear % 4 === 0 && activeYear % 100 !== 0) || activeYear % 400 === 0) ? 366 : 365;
-        const totalWeeks = Math.ceil((daysInYear + startOffset) / 7);
-
-        // Month label positions: track which week each month starts on
-        const monthWeekStart = {};
-        for (let dayIdx = 0; dayIdx < daysInYear; dayIdx++) {
-          const d = new Date(activeYear, 0, 1 + dayIdx);
-          if (d.getDate() === 1) {
-            monthWeekStart[d.getMonth()] = Math.floor((dayIdx + startOffset) / 7);
-          }
-        }
-
-        // Build month label row — positioned by pixel after grid renders
-        mlabels.style.position = 'relative';
-        mlabels.style.height = '14px';
-        mlabels.style.marginLeft = '28px';
-
-        // Defer label positioning until grid has rendered dimensions
-        requestAnimationFrame(() => {
-          const gridW = grid.offsetWidth || 1;
-          MONTHS.forEach((mn, mi) => {
-            const weekIdx = monthWeekStart[mi];
-            if (weekIdx === undefined) return;
-            const el = document.createElement('div');
-            el.className = 'hm-month-label';
-            el.textContent = mn;
-            const px = (weekIdx / totalWeeks) * gridW;
-            el.style.cssText = `position:absolute;left:${px}px;`;
-            mlabels.appendChild(el);
-          });
-        });
-
-        // Compute month total for activeMonth
-        const daysInActive = new Date(activeYear, activeMonth + 1, 0).getDate();
-        let monthTotal = 0;
-        for (let d = 1; d <= daysInActive; d++) monthTotal += hoursForDate(activeYear, activeMonth, d);
-        totalEl.textContent = Math.round(monthTotal * 10) / 10 + ' hrs';
-
-        // Build week columns
-        for (let w = 0; w < totalWeeks; w++) {
-          const col = document.createElement('div');
-          col.className = 'hm-week-col';
-          for (let dow = 0; dow < 7; dow++) {
-            const dayIdx = w * 7 + dow - startOffset;
-            const cell = document.createElement('div');
-            cell.className = 'hm-cell';
-            if (dayIdx < 0 || dayIdx >= daysInYear) {
-              cell.style.background = 'transparent';
-              cell.style.pointerEvents = 'none';
-            } else {
-              const d = new Date(activeYear, 0, 1 + dayIdx);
-              const dm = d.getMonth(), dd = d.getDate();
-              const h = hoursForDate(activeYear, dm, dd);
-              cell.style.background = heatBg(h);
-              cell.style.boxShadow  = heatGlow(h);
-              // Fade weeks outside active month
-              if (dm !== activeMonth) cell.classList.add('faded');
-              cell.title = `${MONTH_FULL[dm]} ${dd}: ${h}h`;
-            }
-            col.appendChild(cell);
-          }
-          grid.appendChild(col);
-        }
-
-        buildNav();
-      }
-
-      render();
-    })();
-
-    // ── PROJECT PROGRESS BARS ────────────────────────
-    (function() {
-      const SEGS = 28;
-      const projects = [
-        { id: 'proj-bar-0', pct: 78, color: '#9dc6e1' },
-        { id: 'proj-bar-1', pct: 55, color: '#477bb0' },
-        { id: 'proj-bar-2', pct: 30, color: '#3a6aa1' },
-        { id: 'proj-bar-3', pct: 12, color: '#1f3f70' },
-      ];
-      projects.forEach(({ id, pct, color }) => {
-        const bar = document.getElementById(id);
-        if (!bar) return;
-        const filled = Math.round(pct / 100 * SEGS);
-        for (let i = 0; i < SEGS; i++) {
-          const seg = document.createElement('div');
-          seg.className = 'proj-seg ' + (i < filled ? 'filled' : 'empty');
-          if (i < filled) {
-            // Slight gradient fade toward the fill edge
-            const fade = 0.5 + 0.5 * (i / filled);
-            seg.style.background = color;
-            seg.style.opacity = fade;
-          }
-          bar.appendChild(seg);
-        }
-      });
-    })();
-
-    // ── FAN ALBUM ────────────────────────────────────
-    (function() {
-      // ── YOUR PHOTOS ── update filenames/extensions as needed
-      const PHOTOS = [
-        { src: '_UYU5063.jpg',                                        label: 'Photo 1' },
-        { src: 'IMG-20251112-WA0006.jpg',                             label: 'Photo 2' },
-        { src: 'tmp_66489b32-aec7-46ed-bcec-aeca9d59fe34.jpeg',       label: 'Photo 3' },
-        { src: 'Untitled.png',                                        label: 'Photo 4' },
-      ];
-
-      const ring    = document.getElementById('fan-ring');
-      const stage   = document.getElementById('fan-stage');
-      const counter = document.getElementById('fan-counter');
-      const prevBtn = document.getElementById('fan-prev');
-      const nextBtn = document.getElementById('fan-next');
-
-      const N = PHOTOS.length;
-      let offset = 0;
-      counter.textContent = '1 / ' + N;
-
-      // ── Measure stage and size cards to fill it ──────
-      function getCardSize() {
-        const sw = stage.offsetWidth  || 300;
-        const sh = stage.offsetHeight || 400;
-        // Target aspect ratio 3:4 (portrait photos).
-        // Fill ~88% of the shorter constraint.
-        let w = sw * 0.88;
-        let h = w * (4 / 3);
-        if (h > sh * 0.92) {
-          h = sh * 0.92;
-          w = h * (3 / 4);
-        }
-        return { w: Math.round(w), h: Math.round(h) };
-      }
-
-      // ── Build cards ──────────────────────────────────
-      const cards = PHOTOS.map(({ src, label }, i) => {
-        const card = document.createElement('div');
-        card.className = 'fan-card';
-        card.style.background = '#0d1c36';
-
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = label;
-        img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center;display:block;pointer-events:none;user-select:none;';
-        img.onerror = () => { img.style.display = 'none'; };
-        card.appendChild(img);
-
-        card.addEventListener('click', () => {
-          const cur   = ((offset % N) + N) % N;
-          let   delta = i - cur;
-          if (delta >  N / 2) delta -= N;
-          if (delta < -N / 2) delta += N;
-          offset += delta;
-          applyRender(true);
-        });
-
-        ring.appendChild(card);
-        return card;
-      });
-
-      // ── Layout: active card fills stage, side cards peek ─
-      function applyRender(animated) {
-        const cur = ((offset % N) + N) % N;
-        counter.textContent = (cur + 1) + ' / ' + N;
-
-        const { w, h } = getCardSize();
-        const sw = stage.offsetWidth  || 300;
-        const sh = stage.offsetHeight || 400;
-
-        // How far side cards slide out (so they just peek at the edge)
-        const peekX    = sw * 0.28;   // horizontal shift for side cards
-        const sideAngle = 16;          // Y-rotation for side cards (degrees)
-        const sideScale = 0.88;        // slightly smaller
-
-        cards.forEach((card, i) => {
-          // Relative position to active: -1, 0, +1
-          let rel = i - cur;
-          if (rel >  N / 2) rel -= N;
-          if (rel < -N / 2) rel += N;
-
-          // Size all cards identically
-          card.style.width  = w + 'px';
-          card.style.height = h + 'px';
-          card.style.left   = Math.round((sw - w) / 2) + 'px';
-          card.style.top    = Math.round((sh - h) / 2) + 'px';
-
-          const trans = animated
-            ? 'transform 0.52s cubic-bezier(0.34,1.06,0.64,1), opacity 0.52s ease'
-            : 'none';
-          card.style.transition = trans;
-
-          if (rel === 0) {
-            // Active — front and centre, full opacity
-            card.style.transform  = 'translateX(0px) rotateY(0deg) scale(1)';
-            card.style.opacity    = '1';
-            card.style.zIndex     = '10';
-          } else {
-            // Side cards — angled and dimmed so they clearly peek out
-            const sign = rel > 0 ? 1 : -1;
-            card.style.transform  = `translateX(${sign * peekX}px) rotateY(${sign * sideAngle}deg) scale(${sideScale})`;
-            card.style.opacity    = '0.28';
-            card.style.zIndex     = '5';
-          }
-
-          card.classList.toggle('fan-active', rel === 0);
-        });
-      }
-
-      prevBtn.addEventListener('click', e => { e.stopPropagation(); offset--; applyRender(true); });
-      nextBtn.addEventListener('click', e => { e.stopPropagation(); offset++; applyRender(true); });
-
-      // Re-layout on resize
-      window.addEventListener('resize', () => applyRender(false));
-
-      // Initial render after layout is ready
-      requestAnimationFrame(() => requestAnimationFrame(() => applyRender(false)));
-    })();
-    // ── GLOBE ─────────────────────────────────────────
-    (function() {
-      const canvas = document.getElementById('globe-canvas');
-      if (!canvas) return;
-      const wrap = document.getElementById('globe-wrap');
-
-      function resize() {
-        const w = wrap.offsetWidth;
-        const h = wrap.offsetHeight - 40; // reserve space for label
-        const size = Math.min(w, h) * 0.82;
-        canvas.width  = size * (window.devicePixelRatio || 1);
-        canvas.height = size * (window.devicePixelRatio || 1);
-        canvas.style.width  = size + 'px';
-        canvas.style.height = size + 'px';
-      }
-      window.addEventListener('resize', resize);
-
-      const ctx = canvas.getContext('2d');
-
-      // Vancouver: lat 49.25N, lng -123.1W
-      const VAN_LAT = 49.25 * Math.PI / 180;
-      const VAN_LNG = -123.1 * Math.PI / 180;
-
-      let rot = 0;
-
-      function project(lat, lng, R) {
-        // Rotate by rot around Y axis
-        const x0 = Math.cos(lat) * Math.sin(lng + rot);
-        const y0 = Math.sin(lat);
-        const z0 = Math.cos(lat) * Math.cos(lng + rot);
-        return { x: x0 * R, y: -y0 * R, z: z0 };
-      }
-
-      function drawGlobe() {
-        const dpr = window.devicePixelRatio || 1;
-        const W = canvas.width / dpr;
-        const H = canvas.height / dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, W, H);
-
-        const cx = W / 2, cy = H / 2;
-        const R  = W * 0.44;
-
-        // Background sphere
-        const grad = ctx.createRadialGradient(cx - R*0.2, cy - R*0.2, R*0.1, cx, cy, R);
-        grad.addColorStop(0, 'rgba(20,41,79,0.18)');
-        grad.addColorStop(1, 'rgba(4,8,18,0.06)');
-        ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        // Outer ring
-        ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(71,123,176,0.22)';
-        ctx.lineWidth = 0.8;
-        ctx.stroke();
-
-        // Latitude lines
-        const LATS = [-60,-45,-30,-15,0,15,30,45,60];
-        LATS.forEach(latDeg => {
-          const lat = latDeg * Math.PI / 180;
-          const pts = [];
-          for (let a = 0; a <= 360; a += 3) {
-            const lng = a * Math.PI / 180;
-            const p = project(lat, lng, R);
-            if (p.z > 0) pts.push({ x: cx + p.x, y: cy + p.y, vis: true });
-            else if (pts.length && pts[pts.length-1].vis) pts.push(null);
-          }
-          let started = false;
-          ctx.beginPath();
-          pts.forEach(pt => {
-            if (!pt) { started = false; return; }
-            if (!started) { ctx.moveTo(pt.x, pt.y); started = true; }
-            else ctx.lineTo(pt.x, pt.y);
-          });
-          ctx.strokeStyle = latDeg === 0 ? 'rgba(71,123,176,0.28)' : 'rgba(71,123,176,0.11)';
-          ctx.lineWidth = latDeg === 0 ? 0.9 : 0.6;
-          ctx.stroke();
-        });
-
-        // Longitude lines
-        for (let lngDeg = 0; lngDeg < 360; lngDeg += 20) {
-          const lng = lngDeg * Math.PI / 180;
-          const pts = [];
-          for (let a = -90; a <= 90; a += 3) {
-            const lat = a * Math.PI / 180;
-            const p = project(lat, lng, R);
-            if (p.z > 0) pts.push({ x: cx + p.x, y: cy + p.y });
-            else if (pts.length) pts.push(null);
-          }
-          let started = false;
-          ctx.beginPath();
-          pts.forEach(pt => {
-            if (!pt) { started = false; return; }
-            if (!started) { ctx.moveTo(pt.x, pt.y); started = true; }
-            else ctx.lineTo(pt.x, pt.y);
-          });
-          ctx.strokeStyle = 'rgba(71,123,176,0.09)';
-          ctx.lineWidth = 0.6;
-          ctx.stroke();
-        }
-
-        // Continent outlines
-        const CONTINENTS = [
-          // North America
-          [[71,-156],[70,-140],[60,-136],[56,-130],[48,-124],[46,-124],[38,-122],[30,-114],[22,-106],[20,-105],[16,-96],[15,-88],[16,-82],[20,-87],[22,-90],[22,-80],[24,-76],[28,-80],[30,-80],[34,-76],[38,-74],[42,-70],[44,-66],[46,-60],[50,-56],[52,-56],[56,-60],[58,-68],[60,-64],[60,-70],[62,-78],[64,-84],[62,-90],[60,-94],[58,-94],[60,-82],[64,-76],[66,-72],[68,-72],[70,-70],[72,-78],[72,-90],[70,-98],[68,-100],[68,-110],[70,-120],[72,-126],[72,-136],[70,-140],[68,-148],[68,-162],[66,-164],[64,-168],[62,-166],[60,-162],[58,-158],[56,-158],[54,-164],[52,-170],[52,-178],[54,-166],[56,-160],[56,-154],[58,-150],[58,-144],[56,-132],[54,-130],[52,-128],[50,-126],[50,-124],[48,-124]],
-          // South America
-          [[12,-72],[10,-62],[8,-60],[6,-52],[2,-50],[0,-50],[-4,-36],[-8,-34],[-10,-38],[-14,-40],[-18,-38],[-22,-42],[-24,-44],[- 28,-48],[-32,-52],[-34,-54],[-38,-58],[-42,-64],[-46,-66],[-50,-68],[-54,-68],[-56,-68],[-54,-64],[-52,-58],[-50,-52],[-46,-44],[-42,-40],[-38,-44],[-34,-52],[-30,-50],[-24,-44],[-20,-40],[-16,-38],[-10,-36],[-6,-34],[-4,-38],[-2,-44],[0,-50],[4,-52],[6,-54],[8,-60],[10,-62],[12,-72],[10,-74],[8,-76],[6,-76],[4,-76],[2,-78],[0,-76],[-2,-78],[-4,-80],[-6,-78],[-8,-78],[-10,-76],[-12,-76],[-14,-76],[-16,-74],[-18,-70],[-20,-70],[-22,-68],[-18,-66],[-16,-68],[-14,-74],[-12,-76]],
-          // Europe
-          [[70,28],[68,18],[66,14],[64,10],[62,4],[60,4],[58,4],[56,8],[54,8],[52,4],[50,2],[48,-2],[44,-2],[42,2],[40,0],[38,-8],[36,-6],[36,0],[38,8],[40,16],[38,14],[36,10],[36,14],[38,20],[40,22],[40,26],[38,22],[36,26],[38,28],[40,26],[42,26],[44,28],[46,30],[48,22],[50,18],[52,18],[54,18],[56,20],[58,22],[60,22],[62,24],[64,26],[66,28],[68,28],[70,28]],
-          // Africa
-          [[36,10],[34,10],[30,32],[26,34],[22,36],[18,40],[14,42],[12,44],[10,42],[8,40],[4,36],[0,32],[-4,36],[-8,36],[-12,40],[-16,36],[-20,34],[-24,34],[-28,32],[-32,28],[-34,26],[-34,18],[-32,18],[-28,16],[-24,14],[-20,16],[-16,12],[-12,12],[-8,12],[-4,10],[0,8],[4,4],[4,2],[0,-2],[-4,-8],[-4,-14],[0,-16],[4,-14],[8,-12],[12,-14],[14,-16],[16,-14],[18,-14],[20,-16],[16,-18],[12,-18],[8,-14],[8,-8],[12,-4],[16,-4],[20,2],[22,8],[24,12],[26,12],[28,14],[30,16],[32,14],[34,10],[36,10]],
-          // Asia
-          [[70,28],[70,40],[68,52],[66,58],[62,60],[60,56],[58,52],[56,52],[54,54],[52,56],[50,60],[50,68],[48,68],[46,60],[44,52],[42,50],[40,52],[38,56],[36,60],[34,60],[32,56],[28,52],[24,56],[20,58],[16,52],[12,44],[10,44],[8,48],[6,52],[8,56],[8,62],[6,78],[8,80],[12,80],[16,82],[20,86],[24,90],[26,92],[22,92],[18,92],[16,96],[14,98],[10,100],[6,100],[4,104],[2,108],[0,110],[-2,116],[-4,114],[-2,108],[0,104],[2,100],[4,100],[8,98],[10,98],[14,102],[18,104],[22,114],[22,120],[24,122],[28,122],[32,122],[34,120],[36,120],[38,120],[38,116],[36,112],[34,108],[34,104],[36,100],[38,98],[40,96],[42,92],[44,88],[46,82],[48,76],[50,72],[52,66],[52,60],[54,54],[56,50],[58,44],[60,40],[62,34],[64,28],[66,26],[68,28],[70,28]],
-          // Australia
-          [[-16,136],[-18,140],[-20,148],[-24,152],[-28,154],[-32,152],[-36,150],[-38,146],[-38,140],[-36,136],[-32,134],[-28,116],[-24,114],[-20,116],[-18,122],[-16,124],[-14,128],[-14,132],[-16,136]],
-          // Greenland
-          [[76,-18],[78,-22],[80,-28],[82,-36],[82,-50],[80,-58],[78,-62],[76,-64],[74,-56],[72,-52],[70,-52],[68,-56],[66,-52],[64,-46],[62,-42],[60,-44],[60,-46],[62,-52],[64,-56],[66,-60],[68,-64],[70,-68],[70,-72],[72,-70],[74,-66],[76,-60],[76,-52],[78,-46],[80,-36],[82,-26],[80,-18],[78,-16],[76,-18]],
-        ];
-
-        CONTINENTS.forEach(coords => {
-          ctx.beginPath();
-          let started = false;
-          coords.forEach(([latDeg, lngDeg]) => {
-            const lat = latDeg * Math.PI / 180;
-            const lng = lngDeg * Math.PI / 180;
-            const p = project(lat, lng, R);
-            if (p.z > 0) {
-              const px = cx + p.x, py = cy + p.y;
-              if (!started) { ctx.moveTo(px, py); started = true; }
-              else ctx.lineTo(px, py);
-            } else {
-              started = false;
-            }
-          });
-          ctx.strokeStyle = 'rgba(71,123,176,0.45)';
-          ctx.lineWidth = 0.7;
-          ctx.stroke();
-        });
-
-        // Vancouver dot
-        const vp = project(VAN_LAT, VAN_LNG, R);
-        if (vp.z > 0) {
-          const vx = cx + vp.x, vy = cy + vp.y;
-          // Pulse ring
-          const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 600);
-          ctx.beginPath();
-          ctx.arc(vx, vy, 4 + pulse * 3, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(157,198,225,${0.12 + pulse * 0.14})`;
-          ctx.lineWidth = 0.8;
-          ctx.stroke();
-          // Core dot
-          ctx.beginPath();
-          ctx.arc(vx, vy, 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = '#9dc6e1';
-          ctx.shadowColor = '#9dc6e1';
-          ctx.shadowBlur = 6;
-          ctx.fill();
-          ctx.shadowBlur = 0;
-        }
-
-        rot += 0.003;
-        requestAnimationFrame(drawGlobe);
-      }
-
-      // Defer first resize until layout is settled, then start the loop
-      requestAnimationFrame(() => {
-        resize();
-        // If layout still not ready (e.g. display:none parent), retry once more
-        if (canvas.width === 0 || canvas.height === 0) {
-          requestAnimationFrame(() => { resize(); requestAnimationFrame(drawGlobe); });
-        } else {
-          requestAnimationFrame(drawGlobe);
-        }
-      });
-    })();
-
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<DrillStudyGuide />);
   </script>
-
 </body>
 </html>
