@@ -1,1723 +1,1004 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Owen Kan</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-@font-face {
-  font-family: 'NeueMontreal';
-  /* Match the "Thin" file for your Light/300 weight */
-  src: url('fonts/PPNeueMontreal-Thin.otf') format('opentype');
-  font-weight: 300;
-  font-style: normal;
-}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Summer Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
-@font-face {
-  font-family: 'NeueMontreal';
-  /* Match the "Medium" file */
-  src: url('fonts/PPNeueMontreal-Medium.otf') format('opentype');
-  font-weight: 500;
-  font-style: normal;
-}
+  :root {
+    --bg: #0d0d0f;
+    --bg1: #131316;
+    --bg2: #1a1a1f;
+    --bg3: #222228;
+    --border: rgba(255,255,255,0.07);
+    --border-hi: rgba(255,255,255,0.13);
+    --text: #e8e8ec;
+    --muted: #6b6b7a;
+    --dim: #3a3a46;
+    --phys: #f0a030;
+    --math: #8b78f0;
+    --chem: #2db87a;
+    --geo:  #e06040;
+    --chin: #d45880;
+    --deb:  #4a9ef0;
+    --kayak:#2080d0;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
 
-/* Update the body to use NeueMontreal as the primary font */
-body {
-  background: #0a0a0a;
-  color: #ffffff;
-  font-family: 'NeueMontreal', Arial, sans-serif;
-  overflow-x: hidden;
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Update Name and Title weights to match your font-face (300/500) */
-.hero-text .name {
-  font-weight: 300; /* Uses Thin/Light */
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
 
-.top-name h2, .info-title {
-  font-family: 'NeueMontreal', sans-serif;
-  font-weight: 300;
-}
+  .app { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
 
-/* Update Subtext and Stats to the Medium weight */
-.hero-text .sub span, .info-label, .info-tag, .info-stat {
-  font-family: 'NeueMontreal', sans-serif;
-  font-weight: 300; /* Uses Medium */
-}
+  /* Header */
+  .header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap; }
+  .header-left h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+  .header-left p { color: var(--muted); font-size: 13px; margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+  .today-btn {
+    background: var(--bg3); border: 0.5px solid var(--border-hi);
+    color: var(--text); font-size: 12px; font-family: 'JetBrains Mono', monospace;
+    padding: 6px 14px; border-radius: var(--radius); cursor: pointer; transition: border-color 0.15s;
+  }
+  .today-btn:hover { border-color: rgba(255,255,255,0.22); }
 
-    /* ── HERO ───────────────────────────────────────── */
-    .hero {
-      width: 100%;
-      height: 100vh;
-      position: relative;
-      overflow: hidden;
-    }
-    #hero-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%; height: 100%;
-      display: block;
-    }
-    .hero-text {
-      position: absolute;
-      top: 8vh; left: 5vw;
-      z-index: 10;
-      pointer-events: none;
-    }
-    .hero-text .name {
-      display: block;
-      font-size: clamp(3rem, 7vw, 6.5rem);
-      font-weight: 300;
-      line-height: 0.93;
-      letter-spacing: -0.025em;
-    }
-    .hero-text .sub {
-      margin-top: 1.2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .hero-text .sub span {
-      font-size: clamp(0.58rem, 0.9vw, 0.74rem);
-      letter-spacing: 0.12em;
-      /* Change 'uppercase' to 'none' for normal case */
-      text-transform: none; 
-      /* Change the opacity from 0.38 to 1 for solid white */
-      color: rgba(255, 255, 255, 1); 
-    }
-    .scroll-hint {
-      position: absolute;
-      bottom: 3vh; left: 5vw;
-      font-size: 0.56rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.18);
-      z-index: 10;
-    }
+  /* Week strip */
+  .week-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 1.75rem; }
+  .day-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 10px 4px; border-radius: var(--radius); border: 0.5px solid var(--border);
+    background: var(--bg1); cursor: pointer; transition: all 0.15s; position: relative;
+  }
+  .day-btn:hover { border-color: var(--border-hi); background: var(--bg2); }
+  .day-btn.active { border-color: rgba(255,255,255,0.25); background: var(--bg2); }
+  .day-btn.today .day-num { color: var(--deb); }
+  .day-name { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; }
+  .day-num { font-size: 16px; font-weight: 500; }
+  .day-kayak { display: block; width: 5px; height: 5px; background: var(--kayak); border-radius: 50%; }
+  .day-progress { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--border); border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+  .day-progress-fill { height: 100%; background: var(--chem); transition: width 0.3s; }
 
-    /* ── BENTO ──────────────────────────────────────── */
-    .bento-page {
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .panel {
-      background: #0c0c0c;
-      border: 1px solid rgba(255,255,255,0.11);
-      border-radius: 3px;
-      position: relative;
-    }
-    .panel .inner {
-      position: absolute;
-      inset: 0;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-    }
-    .cn {
-      position: absolute;
-      width: 12px; height: 12px;
-      border-color: rgba(255,255,255,0.28);
-      border-style: solid;
-      pointer-events: none;
-      z-index: 10;
-    }
-    .cn-tl { top:0;    left:0;  border-width:1px 0 0 1px; }
-    .cn-tr { top:0;    right:0; border-width:1px 1px 0 0; }
-    .cn-bl { bottom:0; left:0;  border-width:0 0 1px 1px; }
-    .cn-br { bottom:0; right:0; border-width:0 1px 1px 0; }
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.75rem; }
+  .stat { background: var(--bg1); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+  .stat-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .stat-value { font-size: 20px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
 
-    .top-row {
-      display: grid;
-      grid-template-columns: 1fr 22%;
-      gap: 6px;
-      height: 48vh;
-    }
-    .top-name {
-      padding: 18px 20px;
-      display: flex;
-      align-items: flex-start;
-    }
-    .top-name h2 {
-      font-size: clamp(1.6rem, 3vw, 2.8rem);
-      font-weight: 300;
-      letter-spacing: -0.01em;
-    }
+  .section-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
 
-    /* ── GRAPH PANEL ────────────────────────────────── */
-    .graph-panel {
-      height: 70vh;
-      cursor: crosshair;
-      overflow: hidden;
-    }
-    #three-canvas, #label-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%; height: 100%;
-      display: block;
-    }
-    #label-canvas { pointer-events: none; }
+  /* Blocks */
+  .blocks { display: flex; flex-direction: column; gap: 5px; margin-bottom: 1.75rem; }
 
-    /* ── INFO OVERLAY ───────────────────────────────── */
-    #node-info {
-      position: absolute;
-      width: 220px;
-      top: 0;
-      bottom: 0;
-      background: #0c0c0c;
-      border: 1px solid rgba(255,255,255,0.14);
-      border-radius: 3px;
-      padding: 16px;
-      z-index: 30;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.22s ease, transform 0.22s ease;
-      transform: translateX(-8px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      scrollbar-width: none;
-    }
-    #node-info::-webkit-scrollbar { display: none; }
-    #node-info.visible {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateX(0);
-    }
-    /* bracket corners on info box */
-    #node-info .icn {
-      position: absolute;
-      width: 10px; height: 10px;
-      border-style: solid;
-      pointer-events: none;
-    }
-    #node-info .icn-tl { top:0; left:0;   border-width:1px 0 0 1px; }
-    #node-info .icn-tr { top:0; right:0;  border-width:1px 1px 0 0; }
-    #node-info .icn-bl { bottom:0; left:0;  border-width:0 0 1px 1px; }
-    #node-info .icn-br { bottom:0; right:0; border-width:0 1px 1px 0; }
+  .block {
+    border-radius: var(--radius); border: 0.5px solid var(--border);
+    overflow: hidden; transition: border-color 0.15s;
+  }
+  .block:not(.passive) { cursor: pointer; }
+  .block:not(.passive):hover { border-color: var(--border-hi); }
+  .block.done { opacity: 0.4; }
+  .block.expanded { border-color: var(--border-hi); }
 
-    .info-label {
-      font-size: 0.58rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-      margin-bottom: 6px;
-    }
-    .info-title {
-      font-size: 1.05rem;
-      font-weight: 300;
-      letter-spacing: -0.01em;
-      margin-bottom: 10px;
-    }
-    .info-accent-line {
-      height: 1px;
-      margin-bottom: 10px;
-      opacity: 0.4;
-    }
-    .info-desc {
-      font-size: 0.65rem;
-      line-height: 1.6;
-      color: rgba(255,255,255,0.55);
-      margin-bottom: 10px;
-    }
-    .info-stat {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.58rem;
-      color: rgba(255,255,255,0.28);
-      letter-spacing: 0.06em;
-      margin-bottom: 4px;
-    }
-    .info-stat span:last-child { color: rgba(255,255,255,0.65); }
-    .info-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 10px;
-    }
-    .info-tag {
-      font-size: 0.52rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: 2px;
-      border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.4);
-    }
-    .info-close {
-      position: absolute;
-      top: 10px; right: 12px;
-      font-size: 0.55rem;
-      color: rgba(255,255,255,0.2);
-      cursor: pointer;
-      letter-spacing: 0.1em;
-    }
-    .info-close:hover { color: rgba(255,255,255,0.6); }
+  .block-header {
+    display: flex; align-items: stretch;
+  }
+  .block-accent { width: 3px; flex-shrink: 0; }
+  .block-time {
+    width: 88px; flex-shrink: 0; padding: 10px 12px;
+    background: var(--bg1); color: var(--muted); font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    display: flex; align-items: center;
+    border-right: 0.5px solid var(--border);
+  }
+  .block-body {
+    padding: 10px 14px; flex: 1; background: var(--bg2);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .block-text { flex: 1; }
+  .block-label { font-weight: 500; font-size: 13px; }
+  .block-note { font-size: 12px; color: var(--muted); margin-top: 1px; }
 
-    /* ── BOTTOM BENTO ───────────────────────────────── */
-    .bottom-row {
-      display: grid;
-      grid-template-columns: 27% 1fr 27%;
-      gap: 6px;
-    }
-    .bl { display: grid; grid-template-rows: 1fr 2fr; gap: 6px; height: 52vh; }
-    .bc { display: grid; grid-template-rows: 1fr 1fr; gap: 6px; }
-    .br { height: 52vh; }
+  .block-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-    /* ── HEATMAP ────────────────────────────────────── */
-    #heatmap-wrap {
-      position: absolute;
-      inset: 0;
-      padding: 10px 12px 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .hm-month-labels {
-      display: flex;
-      margin-left: 28px;
-      flex-shrink: 0;
-    }
-    .hm-month-label {
-      font-size: 0.48rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.25);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      flex-shrink: 0;
-    }
-    .hm-body {
-      display: flex;
-      gap: 4px;
-      flex: 1;
-      min-height: 0;
-    }
-    .hm-dow-col {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      flex-shrink: 0;
-      width: 24px;
-    }
-    .hm-dow {
-      font-size: 0.45rem;
-      letter-spacing: 0.06em;
-      color: rgba(255,255,255,0.22);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      line-height: 1;
-    }
-    .hm-week-grid {
-      display: flex;
-      gap: 2px;
-      flex: 1;
-      align-items: stretch;
-    }
-    .hm-week-col {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-    }
-    .hm-cell {
-      flex: 1;
-      position: relative;
-      border-radius: 0;
-      overflow: hidden;
-      cursor: default;
-      transition: opacity 0.15s;
-    }
-    .hm-week-col { align-items: stretch; }
-    .hm-cell:hover { opacity: 0.75; }
-    /* scanline overlay on each cell */
-    .hm-cell::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        to right,
-        rgba(0,0,0,0.28) 0px,
-        rgba(0,0,0,0.28) 1px,
-        transparent 1px,
-        transparent 3px
-      );
-      pointer-events: none;
-    }
-    .hm-cell.faded { opacity: 0.22; }
-    /* bottom month nav */
-    .hm-nav {
-      display: flex;
-      gap: 3px;
-      flex-shrink: 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .hm-nav::-webkit-scrollbar { display: none; }
-    .hm-nav-pill {
-      font-size: 0.5rem;
-      letter-spacing: 0.08em;
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      color: rgba(255,255,255,0.28);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0;
-      padding: 3px 7px;
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
-      background: transparent;
-    }
-    .hm-nav-pill:hover { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.3); }
-    .hm-nav-pill.active {
-      background: #14294f;
-      color: #9dc6e1;
-      border-color: #477bb0;
-    }
-    .hm-readout {
-      font-size: 0.48rem;
-      letter-spacing: 0.08em;
-      color: rgba(255,255,255,0.2);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      text-align: right;
-      flex-shrink: 0;
-    }
-    .hm-readout span { color: #9dc6e1; }
+  .expand-btn {
+    font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace;
+    background: none; border: none; cursor: pointer; padding: 2px 0;
+    transition: color 0.15s; white-space: nowrap;
+  }
+  .expand-btn:hover { color: var(--text); }
+  .block.expanded .expand-btn { color: var(--text); }
 
-    /* ── GRAPH SHADER OVERLAY ───────────────────────── */
-    #graph-shader {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 5;
-      background:
-        repeating-linear-gradient(
-          0deg,
-          transparent 0px, transparent 39px,
-          rgba(71,123,176,0.045) 39px, rgba(71,123,176,0.045) 40px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          transparent 0px, transparent 39px,
-          rgba(71,123,176,0.045) 39px, rgba(71,123,176,0.045) 40px
-        );
-    }
+  .block-check {
+    width: 18px; height: 18px; flex-shrink: 0;
+    border: 1.5px solid var(--dim); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .block.done .block-check { background: var(--chem); border-color: var(--chem); }
+  .checkmark { display: none; }
+  .block.done .checkmark { display: block; }
 
-    /* ── PROJECT CARDS ──────────────────────────────── */
-    #proj-list {
-      position: absolute;
-      inset: 0;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .proj-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 2px;
-      flex-shrink: 0;
-    }
-    .proj-header-label {
-      font-size: 0.44rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.22);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-    }
-    .proj-header-count {
-      font-size: 0.44rem;
-      letter-spacing: 0.10em;
-      color: rgba(71,123,176,0.6);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-    }
-    .proj-card {
-      flex: 1;
-      min-height: 0;
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 2px;
-      padding: 10px 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-      background: rgba(255,255,255,0.015);
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .proj-card:hover {
-      border-color: rgba(71,123,176,0.28);
-      background: rgba(20,41,79,0.18);
-    }
-    .proj-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 6px;
-    }
-    .proj-title {
-      font-size: 0.64rem;
-      font-weight: 300;
-      letter-spacing: 0.02em;
-      color: rgba(255,255,255,0.82);
-      font-family: 'NeueMontreal', sans-serif;
-      line-height: 1.2;
-    }
-    .proj-pct {
-      font-size: 0.55rem;
-      letter-spacing: 0.08em;
-      color: rgba(157,198,225,0.8);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      flex-shrink: 0;
-    }
-    .proj-desc {
-      font-size: 0.50rem;
-      color: rgba(255,255,255,0.30);
-      line-height: 1.5;
-      letter-spacing: 0.02em;
-      font-family: 'NeueMontreal', sans-serif;
-      margin-top: 3px;
-    }
-    .proj-bar-wrap {
-      margin-top: 6px;
-    }
-    .proj-bar {
-      display: flex;
-      gap: 2px;
-      height: 8px;
-      align-items: stretch;
-    }
-    .proj-seg {
-      flex: 1;
-      border-radius: 0;
-    }
-    .proj-seg.filled {
-      background: rgba(157,198,225,0.75);
-      box-shadow: 0 0 4px 0px rgba(157,198,225,0.30);
-    }
-    .proj-seg.empty {
-      background: rgba(255,255,255,0.07);
-    }
-    .proj-bar-meta {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 4px;
-    }
-    .proj-bar-label {
-      font-size: 0.40rem;
-      letter-spacing: 0.10em;
-      color: rgba(255,255,255,0.18);
-      font-family: 'NeueMontreal', monospace, sans-serif;
-    }
-    .proj-status-dot {
-      display: inline-block;
-      width: 4px; height: 4px;
-      border-radius: 50%;
-      margin-right: 4px;
-      vertical-align: middle;
-    }
+  .block.passive { cursor: default; opacity: 0.45; }
+  .block.passive:hover { border-color: var(--border); }
+  .block.passive .block-check, .block.passive .expand-btn { display: none; }
 
-    /* ── GLOBE ──────────────────────────────────────── */
-    #globe-wrap {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    #globe-canvas { display: block; }
-    #globe-loc {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    #globe-loc-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: #9dc6e1;
-      box-shadow: 0 0 6px 2px rgba(157,198,225,0.55);
-      flex-shrink: 0;
-      animation: locPulse 2.2s ease-in-out infinite;
-    }
-    @keyframes locPulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: 0.4; transform: scale(0.7); }
-    }
-    #globe-loc-text {
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      font-size: 0.50rem;
-      letter-spacing: 0.16em;
-      color: rgba(255,255,255,0.38);
-      text-transform: uppercase;
-    }
-    #globe-loc-sub {
-      font-family: 'NeueMontreal', monospace, sans-serif;
-      font-size: 0.42rem;
-      letter-spacing: 0.10em;
-      color: rgba(157,198,225,0.45);
-      margin-top: 2px;
-    }
+  /* now indicator */
+  .block.now { border-color: rgba(74,158,240,0.4); box-shadow: 0 0 0 1px rgba(74,158,240,0.1); }
+  .now-line {
+    display: flex; align-items: center; gap: 8px;
+    margin: 2px 0; padding: 0 4px;
+  }
+  .now-line-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--deb); flex-shrink: 0; }
+  .now-line-bar { flex: 1; height: 1px; background: var(--deb); opacity: 0.4; }
+  .now-line-time { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--deb); white-space: nowrap; }
 
-    /* ── FAN ALBUM ─────────────────────────────────── */
-    .top-name { flex-direction: column; }
+  /* Expanded task panel */
+  .block-tasks {
+    display: none;
+    background: var(--bg1);
+    border-top: 0.5px solid var(--border);
+    padding: 14px 14px 14px 105px;
+  }
+  .block.expanded .block-tasks { display: block; }
 
-    #fan-album {
-      flex: 1;
-      width: 100%;
-      min-height: 0;
-      position: relative;
-      overflow: hidden;
-      clip-path: inset(0);
-    }
+  .task-section { margin-bottom: 14px; }
+  .task-section:last-child { margin-bottom: 0; }
+  .task-section-title {
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin-bottom: 7px;
+  }
 
-    /* Perspective container */
-    #fan-stage {
-      position: absolute;
-      inset: 0;
-      bottom: 36px;
-      perspective: 900px;
-      perspective-origin: 50% 50%;
-      overflow: hidden;
-    }
+  .task-list { display: flex; flex-direction: column; gap: 5px; }
+  .task-item {
+    display: flex; align-items: flex-start; gap: 9px;
+    font-size: 12px; line-height: 1.55; color: var(--text);
+    cursor: pointer; padding: 5px 8px; border-radius: 5px;
+    border: 0.5px solid transparent; transition: border-color 0.12s, background 0.12s;
+    user-select: none;
+  }
+  .task-item:hover { background: var(--bg2); border-color: var(--border); }
+  .task-item.task-done { opacity: 0.35; }
+  .task-item.task-done .task-text { text-decoration: line-through; }
+  .task-cb {
+    width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px;
+    border: 1px solid var(--dim); border-radius: 3px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.12s;
+  }
+  .task-item.task-done .task-cb { background: var(--chem); border-color: var(--chem); }
+  .task-check-sm { display: none; }
+  .task-item.task-done .task-check-sm { display: block; }
+  .task-text { flex: 1; }
+  .task-tag {
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    padding: 2px 6px; border-radius: 3px; flex-shrink: 0; margin-top: 1px;
+  }
+  .tag-sim   { background: rgba(240,160,48,0.15); color: #f0a030; }
+  .tag-drill { background: rgba(74,158,240,0.15); color: #4a9ef0; }
+  .tag-review{ background: rgba(139,120,240,0.15); color: #8b78f0; }
+  .tag-vocab { background: rgba(212,88,128,0.15); color: #d45880; }
+  .tag-essay { background: rgba(224,96,64,0.15); color: #e06040; }
+  .tag-error { background: rgba(45,184,122,0.15); color: #2db87a; }
 
-    /* Ring — no tilt, cards placed by JS */
-    #fan-ring {
-      position: absolute;
-      inset: 0;
-      transform-style: preserve-3d;
-    }
+  .task-note {
+    font-size: 11px; color: var(--muted); line-height: 1.5;
+    padding: 6px 8px; margin-top: 2px;
+    border-left: 2px solid var(--dim);
+  }
 
-    .fan-card {
-      position: absolute;
-      /* width/height set by JS to fill stage */
-      border-radius: 3px;
-      border: 1px solid rgba(255,255,255,0.06);
-      overflow: hidden;
-      cursor: pointer;
-      user-select: none;
-      will-change: transform, opacity;
-    }
-    .fan-card.fan-active { border-color: rgba(71,123,176,0.35); }
+  /* Notes */
+  .notes-area {
+    width: 100%; background: var(--bg1); border: 0.5px solid var(--border);
+    border-radius: var(--radius); color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 13px; padding: 12px 14px; resize: vertical; min-height: 80px;
+    outline: none; transition: border-color 0.15s; line-height: 1.6;
+  }
+  .notes-area:focus { border-color: var(--border-hi); }
+  .notes-area::placeholder { color: var(--dim); }
 
-    #fan-controls {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-    .fan-btn {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.11);
-      color: rgba(255,255,255,0.32);
-      width: 22px; height: 22px;
-      border-radius: 2px;
-      cursor: pointer;
-      font-size: 0.68rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: border-color 0.18s, color 0.18s;
-      font-family: 'NeueMontreal', sans-serif;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-    .fan-btn:hover {
-      border-color: rgba(71,123,176,0.55);
-      color: rgba(157,198,225,0.9);
-    }
-    #fan-counter {
-      font-family: 'NeueMontreal', sans-serif;
-      font-size: 0.46rem;
-      letter-spacing: 0.14em;
-      color: rgba(255,255,255,0.18);
-      min-width: 28px;
-      text-align: center;
-    }
-  </style>
+  /* Subject totals */
+  .subjects { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; margin-top: 1.75rem; }
+  .subject-card {
+    background: var(--bg1); border: 0.5px solid var(--border);
+    border-radius: var(--radius); padding: 10px 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .subject-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .subject-name { font-size: 12px; color: var(--muted); flex: 1; }
+  .subject-count { font-size: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+
+  /* Streak */
+  .streak-row { display: flex; align-items: center; gap: 8px; margin-top: 1.75rem; }
+  .streak-dots { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
+  .streak-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bg3); border: 0.5px solid var(--border); flex-shrink: 0; }
+  .streak-dot.hit { background: var(--chem); border-color: var(--chem); }
+  .streak-dot.partial { background: var(--phys); border-color: var(--phys); }
+  .streak-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+
+  @media (max-width: 580px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .week-strip { gap: 3px; }
+    .day-num { font-size: 14px; }
+    .block-tasks { padding-left: 14px; }
+  }
+</style>
 </head>
 <body>
+<div class="app">
 
-  <section class="hero">
-    <canvas id="hero-canvas"></canvas>
-    <div class="hero-text">
-      <span class="name">Owen</span>
-      <span class="name">Kan</span>
-      <div class="sub">
-        <span>Graphic Designer</span>
-        <span>Student at PMSS</span>
-        <span>Vancouver BC</span>
-      </div>
+  <div class="header">
+    <div class="header-left">
+      <h1>Summer Tracker</h1>
+      <p id="header-date">loading...</p>
     </div>
-    <div class="scroll-hint">scroll ↓</div>
-  </section>
+    <button class="today-btn" onclick="goToday()">→ today</button>
+  </div>
 
-  <section class="bento-page">
+  <div class="week-strip" id="week-strip"></div>
 
-    <div class="top-row">
-      <div class="top-name">
-        <h2>Owen Kan</h2>
-        <div id="fan-album">
-          <div id="fan-stage">
-              <div id="fan-ring"></div>
-            </div>
-          <div id="fan-controls">
-            <button class="fan-btn" id="fan-prev">&#8592;</button>
-            <span id="fan-counter">1 / 8</span>
-            <button class="fan-btn" id="fan-next">&#8594;</button>
-          </div>
-        </div>
-      </div>
-      <div class="panel" id="p-top-right"><div class="inner"></div></div>
-    </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Today</div><div class="stat-value" id="stat-today">0/0</div></div>
+    <div class="stat"><div class="stat-label">Week</div><div class="stat-value" id="stat-week">0%</div></div>
+    <div class="stat"><div class="stat-label">Streak</div><div class="stat-value" id="stat-streak">0d</div></div>
+    <div class="stat"><div class="stat-label">Kayaks</div><div class="stat-value" id="stat-kayak">0</div></div>
+  </div>
 
-    <div class="panel graph-panel" id="p-graph">
-      <canvas id="three-canvas"></canvas>
-      <canvas id="label-canvas"></canvas>
-      <div id="graph-shader"></div>
+  <div class="section-label" id="day-label">Monday</div>
+  <div class="blocks" id="blocks"></div>
 
-      <!-- Info overlay — lives inside the graph panel -->
-      <div id="node-info">
-        <div class="icn icn-tl"></div>
-        <div class="icn icn-tr"></div>
-        <div class="icn icn-bl"></div>
-        <div class="icn icn-br"></div>
-        <div class="info-close" id="info-close">✕ close</div>
-        <div class="info-label" id="info-cluster"></div>
-        <div class="info-title"  id="info-title"></div>
-        <div class="info-accent-line" id="info-line"></div>
-        <div class="info-desc"   id="info-desc"></div>
-        <div id="info-stats"></div>
-        <div class="info-tags"   id="info-tags"></div>
-      </div>
-    </div>
+  <div class="section-label" style="margin-top:1.25rem">Notes</div>
+  <textarea class="notes-area" id="notes" placeholder="anything from today — errors made, things that clicked, what to revisit..."></textarea>
 
-    <div class="bottom-row">
-      <div class="bl">
-        <div class="panel" id="p-bl-top"><div class="inner"></div></div>
-        <div class="panel" id="p-bl-bot">
-          <div id="globe-wrap">
-            <canvas id="globe-canvas"></canvas>
-            <div id="globe-loc">
-              <div id="globe-loc-dot"></div>
-              <div>
-                <div id="globe-loc-text">Vancouver, CA</div>
-                <div id="globe-loc-sub">49.25° N · 123.12° W</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="bc">
-        <div class="panel" id="p-bc-top">
-          <div id="heatmap-wrap">
-            <div class="hm-month-labels" id="hm-month-labels"></div>
-            <div class="hm-body">
-              <div class="hm-dow-col">
-                <div class="hm-dow">Mon</div>
-                <div class="hm-dow">Tue</div>
-                <div class="hm-dow">Wed</div>
-                <div class="hm-dow">Thu</div>
-                <div class="hm-dow">Fri</div>
-                <div class="hm-dow">Sat</div>
-                <div class="hm-dow">Sun</div>
-              </div>
-              <div class="hm-week-grid" id="hm-week-grid"></div>
-            </div>
-            <div class="hm-readout">Hours this month: <span id="hm-total">-</span></div>
-            <div class="hm-nav" id="hm-nav"></div>
-          </div>
-        </div>
-        <div class="panel" id="p-bc-bot"><div class="inner"></div></div>
-      </div>
-      <div class="panel br" id="p-br">
-        <div id="proj-list">
-          <div class="proj-header">
-            <span class="proj-header-label">Current Projects</span>
-            <span class="proj-header-count">04</span>
-          </div>
-          <!-- Card 1 -->
-          <div class="proj-card">
-            <div>
-              <div class="proj-card-top">
-                <div class="proj-title">Portfolio Site</div>
-                <div class="proj-pct">78%</div>
-              </div>
-              <div class="proj-desc">Personal site built in HTML/CSS/JS with Three.js network and motion systems.</div>
-            </div>
-            <div class="proj-bar-wrap">
-              <div class="proj-bar" id="proj-bar-0"></div>
-              <div class="proj-bar-meta">
-                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#9dc6e1;box-shadow:0 0 4px #9dc6e1aa;"></span>In Progress</span>
-                <span class="proj-bar-label">78 / 100</span>
-              </div>
-            </div>
-          </div>
-          <!-- Card 2 -->
-          <div class="proj-card">
-            <div>
-              <div class="proj-card-top">
-                <div class="proj-title">Brand Identity — Apex</div>
-                <div class="proj-pct">55%</div>
-              </div>
-              <div class="proj-desc">Full visual identity system for a local architecture studio. Mark, type, and colour.</div>
-            </div>
-            <div class="proj-bar-wrap">
-              <div class="proj-bar" id="proj-bar-1"></div>
-              <div class="proj-bar-meta">
-                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#477bb0;box-shadow:0 0 4px #477bb0aa;"></span>In Progress</span>
-                <span class="proj-bar-label">55 / 100</span>
-              </div>
-            </div>
-          </div>
-          <!-- Card 3 -->
-          <div class="proj-card">
-            <div>
-              <div class="proj-card-top">
-                <div class="proj-title">Short Film — Inlet</div>
-                <div class="proj-pct">30%</div>
-              </div>
-              <div class="proj-desc">Documentary short on Burrard Inlet. Shot on Sony A7IV, edited in DaVinci Resolve.</div>
-            </div>
-            <div class="proj-bar-wrap">
-              <div class="proj-bar" id="proj-bar-2"></div>
-              <div class="proj-bar-meta">
-                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#3a6aa1;box-shadow:0 0 4px #3a6aa1aa;"></span>Early Stage</span>
-                <span class="proj-bar-label">30 / 100</span>
-              </div>
-            </div>
-          </div>
-          <!-- Card 4 -->
-          <div class="proj-card">
-            <div>
-              <div class="proj-card-top">
-                <div class="proj-title">Generative Type Tool</div>
-                <div class="proj-pct">12%</div>
-              </div>
-              <div class="proj-desc">Canvas-based tool for generating kinetic type layouts driven by audio input.</div>
-            </div>
-            <div class="proj-bar-wrap">
-              <div class="proj-bar" id="proj-bar-3"></div>
-              <div class="proj-bar-meta">
-                <span class="proj-bar-label"><span class="proj-status-dot" style="background:#14294f;box-shadow:0 0 4px #3a6aa1aa;"></span>Concept</span>
-                <span class="proj-bar-label">12 / 100</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="section-label" style="margin-top:1.75rem">This week — sessions done</div>
+  <div class="subjects" id="subjects"></div>
 
-  </section>
+  <div class="streak-row">
+    <span class="streak-label" id="streak-label">0d streak</span>
+    <div class="streak-dots" id="streak-dots"></div>
+  </div>
 
-  <script>
-    // ── CORNER BRACKETS ──────────────────────────────
-    document.querySelectorAll('.panel').forEach(p => {
-      ['tl','tr','bl','br'].forEach(pos => {
-        const c = document.createElement('div');
-        c.className = `cn cn-${pos}`;
-        p.appendChild(c);
-      });
+</div>
+<script>
+// ─── Subject metadata ───────────────────────────────────────────────────────
+const SUBJECTS = {
+  phys:  { label:'Physics',   color:'#f0a030' },
+  math:  { label:'Math',      color:'#8b78f0' },
+  chem:  { label:'Chemistry', color:'#2db87a' },
+  geo:   { label:'Geography', color:'#e06040' },
+  chin:  { label:'Chinese',   color:'#d45880' },
+  deb:   { label:'Debate',    color:'#4a9ef0' },
+  kayak: { label:'Kayak',     color:'#2080d0' },
+  rest:  { label:null,        color:'#3a3a46' },
+  tran:  { label:null,        color:'#2a2a34' },
+};
+
+// ─── Task definitions ───────────────────────────────────────────────────────
+// tag: sim | drill | review | vocab | essay | error
+// Each task has: text, tag (optional), note (optional)
+
+const T = {
+  // PHYSICS — approach-first. Every session starts with method ID before numbers.
+  phys_approach: {
+    title:'Approach first', note:'Before touching numbers: write down (1) what quantity is being asked, (2) which principle applies, (3) what equation links them. Do this in words before algebra.',
+    tasks:[
+      { text:'Pick 3 unseen questions — write the approach in words before writing any equation', tag:'sim' },
+      { text:'For each: identify the given quantities and what you\'re solving for', tag:'sim' },
+      { text:'Check: did you define a sign convention before substituting?', tag:'review' },
+    ]
+  },
+  phys_mechanics: {
+    title:'Mechanics + energy methods',
+    tasks:[
+      { text:'2 questions using Newton\'s laws — draw free body diagram before anything else', tag:'sim' },
+      { text:'1 conservation of energy problem — write E_initial = E_final with terms labelled', tag:'sim' },
+      { text:'1 circular motion or momentum question — identify the centripetal direction explicitly', tag:'sim' },
+      { text:'Mark all answers against markscheme — note where method marks would be lost', tag:'error' },
+    ]
+  },
+  phys_waves: {
+    title:'Waves + optics',
+    tasks:[
+      { text:'Sketch the wavefront or ray diagram before solving — always', tag:'sim' },
+      { text:'2 questions on superposition / interference — identify path difference first', tag:'sim' },
+      { text:'1 refraction or lenses question — label n1, n2, angles before Snell\'s law', tag:'sim' },
+      { text:'Review: when does the phase change on reflection? (dense→less dense boundary)', tag:'review' },
+    ]
+  },
+  phys_thermo: {
+    title:'Thermodynamics',
+    tasks:[
+      { text:'1 ideal gas law question — convert to SI units before substituting', tag:'sim' },
+      { text:'1 first law question — define Q and W sign conventions explicitly before solving', tag:'sim' },
+      { text:'PV diagram: practise labelling isothermal vs adiabatic vs isobaric', tag:'review' },
+      { text:'1 past paper data question — show all unit cancellations in working', tag:'sim' },
+    ]
+  },
+  phys_shm: {
+    title:'SHM + simple harmonic',
+    tasks:[
+      { text:'Write x(t), v(t), a(t) expressions from scratch — no looking', tag:'review' },
+      { text:'2 SHM questions — identify x=0 and x=A before substituting any formula', tag:'sim' },
+      { text:'Energy in SHM: draw KE and PE vs displacement graph from memory', tag:'review' },
+      { text:'1 pendulum or spring question — derive T, then solve', tag:'sim' },
+    ]
+  },
+  phys_relativity: {
+    title:'Special relativity',
+    tasks:[
+      { text:'Write the two postulates from memory before solving anything', tag:'review' },
+      { text:'1 time dilation question — identify who measures proper time (the observer present at both events)', tag:'sim' },
+      { text:'1 length contraction question — label which frame is the rest frame', tag:'sim' },
+      { text:'1 spacetime interval question — confirm s² is invariant', tag:'sim' },
+    ]
+  },
+  phys_paper: {
+    title:'Past paper simulation',
+    tasks:[
+      { text:'Set 45-min timer — answer one full paper section under timed conditions', tag:'sim' },
+      { text:'No markscheme until time is up', tag:'sim' },
+      { text:'After: go through every wrong answer — was it approach or execution?', tag:'error' },
+      { text:'Write the correct approach (not just the answer) for each miss', tag:'error' },
+    ]
+  },
+  phys_errorreview: {
+    title:'Error autopsy',
+    tasks:[
+      { text:'List every question you got wrong this week', tag:'error' },
+      { text:'Classify each: wrong approach / right approach wrong execution / silly unit error', tag:'error' },
+      { text:'For approach errors: write the correct method in full sentences', tag:'error' },
+      { text:'For execution errors: redo the question with slower working shown', tag:'error' },
+    ]
+  },
+
+  // MATH — conceptual understanding + combinatorics focus
+  math_trig_review: {
+    title:'Trig consolidation',
+    note:'Don\'t just memorise identities — derive them from first principles so you know where they come from.',
+    tasks:[
+      { text:'Derive sin²+cos²=1 from unit circle, then write tan, sec, csc, cot', tag:'review' },
+      { text:'Prove one double-angle identity without looking', tag:'review' },
+      { text:'2 problems: solve trig equation on a given interval — list ALL solutions', tag:'sim' },
+      { text:'1 problem: use compound angle formula — set up before substituting', tag:'sim' },
+    ]
+  },
+  math_combinatorics: {
+    title:'Combinatorics',
+    note:'The core question every time: does ORDER matter? If yes → permutation. If no → combination. Ask it out loud before writing anything.',
+    tasks:[
+      { text:'3 counting problems — write "order matters: yes/no" before starting each', tag:'sim' },
+      { text:'1 problem with restrictions (e.g. "at least one of X") — try complement method', tag:'sim' },
+      { text:'1 problem with identical objects — check if you need to divide by repeated arrangements', tag:'sim' },
+      { text:'Derive nCr formula from first principles — don\'t just cite it', tag:'review' },
+    ]
+  },
+  math_binomial: {
+    title:'Binomial theorem',
+    tasks:[
+      { text:'Write the general term T(r+1) = nCr · a^(n-r) · b^r from memory', tag:'review' },
+      { text:'2 expansion questions — find a specific term (not the full expansion)', tag:'sim' },
+      { text:'1 problem: find coefficient of x^k — set up the exponent equation before solving', tag:'sim' },
+      { text:'1 application problem — use binomial to approximate (1+x)^n for small x', tag:'sim' },
+    ]
+  },
+  math_concept: {
+    title:'Conceptual deep work',
+    note:'Competition-style problems require you to see the structure, not pattern-match. Read the problem twice. Ask: what does this problem WANT me to notice?',
+    tasks:[
+      { text:'1 hard unseen problem — spend 10 min just reading and annotating before solving', tag:'sim' },
+      { text:'Write down what approach you\'re trying and WHY before executing', tag:'sim' },
+      { text:'If stuck after 15 min: identify exactly where you\'re stuck, write it out', tag:'review' },
+      { text:'After solving: could you have spotted the structure faster? What was the key insight?', tag:'review' },
+    ]
+  },
+  math_paper: {
+    title:'Timed past paper',
+    tasks:[
+      { text:'Full section under strict time — no pausing, no calculator unless permitted', tag:'sim' },
+      { text:'Show all working — method marks exist even if the answer is wrong', tag:'sim' },
+      { text:'Flag questions where you knew the method but ran out of time', tag:'sim' },
+      { text:'After: identify the 2 questions that cost you the most marks — do them again', tag:'error' },
+    ]
+  },
+  math_errorreview: {
+    title:'Error review',
+    tasks:[
+      { text:'Pull out every wrong answer from this week\'s sessions', tag:'error' },
+      { text:'For each: write one sentence explaining what you misunderstood', tag:'error' },
+      { text:'Redo the 3 hardest ones cold — no notes', tag:'sim' },
+    ]
+  },
+
+  // CHEMISTRY — silly error elimination
+  chem_checklist: {
+    title:'Error-prevention protocol',
+    note:'Before submitting any answer: (1) units consistent? (2) sig figs correct? (3) sign correct for ΔH/ΔG? (4) charges balanced in ionic equations? Treat this as a mandatory last step.',
+    tasks:[
+      { text:'Write your personal error checklist from memory before starting any questions', tag:'review' },
+      { text:'3 past paper questions — apply checklist after each answer before moving on', tag:'sim' },
+      { text:'On any wrong answer: identify which checklist item would have caught it', tag:'error' },
+    ]
+  },
+  chem_bonding: {
+    title:'Bonding + structure',
+    tasks:[
+      { text:'Draw 3 Lewis structures — check formal charges and octets explicitly', tag:'sim' },
+      { text:'1 question on VSEPR — draw electron geometry AND molecular geometry separately', tag:'sim' },
+      { text:'Compare bond polarity vs molecular polarity for 2 molecules', tag:'review' },
+      { text:'1 ionic equation question — verify charges balance before AND after', tag:'sim' },
+    ]
+  },
+  chem_thermo: {
+    title:'Thermochemistry',
+    tasks:[
+      { text:'1 Hess\'s law question — write each step with correct sign manipulation', tag:'sim' },
+      { text:'1 calorimetry calculation — check: q = mcΔT (is ΔT positive in the right direction?)', tag:'sim' },
+      { text:'Bond enthalpy question: bonds broken (positive) vs bonds formed (negative)', tag:'sim' },
+      { text:'After each: apply full error checklist', tag:'error' },
+    ]
+  },
+  chem_organic: {
+    title:'Organic chemistry',
+    tasks:[
+      { text:'Identify functional groups in 3 molecules — write the reaction type each undergoes', tag:'review' },
+      { text:'1 mechanism question — draw curly arrows correctly (from electron-rich to electron-poor)', tag:'sim' },
+      { text:'Name 3 compounds using IUPAC — check suffix before finalising', tag:'sim' },
+    ]
+  },
+  chem_mcq: {
+    title:'MCQ simulation',
+    note:'MCQ rewards elimination + checking. If unsure: eliminate clearly wrong answers, then verify your choice against units and logic before committing.',
+    tasks:[
+      { text:'20 MCQ questions under timed conditions — 1 min per question max', tag:'sim' },
+      { text:'After: review every question you weren\'t 100% sure about', tag:'error' },
+      { text:'For wrong answers: was it a knowledge gap or a silly error?', tag:'error' },
+    ]
+  },
+
+  // GEOGRAPHY — IB essay strategy
+  geo_essay_structure: {
+    title:'IB essay structure',
+    note:'IB Geography HL essays want: clear thesis → specific case studies named early → analytical links to the question → evaluative conclusion that returns to the question. Avoid description — every paragraph should EXPLAIN, not just state.',
+    tasks:[
+      { text:'Write a timed essay plan in 10 min — thesis + 3 argument points + case study for each', tag:'essay' },
+      { text:'Check: does each paragraph answer the question directly or just describe a case?', tag:'review' },
+      { text:'Write the opening paragraph — does it contain a clear, specific thesis?', tag:'essay' },
+    ]
+  },
+  geo_casestudies: {
+    title:'Case study consolidation',
+    tasks:[
+      { text:'List your 5 strongest case studies — write 2 specific statistics for each from memory', tag:'review' },
+      { text:'Identify 2 case studies you can\'t name statistics for — these are the gaps', tag:'review' },
+      { text:'For 1 weak case study: write a 3-sentence summary you\'d use in an exam', tag:'essay' },
+    ]
+  },
+  geo_markscheme: {
+    title:'Markscheme analysis',
+    note:'IB markschemes for essays reward: named examples, specific data, explicit link to the question command term, and evaluative statements (not just descriptive ones).',
+    tasks:[
+      { text:'Read the markscheme for last essay attempt — what did the examiner reward?', tag:'review' },
+      { text:'Identify 2 marks you lost — write what you would add to get them', tag:'error' },
+      { text:'Rewrite one body paragraph incorporating markscheme language', tag:'essay' },
+    ]
+  },
+  geo_ppn: {
+    title:'Power, Places & Networks',
+    tasks:[
+      { text:'Write a timed response to a PPnN question — 25 min', tag:'essay' },
+      { text:'Focus: use \'resistance\', \'flows\', \'networks\', \'global governance\' explicitly', tag:'essay' },
+      { text:'Check conclusion: does it evaluate (not just summarise)?', tag:'review' },
+    ]
+  },
+
+  // CHINESE — vocab-first, exam comprehension
+  chin_vocab: {
+    title:'Vocabulary for comprehension',
+    note:'Your goal is reading comprehension under exam conditions — focus on high-frequency IB SL exam vocabulary, not general Mandarin. Prioritise words that appear in question stems so you understand what\'s being asked.',
+    tasks:[
+      { text:'Anki: 20 new cards — topic vocabulary (environment, health, education, technology)', tag:'vocab' },
+      { text:'Review yesterday\'s cards — suspend any you get right 3x in a row', tag:'vocab' },
+      { text:'Write 5 new words in a sentence each — in Chinese, not English', tag:'vocab' },
+    ]
+  },
+  chin_reading: {
+    title:'Reading comprehension practice',
+    tasks:[
+      { text:'Read one past paper text — underline every word you don\'t know before reading questions', tag:'sim' },
+      { text:'Answer the questions using context clues even for unknown words', tag:'sim' },
+      { text:'After: look up underlined words — add the new ones to Anki', tag:'vocab' },
+    ]
+  },
+  chin_output: {
+    title:'Output practice',
+    tasks:[
+      { text:'Write 5 sentences in Chinese on today\'s topic — focus on using this week\'s new vocab', tag:'sim' },
+      { text:'Read them aloud — does each sentence sound natural?', tag:'drill' },
+      { text:'Correct any grammar errors you notice — write the correct version', tag:'error' },
+    ]
+  },
+  chin_listening: {
+    title:'Listening + speaking',
+    tasks:[
+      { text:'Listen to 10 min of Mandarin content (podcast, YouTube) — note new vocab', tag:'vocab' },
+      { text:'Summarise what you heard in 3 sentences in Chinese — spoken aloud', tag:'drill' },
+      { text:'Add any new topic words to Anki', tag:'vocab' },
+    ]
+  },
+
+  // DEBATE — World Schools, POI + delivery focus
+  deb_poi_drill: {
+    title:'POI drilling',
+    note:'WSDC POIs: 15 seconds max. They should (1) disrupt the speaker\'s flow, (2) expose a concession or contradiction, (3) be answerable in 5 words so you sound in control. Bad POIs make a statement. Good POIs ask a sharp question.',
+    tasks:[
+      { text:'Set 8-min timer — deliver a random 3-min constructive speech on any topic', tag:'drill' },
+      { text:'Record yourself — replay and offer a POI at every minute mark', tag:'drill' },
+      { text:'Evaluate each POI: was it a question or a statement? Did it target a weakness?', tag:'review' },
+      { text:'Drill 5 more POIs — each must be a genuine question under 15 seconds', tag:'drill' },
+    ]
+  },
+  deb_delivery: {
+    title:'Delivery + pace',
+    note:'WSDC judging rewards clarity, not speed. Vary pace deliberately: slow down on key claims so the judge can write them down. Pause before your main argument. Filler words (um, like, so) are the enemy — silence is better.',
+    tasks:[
+      { text:'Record a 4-min speech — play it back at 1.25x speed and note every filler word', tag:'drill' },
+      { text:'Redo the same speech with a conscious 2-second pause before each argument', tag:'drill' },
+      { text:'Rate yourself: 1-5 on pace, clarity, vocal variety — write what specifically to fix', tag:'review' },
+    ]
+  },
+  deb_case: {
+    title:'Case construction',
+    note:'WSDC Gov case structure: definition → team split → your material (3 arguments: cause/mechanism/impact). Each argument needs a warrant — the logical reason it\'s true — not just an assertion.',
+    tasks:[
+      { text:'Pick a motion — write a full 8-min gov case from scratch, timed', tag:'sim' },
+      { text:'For each argument: write the warrant in one sentence — why is this TRUE?', tag:'sim' },
+      { text:'Check: does the case prove the motion or just discuss the topic?', tag:'review' },
+    ]
+  },
+  deb_rebuttal: {
+    title:'Rebuttal practice',
+    tasks:[
+      { text:'Find a WSDC speech on YouTube — pause every 2 min and write a rebuttal', tag:'drill' },
+      { text:'For each rebuttal: identify the specific logical weakness you\'re attacking', tag:'drill' },
+      { text:'Deliver the rebuttal aloud — is it clear WHAT you\'re rebutting before you explain why?', tag:'drill' },
+    ]
+  },
+  deb_motion: {
+    title:'Motion knowledge audit',
+    tasks:[
+      { text:'Pick 3 likely WSDC motion areas (economy, environment, social policy)', tag:'review' },
+      { text:'For each: write 2 gov arguments and 2 opp arguments you could deploy', tag:'review' },
+      { text:'Identify the weakest area — this is what to research next week', tag:'review' },
+    ]
+  },
+  deb_mockround: {
+    title:'Full mock round',
+    tasks:[
+      { text:'Pick a motion — run a full 8-min constructive speech start to finish, no stopping', tag:'sim' },
+      { text:'Record it — watch back for pace, structure clarity, and POI readiness', tag:'review' },
+      { text:'Write 3 specific things to fix before the next mock', tag:'review' },
+    ]
+  },
+  deb_watchround: {
+    title:'Watch + annotate a round',
+    tasks:[
+      { text:'Find a WSDC round on YouTube — watch Gov 1 with a notepad', tag:'review' },
+      { text:'Note: when did they take POIs? Were the POIs answered well?', tag:'review' },
+      { text:'Note: what delivery choices made the speech more or less persuasive?', tag:'review' },
+      { text:'Write 2 things you will steal and use in your next speech', tag:'review' },
+    ]
+  },
+
+  // KAYAK
+  kayak: {
+    title:'On the water',
+    tasks:[
+      { text:'Show up', tag:'sim' },
+    ]
+  },
+};
+
+// ─── Schedule (0=Mon … 6=Sun) ────────────────────────────────────────────────
+// Each block: { t, l, n, s, passive?, tasks: ['key1','key2',...] }
+// tasks = keys into T above. Multiple keys allowed — they concatenate.
+const SCHEDULE = {
+  0: [
+    { t:'8:00–9:30',   l:'Physics',          n:'Approach + mechanics',              s:'phys', tasks:['phys_approach','phys_mechanics'] },
+    { t:'9:30–9:45',   l:'Break',             n:'',                                  s:'rest', passive:true },
+    { t:'9:45–11:15',  l:'Math',              n:'Trig review or combinatorics',      s:'math', tasks:['math_trig_review','math_combinatorics'] },
+    { t:'11:15–12:00', l:'Chemistry',         n:'Error-prevention protocol + MCQ',   s:'chem', tasks:['chem_checklist','chem_mcq'] },
+    { t:'12:00–12:45', l:'Lunch',             n:'',                                  s:'rest', passive:true },
+    { t:'12:45–13:05', l:'Transit → library', n:'20 min',                            s:'tran', passive:true },
+    { t:'13:05–14:35', l:'Physics',           n:'Past paper simulation',             s:'phys', tasks:['phys_paper'] },
+    { t:'14:35–15:20', l:'Debate',            n:'POI drilling — record yourself',    s:'deb',  tasks:['deb_poi_drill'] },
+    { t:'15:20–15:40', l:'Transit → kayak',   n:'20 min',                            s:'tran', passive:true },
+    { t:'16:00–18:00', l:'Kayak',             n:'',                                  s:'kayak',tasks:['kayak'] },
+    { t:'18:00–18:20', l:'Transit home',      n:'',                                  s:'tran', passive:true },
+  ],
+  1: [
+    { t:'8:00–9:30',   l:'Physics',           n:'Waves + optics or SHM',             s:'phys', tasks:['phys_approach','phys_waves'] },
+    { t:'9:30–9:45',   l:'Break',             n:'',                                  s:'rest', passive:true },
+    { t:'9:45–11:15',  l:'Math',              n:'Conceptual deep work',              s:'math', tasks:['math_concept'] },
+    { t:'11:15–12:00', l:'Geography',         n:'Essay structure practice',          s:'geo',  tasks:['geo_essay_structure'] },
+    { t:'12:00–13:00', l:'Lunch',             n:'',                                  s:'rest', passive:true },
+    { t:'13:00–14:30', l:'Chemistry',         n:'Bonding + thermochemistry',         s:'chem', tasks:['chem_bonding','chem_thermo'] },
+    { t:'14:30–15:30', l:'Debate',            n:'Full 8-min case — record it',       s:'deb',  tasks:['deb_case'] },
+    { t:'15:30–16:00', l:'Chinese',           n:'Vocab + output',                    s:'chin', tasks:['chin_vocab','chin_output'] },
+  ],
+  2: [
+    { t:'8:00–9:30',   l:'Math',              n:'Timed past paper — strict',         s:'math', tasks:['math_paper'] },
+    { t:'9:30–9:45',   l:'Break',             n:'',                                  s:'rest', passive:true },
+    { t:'9:45–11:00',  l:'Physics',           n:'SHM + special relativity',          s:'phys', tasks:['phys_shm','phys_relativity'] },
+    { t:'11:00–11:45', l:'Chinese',           n:'Grammar + output paragraph',        s:'chin', tasks:['chin_vocab','chin_output'] },
+    { t:'11:45–12:30', l:'Lunch',             n:'',                                  s:'rest', passive:true },
+    { t:'12:30–12:50', l:'Transit → library', n:'20 min',                            s:'tran', passive:true },
+    { t:'12:50–14:20', l:'Debate',            n:'Motion research + arg mapping',     s:'deb',  tasks:['deb_motion'] },
+    { t:'14:20–15:10', l:'Geography',         n:'Case studies + markscheme review',  s:'geo',  tasks:['geo_casestudies','geo_markscheme'] },
+    { t:'15:10–15:40', l:'Transit → kayak',   n:'20 min (leave by 3:10)',            s:'tran', passive:true },
+    { t:'16:00–18:00', l:'Kayak',             n:'',                                  s:'kayak',tasks:['kayak'] },
+    { t:'18:00–18:20', l:'Transit home',      n:'',                                  s:'tran', passive:true },
+  ],
+  3: [
+    { t:'8:00–9:30',   l:'Physics',           n:'Thermodynamics — heavy session',    s:'phys', tasks:['phys_approach','phys_thermo'] },
+    { t:'9:30–9:45',   l:'Break',             n:'',                                  s:'rest', passive:true },
+    { t:'9:45–11:00',  l:'Chemistry',         n:'Organic chemistry',                 s:'chem', tasks:['chem_organic','chem_checklist'] },
+    { t:'11:00–12:00', l:'Math',              n:'Error review from Wed paper',       s:'math', tasks:['math_errorreview'] },
+    { t:'12:00–13:00', l:'Lunch',             n:'',                                  s:'rest', passive:true },
+    { t:'13:00–14:30', l:'Physics',           n:'Past paper — full section',         s:'phys', tasks:['phys_paper'] },
+    { t:'14:30–15:30', l:'Debate',            n:'Rebuttal practice + POI drills',    s:'deb',  tasks:['deb_rebuttal','deb_poi_drill'] },
+    { t:'15:30–16:15', l:'Geo / Chinese',     n:'Light — pick one',                  s:'geo',  tasks:['geo_ppn','chin_reading'] },
+  ],
+  4: [
+    { t:'8:00–9:30',   l:'Physics',           n:'Error autopsy — weakest topic',     s:'phys', tasks:['phys_errorreview'] },
+    { t:'9:30–9:45',   l:'Break',             n:'',                                  s:'rest', passive:true },
+    { t:'9:45–10:45',  l:'Math',              n:'Binomial theorem',                  s:'math', tasks:['math_binomial'] },
+    { t:'10:45–11:30', l:'Chemistry',         n:'MCQ simulation — 20 questions',     s:'chem', tasks:['chem_mcq'] },
+    { t:'11:30–12:15', l:'Lunch',             n:'',                                  s:'rest', passive:true },
+    { t:'12:15–12:35', l:'Transit → library', n:'20 min',                            s:'tran', passive:true },
+    { t:'12:35–14:05', l:'Debate',            n:'Watch a round — annotate delivery', s:'deb',  tasks:['deb_watchround'] },
+    { t:'14:05–14:50', l:'Chinese',           n:'Vocab + listening',                 s:'chin', tasks:['chin_vocab','chin_listening'] },
+    { t:'15:30–15:50', l:'Transit → kayak',   n:'20 min (leave 3:30)',               s:'tran', passive:true },
+    { t:'16:00–18:00', l:'Kayak',             n:'',                                  s:'kayak',tasks:['kayak'] },
+    { t:'18:00–18:20', l:'Transit home',      n:'',                                  s:'tran', passive:true },
+  ],
+  5: [
+    { t:'7:40–8:00',   l:'Transit → kayak',   n:'20 min',                            s:'tran', passive:true },
+    { t:'8:00–11:00',  l:'Kayak',             n:'Morning session',                   s:'kayak',tasks:['kayak'] },
+    { t:'11:00–11:20', l:'Transit → library', n:'20 min',                            s:'tran', passive:true },
+    { t:'11:20–11:50', l:'Settle + lunch',    n:'Eat before studying',               s:'rest', passive:true },
+    { t:'11:50–13:20', l:'Math',              n:'Full timed past paper — library',   s:'math', tasks:['math_paper'] },
+    { t:'13:20–14:50', l:'Physics',           n:'Concept gaps — shorter problems',   s:'phys', tasks:['phys_approach','phys_shm'] },
+    { t:'14:50–15:50', l:'Debate',            n:'Full mock round — 8-min case',      s:'deb',  tasks:['deb_mockround'] },
+    { t:'15:50–16:20', l:'Chinese',           n:'Speaking or listening — light',     s:'chin', tasks:['chin_listening'] },
+    { t:'16:20–16:40', l:'Transit home',      n:'',                                  s:'tran', passive:true },
+  ],
+  6: [
+    { t:'9:00–10:30',  l:'Math',              n:'Error review — every wrong answer', s:'math', tasks:['math_errorreview'] },
+    { t:'10:30–11:15', l:'Geography',         n:'Essay plan or markscheme compare',  s:'geo',  tasks:['geo_essay_structure','geo_markscheme'] },
+    { t:'11:15–12:00', l:'Chinese',           n:'Weekly vocab consolidation',        s:'chin', tasks:['chin_vocab'] },
+    { t:'12:00–13:00', l:'Lunch',             n:'',                                  s:'rest', passive:true },
+    { t:'13:00–14:00', l:'Debate',            n:'Motion knowledge audit',            s:'deb',  tasks:['deb_motion'] },
+    { t:'14:00+',      l:'Rest',              n:'Notes only if needed',              s:'rest', passive:true },
+  ],
+};
+
+const DAY_NAMES  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DAY_SHORT  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const KAYAK_DAYS = [0,2,4,5];
+
+// ─── Store ────────────────────────────────────────────────────────────────────
+function today() { return new Date().toISOString().slice(0,10); }
+function dateKey(d) { return d.toISOString().slice(0,10); }
+
+function getWeekDates(anchor) {
+  const d = new Date(anchor);
+  const dow = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - dow);
+  const dates = [];
+  for (let i = 0; i < 7; i++) { dates.push(new Date(d)); d.setDate(d.getDate()+1); }
+  return dates;
+}
+
+function loadStore() { try { return JSON.parse(localStorage.getItem('summer-tracker2') || '{}'); } catch { return {}; } }
+function saveStore(s) { localStorage.setItem('summer-tracker2', JSON.stringify(s)); }
+
+let store = loadStore();
+let selectedDate = today();
+let expandedBlock = null; // "dateKey:blockIndex"
+
+function getDay(key) {
+  if (!store[key]) store[key] = { done:{}, tasks:{}, notes:'' };
+  if (!store[key].tasks) store[key].tasks = {};
+  return store[key];
+}
+
+function schedule(key) { return SCHEDULE[(new Date(key+'T12:00:00').getDay()+6)%7] || []; }
+function dowFromKey(key) { return (new Date(key+'T12:00:00').getDay()+6)%7; }
+function checkable(b) { return !b.passive; }
+
+function parseBlockMinutes(t) {
+  const parts = t.split('–');
+  const parse = s => { const [h,m] = s.trim().replace('+','').split(':').map(Number); return h*60+(m||0); };
+  return { start: parse(parts[0]), end: parts[1] ? parse(parts[1]) : Infinity };
+}
+
+function nowMinutes() { const d = new Date(); return d.getHours()*60+d.getMinutes(); }
+
+function currentBlockIdx(key) {
+  if (key !== today()) return -1;
+  const nm = nowMinutes();
+  const sch = schedule(key);
+  for (let i = 0; i < sch.length; i++) {
+    const { start, end } = parseBlockMinutes(sch[i].t);
+    if (nm >= start && nm < end) return i;
+  }
+  return -1;
+}
+function activeSessions(key) { return schedule(key).filter(checkable); }
+
+function doneSessions(key) {
+  const d = getDay(key);
+  return activeSessions(key).filter((_,i) => d.done[i]);
+}
+
+function dayProgress(key) {
+  const total = activeSessions(key).length;
+  return total ? doneSessions(key).length / total : 0;
+}
+
+function weekDone(dates) {
+  const total = dates.reduce((s,d) => s + activeSessions(dateKey(d)).length, 0);
+  const done  = dates.reduce((s,d) => s + doneSessions(dateKey(d)).length, 0);
+  return total ? Math.round(100*done/total) : 0;
+}
+
+function streak() {
+  let s = 0; const d = new Date();
+  for (let i = 0; i < 42; i++) {
+    if (dayProgress(dateKey(d)) < 0.5) break;
+    s++; d.setDate(d.getDate()-1);
+  }
+  return s;
+}
+
+function totalKayaks() {
+  return Object.keys(store).reduce((n,k) => {
+    if (!KAYAK_DAYS.includes(dowFromKey(k))) return n;
+    const sch = schedule(k);
+    const ki = sch.findIndex(b => b.s==='kayak');
+    return n + (ki>=0 && store[k]?.done?.[ki] ? 1 : 0);
+  }, 0);
+}
+
+function weekSubjectCounts(dates) {
+  const counts = {};
+  dates.forEach(dt => {
+    const k = dateKey(dt); const d = getDay(k);
+    schedule(k).forEach((b,i) => {
+      if (!checkable(b) || !d.done[i]) return;
+      if (SUBJECTS[b.s]?.label) counts[b.s] = (counts[b.s]||0)+1;
     });
+  });
+  return counts;
+}
 
-    // ────────────────────────────────────────────────
-    // HERO CELL GRAPHIC
-    // ────────────────────────────────────────────────
-    const heroCanvas = document.getElementById('hero-canvas');
-    const hCtx = heroCanvas.getContext('2d');
-    const CELL=60, GAP=2, STEP=60;
+// ─── Task rendering ────────────────────────────────────────────────────────────
+function buildTasksHTML(blockIdx, blockTaskKeys, dateKey) {
+  if (!blockTaskKeys || !blockTaskKeys.length) return '';
+  const dayData = getDay(dateKey);
+  let html = '';
+  blockTaskKeys.forEach(key => {
+    const def = T[key];
+    if (!def) return;
+    html += `<div class="task-section">`;
+    html += `<div class="task-section-title">${def.title}</div>`;
+    if (def.note) html += `<div class="task-note">${def.note}</div>`;
+    html += `<div class="task-list" style="margin-top:${def.note?'8px':'0'}">`;
+    def.tasks.forEach((task, ti) => {
+      const taskId = `${blockIdx}:${key}:${ti}`;
+      const isDone = !!(dayData.tasks[taskId]);
+      const tagHTML = task.tag ? `<span class="task-tag tag-${task.tag}">${task.tag}</span>` : '';
+      html += `
+        <div class="task-item${isDone?' task-done':''}" data-taskid="${taskId}" onclick="toggleTask('${dateKey}','${taskId}')">
+          <div class="task-cb">
+            <svg class="task-check-sm" width="8" height="6" viewBox="0 0 8 6" fill="none">
+              <path d="M1 3L3 5L7 1" stroke="#0d0d0f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="task-text">${task.text}</span>
+          ${tagHTML}
+        </div>`;
+    });
+    html += `</div></div>`;
+  });
+  return html;
+}
 
-    const PAL=[
-      [10,10,14],[14,24,52],[28,58,110],
-      [55,105,165],[120,175,215],[195,225,248],[230,242,255]
-    ];
-    function sr(s){const x=Math.sin(s*127.1+311.7)*43758.5453;return x-Math.floor(x);}
-    function getBri(c,r,COLS,ROWS){
-      const nx=c/COLS,ny=r/ROWS,cx=0.62,cy=0.52;
-      const dx=(nx-cx)*1.3,dy=(ny-cy)*1.1;
-      const n=(sr(c*0.41+r*0.29)-0.5)*0.18;
-      return Math.pow(Math.max(0,1-(Math.sqrt(dx*dx+dy*dy)+n)/0.95),1.6);
-    }
-    function palColor(b){
-      const s=[0,.12,.28,.50,.70,.88,1];
-      for(let i=0;i<s.length-1;i++){
-        if(b<=s[i+1]){
-          const t=(b-s[i])/(s[i+1]-s[i]),a=PAL[i],bv=PAL[i+1];
-          return[Math.round(a[0]+(bv[0]-a[0])*t),Math.round(a[1]+(bv[1]-a[1])*t),Math.round(a[2]+(bv[2]-a[2])*t)];
-        }
-      }
-      return PAL[PAL.length-1];
-    }
-    let heroGrid=[],hW=0,hH=0,bloomC=null,bCtx2=null;
-    function buildHeroGrid(){
-      hW=heroCanvas.offsetWidth; hH=heroCanvas.offsetHeight;
-      const COLS=Math.ceil(hW/STEP)+1,ROWS=Math.ceil(hH/STEP)+1;
-      heroGrid=[];
-      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
-        const bri=getBri(c,r,COLS,ROWS);
-        if(bri<0.03) continue;
-        heroGrid.push({x:c*STEP,y:r*STEP,bri,
-          blinkSpeed:0.4+sr(c*73+r*37)*1.2,
-          blinkPhase:sr(c*53+r*91+7)*Math.PI*2,
-          blinkDepth:(0.06+sr(c*29+r*61+13)*0.18)*(0.5+(1-bri)*0.5)
-        });
-      }
-      bloomC=document.createElement('canvas');
-      bloomC.width=hW; bloomC.height=hH;
-      bCtx2=bloomC.getContext('2d');
-    }
-    function drawHeroFrame(t){
-      hCtx.fillStyle='#0a0a0a'; hCtx.fillRect(0,0,hW,hH);
-      bCtx2.clearRect(0,0,hW,hH);
-      heroGrid.forEach(({x,y,bri,blinkSpeed,blinkPhase,blinkDepth})=>{
-        const p=Math.max(0,Math.min(1,bri+Math.sin(t*blinkSpeed+blinkPhase)*blinkDepth));
-        const col=palColor(p);
-        hCtx.fillStyle=`rgb(${col[0]},${col[1]},${col[2]})`;
-        hCtx.fillRect(x,y,CELL,CELL);
-        hCtx.fillStyle='rgba(0,0,0,0.20)';
-        for(let lx=x;lx<x+CELL;lx+=4) hCtx.fillRect(lx,y,1,CELL);
-        if(p>0.40){
-          const a=((p-0.40)/0.60)*0.88;
-          bCtx2.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${a})`;
-          bCtx2.fillRect(x,y,CELL,CELL);
-        }
-      });
-      hCtx.save(); hCtx.filter='blur(22px)';
-      hCtx.globalCompositeOperation='screen'; hCtx.globalAlpha=0.52;
-      hCtx.drawImage(bloomC,0,0); hCtx.restore();
-      hCtx.save(); hCtx.filter='blur(7px)';
-      hCtx.globalCompositeOperation='screen'; hCtx.globalAlpha=0.38;
-      hCtx.drawImage(bloomC,0,0); hCtx.restore();
+function toggleTask(dateStr, taskId) {
+  const d = getDay(dateStr);
+  d.tasks[taskId] = !d.tasks[taskId];
+  saveStore(store);
+  // Update just that task item without full re-render
+  const el = document.querySelector(`[data-taskid="${taskId}"]`);
+  if (el) el.classList.toggle('task-done', !!d.tasks[taskId]);
+}
 
-      // Radial edge fade
-      const fade=hCtx.createRadialGradient(hW*.60,hH*.50,hH*.06,hW*.50,hH*.48,hH*.80);
-      fade.addColorStop(0,'rgba(10,10,14,0)');
-      fade.addColorStop(0.45,'rgba(10,10,14,0.08)');
-      fade.addColorStop(0.70,'rgba(10,10,14,0.55)');
-      fade.addColorStop(0.88,'rgba(10,10,14,0.88)');
-      fade.addColorStop(1,'rgba(10,10,14,1)');
-      hCtx.fillStyle=fade; hCtx.fillRect(0,0,hW,hH);
+// ─── Render ───────────────────────────────────────────────────────────────────
+function render() {
+  const anchorDate = new Date(selectedDate+'T12:00:00');
+  const weekDates  = getWeekDates(anchorDate);
+  const todayKey   = today();
 
-      // Text-zone mask
-      const tm=hCtx.createLinearGradient(0,0,hW*.46,hH*.48);
-      tm.addColorStop(0,'rgba(10,10,14,0.82)');
-      tm.addColorStop(0.55,'rgba(10,10,14,0.08)');
-      tm.addColorStop(1,'rgba(10,10,14,0)');
-      hCtx.fillStyle=tm; hCtx.fillRect(0,0,hW,hH);
+  // header-date is kept live by tickClock()
 
-      // ── Bottom blend into bento ─────────────────────
-      // Smooth gradient from transparent → #0a0a0a over last 35% of hero
-      const bot=hCtx.createLinearGradient(0,hH*0.65,0,hH);
-      bot.addColorStop(0,'rgba(10,10,10,0)');
-      bot.addColorStop(1,'rgba(10,10,10,1)');
-      hCtx.fillStyle=bot; hCtx.fillRect(0,0,hW,hH);
-    }
-    function setupHero(){
-      const dpr=window.devicePixelRatio||1;
-      const w=heroCanvas.offsetWidth,h=heroCanvas.offsetHeight;
-      heroCanvas.width=w*dpr; heroCanvas.height=h*dpr;
-      hCtx.setTransform(dpr,0,0,dpr,0,0);
-      buildHeroGrid();
-    }
-    setupHero();
-    window.addEventListener('resize',()=>{hCtx.setTransform(1,0,0,1,0,0);setupHero();});
-    let h0=null;
-    function heroLoop(ts){if(!h0)h0=ts;drawHeroFrame((ts-h0)/1000);requestAnimationFrame(heroLoop);}
-    requestAnimationFrame(heroLoop);
+  // Week strip
+  const strip = document.getElementById('week-strip');
+  strip.innerHTML = '';
+  weekDates.forEach((dt, i) => {
+    const k = dateKey(dt);
+    const pct = dayProgress(k);
+    const btn = document.createElement('button');
+    btn.className = 'day-btn' + (k===selectedDate?' active':'') + (k===todayKey?' today':'');
+    btn.innerHTML = `
+      <span class="day-name">${DAY_SHORT[i]}</span>
+      <span class="day-num">${dt.getDate()}</span>
+      ${KAYAK_DAYS.includes(i) ? '<span class="day-kayak"></span>' : '<span style="width:5px;height:5px"></span>'}
+      <div class="day-progress"><div class="day-progress-fill" style="width:${Math.round(pct*100)}%"></div></div>`;
+    btn.onclick = () => { selectedDate = k; expandedBlock = null; render(); };
+    strip.appendChild(btn);
+  });
 
-    // ────────────────────────────────────────────────
-    // NODE DATA — INFO CONTENT
-    // ────────────────────────────────────────────────
-    const NODE_INFO = [
-      {
-        cluster: 'Creative',
-        title: 'Photography',
-        desc: 'Documentary and editorial work centred on natural light and composed silence. Drawn to the space between moments.',
-        stats: [['Experience','4 years'],['Primary body','Sony A7IV'],['Style','Editorial · Documentary']],
-        tags: ['Portrait','Street','Editorial'],
-      },
-      {
-        cluster: 'Creative',
-        title: 'Videography',
-        desc: 'Short-form brand films and personal narratives. Colour grading as a design language, not a correction.',
-        stats: [['Experience','3 years'],['Post','DaVinci Resolve'],['Specialty','Colour · Motion']],
-        tags: ['Brand Film','Colour Grade','Motion'],
-      },
-      {
-        cluster: 'Creative',
-        title: 'Guitar',
-        desc: 'Eight years of playing, mostly self-taught. Fingerpicking and jazz harmony. Music as a parallel design practice.',
-        stats: [['Experience','8 years'],['Style','Fingerpicking · Jazz'],['Influences','Chet Atkins · Joe Pass']],
-        tags: ['Acoustic','Jazz','Ambient'],
-      },
-      {
-        cluster: 'Professional',
-        title: 'Programming',
-        desc: 'Front-end focused. Code used as a design tool — Three.js, animation, and generative graphics are the interest.',
-        stats: [['Experience','5 years'],['Stack','JS · Python · React'],['Focus','Creative code · UI']],
-        tags: ['JavaScript','Three.js','React'],
-      },
-      {
-        cluster: 'Professional',
-        title: 'Business',
-        desc: 'Brand strategy, client scoping, and project delivery. Understanding business context is what separates good design from useful design.',
-        stats: [['Context','Freelance + Studio'],['Focus','Brand Strategy'],['Strength','Client Relations']],
-        tags: ['Strategy','Branding','Scoping'],
-      },
-      {
-        cluster: 'Professional',
-        title: 'Debate',
-        desc: 'Provincial-level competitor. Argumentation, rapid research, and public speaking under pressure.',
-        stats: [['Level','Provincial'],['Format','British Parliamentary'],['Skill','Rhetoric · Research']],
-        tags: ['Public Speaking','Logic','Research'],
-      },
-      {
-        cluster: 'Physical',
-        title: 'Kayaking',
-        desc: 'Pacific coast paddler. Burrard Inlet, Howe Sound, BC interior lakes. Water as reset and perspective.',
-        stats: [['Experience','6 years'],['Waters','Pacific Coast · BC'],['Type','Sea kayak · Touring']],
-        tags: ['Sea Kayak','BC Coast','Outdoors'],
-      },
-      {
-        cluster: 'Physical',
-        title: 'First Aid',
-        desc: 'Standard First Aid + CPR-C certified. Wilderness first aid trained. Preparedness as an extension of care.',
-        stats: [['Certification','Standard FA + CPR-C'],['Additional','Wilderness FA'],['Status','Current']],
-        tags: ['CPR-C','Wilderness','Emergency'],
-      },
-    ];
+  document.getElementById('day-label').textContent = DAY_NAMES[dowFromKey(selectedDate)];
 
-    // Cluster side: 0=left, 1=right, 2=bottom
-    const CLUSTER_SIDE = [0,0,0, 1,1,1, 2,2];
+  // Blocks
+  const blocksEl = document.getElementById('blocks');
+  blocksEl.innerHTML = '';
+  const dayData = getDay(selectedDate);
+  const sch = schedule(selectedDate);
 
-    // ────────────────────────────────────────────────
-    // INFO PANEL LOGIC
-    // ────────────────────────────────────────────────
-    const nodeInfo   = document.getElementById('node-info');
-    const infoClose  = document.getElementById('info-close');
-    let activeNode   = -1;
+  const nowIdx = currentBlockIdx(selectedDate);
 
-    function hexToCss(hex) {
-      const r=(hex>>16)&0xff,g=(hex>>8)&0xff,b=hex&0xff;
-      return `rgb(${r},${g},${b})`;
+  sch.forEach((b, i) => {
+    const isPassive = !!b.passive;
+    const isDone    = !isPassive && !!dayData.done[i];
+    const color     = SUBJECTS[b.s]?.color || '#444';
+    const expandKey = `${selectedDate}:${i}`;
+    const isExpanded = expandedBlock === expandKey;
+    const hasTasks  = b.tasks && b.tasks.length;
+
+    if (i === nowIdx && !isPassive) {
+      const line = document.createElement('div');
+      line.className = 'now-line';
+      line.innerHTML = `<div class="now-line-dot"></div><div class="now-line-bar"></div><span class="now-line-time" id="now-time"></span>`;
+      blocksEl.appendChild(line);
     }
 
-    function showInfo(idx, hubColor) {
-      if (activeNode === idx) { hideInfo(); return; }
-      activeNode = idx;
-      const d = NODE_INFO[idx];
-      const col = hexToCss(hubColor);
+    const el = document.createElement('div');
+    const isNow = i === nowIdx && !isPassive;
+    el.className = 'block' + (isDone?' done':'') + (isPassive?' passive':'') + (isExpanded?' expanded':'') + (isNow?' now':'');
 
-      document.getElementById('info-cluster').textContent = d.cluster;
-      document.getElementById('info-title').textContent   = d.title;
-      document.getElementById('info-desc').textContent    = d.desc;
-      const line = document.getElementById('info-line');
-      line.style.background = col;
+    const expandBtnHTML = (!isPassive && hasTasks)
+      ? `<button class="expand-btn" onclick="event.stopPropagation();toggleExpand('${expandKey}')">${isExpanded ? '▲ hide' : '▼ tasks'}</button>`
+      : '';
 
-      // bracket corner colors
-      nodeInfo.querySelectorAll('.icn').forEach(c => c.style.borderColor = hexToCss(hubColor).replace('rgb','rgba').replace(')',',0.5)'));
+    const checkHTML = !isPassive
+      ? `<div class="block-check"><svg class="checkmark" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0d0d0f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`
+      : '';
 
-      const statsEl = document.getElementById('info-stats');
-      statsEl.innerHTML = d.stats.map(([k,v])=>
-        `<div class="info-stat"><span>${k}</span><span>${v}</span></div>`
-      ).join('');
+    const tasksHTML = (isExpanded && hasTasks)
+      ? `<div class="block-tasks">${buildTasksHTML(i, b.tasks, selectedDate)}</div>`
+      : `<div class="block-tasks"></div>`;
 
-      const tagsEl = document.getElementById('info-tags');
-      tagsEl.innerHTML = d.tags.map(t=>`<div class="info-tag">${t}</div>`).join('');
+    el.innerHTML = `
+      <div class="block-header">
+        <div class="block-accent" style="background:${color}"></div>
+        <div class="block-time">${b.t}</div>
+        <div class="block-body">
+          <div class="block-text">
+            <div class="block-label">${b.l}</div>
+            ${b.n ? `<div class="block-note">${b.n}</div>` : ''}
+          </div>
+          <div class="block-right">
+            ${expandBtnHTML}
+            ${checkHTML}
+          </div>
+        </div>
+      </div>
+      ${tasksHTML}`;
 
-      // Position: left/right/bottom edge of graph panel
-      const side = CLUSTER_SIDE[idx];
-      const pad = 18;
-      nodeInfo.style.top    = '';
-      nodeInfo.style.bottom = '';
-      nodeInfo.style.left   = '';
-      nodeInfo.style.right  = '';
-
-      if (side === 0) {         // left cluster → panel hugs left edge, full height
-        nodeInfo.style.left   = `0`;
-        nodeInfo.style.top    = `0`;
-        nodeInfo.style.bottom = `0`;
-        nodeInfo.style.transform = 'translateX(0)';
-      } else if (side === 1) { // right cluster → panel hugs right edge, full height
-        nodeInfo.style.right  = `0`;
-        nodeInfo.style.top    = `0`;
-        nodeInfo.style.bottom = `0`;
-        nodeInfo.style.transform = 'translateX(0)';
-      } else {                  // bottom cluster → box bottom-center
-        nodeInfo.style.bottom = `18px`;
-        nodeInfo.style.left   = '50%';
-        nodeInfo.style.top    = 'auto';
-        nodeInfo.style.transform = 'translateX(-50%)';
-      }
-
-      nodeInfo.classList.add('visible');
+    if (!isPassive) {
+      // Clicking the header area (not the expand btn) toggles done
+      el.querySelector('.block-header').onclick = (e) => {
+        if (e.target.closest('.expand-btn')) return;
+        dayData.done[i] = !dayData.done[i];
+        saveStore(store);
+        render();
+      };
     }
 
-    function hideInfo() {
-      activeNode = -1;
-      nodeInfo.classList.remove('visible');
-    }
-
-    infoClose.addEventListener('click', hideInfo);
-
-    // ────────────────────────────────────────────────
-    // THREE.JS NETWORK
-    // ────────────────────────────────────────────────
-    const threeCanvas = document.getElementById('three-canvas');
-    const labelCanvas = document.getElementById('label-canvas');
-    const lCtx = labelCanvas.getContext('2d');
-    const graphPanel = document.getElementById('p-graph');
-
-    function initThree() {
-      const W = threeCanvas.offsetWidth;
-      const H = threeCanvas.offsetHeight;
-
-      const renderer = new THREE.WebGLRenderer({ canvas:threeCanvas, antialias:true, alpha:true });
-      renderer.setSize(W, H);
-      renderer.setPixelRatio(window.devicePixelRatio||1);
-      renderer.setClearColor(0x000000, 0);
-
-      const scene  = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(52, W/H, 0.1, 100);
-      camera.position.z = 11;
-
-      const HUBS = [
-        // Creative (left)
-        { label:'Photography', x:-3.2, y: 1.4, z: 0.3, col:0x14294f, r:0.40 },
-        { label:'Videography', x:-1.8, y: 2.3, z:-0.5, col:0x1f3f70, r:0.36 },
-        { label:'Guitar',      x:-4.0, y:-0.2, z: 0.9, col:0x3a6aa1, r:0.32 },
-        // Professional (right)
-        { label:'Programming', x: 2.4, y: 1.4, z:-0.4, col:0x477bb0, r:0.42 },
-        { label:'Business',    x: 3.5, y:-0.3, z: 0.6, col:0x9dc6e1, r:0.38 },
-        { label:'Debate',      x: 1.8, y:-1.2, z: 0.7, col:0x4e81b2, r:0.32 },
-        // Physical (bottom)
-        { label:'Kayaking',    x:-0.4, y:-2.8, z: 0.9, col:0x122344, r:0.36 },
-        { label:'First Aid',   x: 1.2, y:-2.4, z:-0.6, col:0xe1f1fd, r:0.32 },
-      ];
-
-      const HUB_EDGES = [
-        [0,1],[0,2],[1,2],
-        [3,4],[4,5],[3,5],
-        [6,7],
-        [1,3],[0,3],
-        [5,7],[6,2],
-        [0,6],[4,3],
-      ];
-
-      const graphGroup = new THREE.Group();
-      scene.add(graphGroup);
-
-      // Hub meshes (keep reference for raycasting)
-      const hubMeshes = HUBS.map(h => {
-        const mesh = new THREE.Mesh(
-          new THREE.SphereGeometry(h.r, 24, 24),
-          new THREE.MeshBasicMaterial({ color: h.col })
-        );
-        mesh.position.set(h.x, h.y, h.z);
-        graphGroup.add(mesh);
-        return mesh;
-      });
-
-      // Halo glow rings
-      HUBS.forEach((h,i) => {
-        const halo = new THREE.Mesh(
-          new THREE.SphereGeometry(h.r*1.9, 20, 20),
-          new THREE.MeshBasicMaterial({ color:h.col, transparent:true, opacity:0.07 })
-        );
-        halo.position.copy(hubMeshes[i].position);
-        graphGroup.add(halo);
-      });
-
-      // Satellites
-      const satPositions = [];
-      HUBS.forEach((h,hi) => {
-        const count = 10 + Math.floor(sr(hi*97)*8);
-        for (let i=0;i<count;i++) {
-          const phi  = sr(hi*41+i*13)*Math.PI*2;
-          const theta= sr(hi*67+i*29)*Math.PI;
-          const dist = 0.9+sr(hi*53+i*17)*0.9;
-          const sx=h.x+dist*Math.sin(theta)*Math.cos(phi);
-          const sy=h.y+dist*Math.sin(theta)*Math.sin(phi);
-          const sz=h.z+dist*Math.cos(theta);
-          const mesh=new THREE.Mesh(
-            new THREE.SphereGeometry(0.06+sr(hi*31+i*19)*0.07,8,8),
-            new THREE.MeshBasicMaterial({color:h.col,transparent:true,opacity:0.5+sr(hi*23+i*37)*0.35})
-          );
-          mesh.position.set(sx,sy,sz);
-          graphGroup.add(mesh);
-          satPositions.push({pos:[sx,sy,sz],hubIdx:hi});
-        }
-      });
-
-      // All edges in one LineSegments
-      const verts=[];
-      function addEdge(ax,ay,az,bx,by,bz){verts.push(ax,ay,az,bx,by,bz);}
-      HUB_EDGES.forEach(([a,b])=>{const ha=HUBS[a],hb=HUBS[b];addEdge(ha.x,ha.y,ha.z,hb.x,hb.y,hb.z);});
-      satPositions.forEach(({pos,hubIdx})=>{const h=HUBS[hubIdx];addEdge(h.x,h.y,h.z,pos[0],pos[1],pos[2]);});
-      for(let i=0;i<satPositions.length;i++) for(let j=i+1;j<satPositions.length;j++){
-        if(satPositions[i].hubIdx!==satPositions[j].hubIdx) continue;
-        if(sr(i*83+j*47)>0.18) continue;
-        const pi=satPositions[i].pos,pj=satPositions[j].pos;
-        const dx=pi[0]-pj[0],dy=pi[1]-pj[1],dz=pi[2]-pj[2];
-        if(dx*dx+dy*dy+dz*dz>4) continue;
-        addEdge(pi[0],pi[1],pi[2],pj[0],pj[1],pj[2]);
-      }
-      const lineGeo=new THREE.BufferGeometry();
-      lineGeo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
-      graphGroup.add(new THREE.LineSegments(lineGeo,
-        new THREE.LineBasicMaterial({color:0x4477aa,transparent:true,opacity:0.20})));
-
-      // ── Mouse tilt ──────────────────────────────────
-      let targetRotX=0,targetRotY=0,curRotX=0,curRotY=0;
-      graphPanel.addEventListener('mousemove',e=>{
-        const r=graphPanel.getBoundingClientRect();
-        targetRotY=((e.clientX-r.left)/r.width-0.5)*1.4;
-        targetRotX=((e.clientY-r.top)/r.height-0.5)*0.8;
-      });
-      graphPanel.addEventListener('mouseleave',()=>{targetRotX=0;targetRotY=0;});
-
-      // ── Raycasting — click nodes ─────────────────────
-      const raycaster = new THREE.Raycaster();
-      raycaster.params.Mesh = {};
-      const mouse = new THREE.Vector2();
-
-      graphPanel.addEventListener('click', e => {
-        // Don't trigger if user clicked the info box or close btn
-        if (e.target === nodeInfo || nodeInfo.contains(e.target)) return;
-
-        const rect = threeCanvas.getBoundingClientRect();
-        mouse.x = ((e.clientX-rect.left)/rect.width)*2-1;
-        mouse.y = -((e.clientY-rect.top)/rect.height)*2+1;
-        raycaster.setFromCamera(mouse, camera);
-
-        // Slightly inflate for easier clicking
-        const hits = raycaster.intersectObjects(hubMeshes);
-        if (hits.length > 0) {
-          const idx = hubMeshes.indexOf(hits[0].object);
-          if (idx !== -1) showInfo(idx, HUBS[idx].col);
-        } else {
-          hideInfo();
-        }
-      });
-
-      // ── Labels ──────────────────────────────────────
-      function renderLabels() {
-        const lW=labelCanvas.offsetWidth, lH=labelCanvas.offsetHeight;
-        labelCanvas.width=lW*(window.devicePixelRatio||1);
-        labelCanvas.height=lH*(window.devicePixelRatio||1);
-        lCtx.setTransform(window.devicePixelRatio||1,0,0,window.devicePixelRatio||1,0,0);
-        lCtx.clearRect(0,0,lW,lH);
-        HUBS.forEach((h,i)=>{
-          const wp=new THREE.Vector3();
-          hubMeshes[i].getWorldPosition(wp);
-          const proj=wp.clone().project(camera);
-          const sx=(proj.x+1)/2*lW, sy=(-proj.y+1)/2*lH;
-          const r=(h.col>>16)&0xff,g=(h.col>>8)&0xff,b=h.col&0xff;
-          lCtx.font = "300 10px 'NeueMontreal', sans-serif"; 
-    
-        lCtx.letterSpacing = '0.05em'; // Optional: add tracking for better legibility
-        lCtx.fillStyle = "rgba(255, 255, 255, 1)";
-        lCtx.fillText(h.label.toUpperCase(), sx + h.r * 28 + 4, sy + 4);
-        });
-      }
-
-      // ── Animate ─────────────────────────────────────
-      const clock=new THREE.Clock();
-      function threeLoop(){
-        requestAnimationFrame(threeLoop);
-        const elapsed=clock.getElapsedTime();
-        curRotX+=(targetRotX-curRotX)*0.04;
-        curRotY+=(targetRotY-curRotY)*0.04;
-        graphGroup.rotation.y=curRotY+elapsed*0.04;
-        graphGroup.rotation.x=curRotX;
-        renderer.render(scene,camera);
-        renderLabels();
-      }
-      threeLoop();
-
-      window.addEventListener('resize',()=>{
-        const nW=threeCanvas.offsetWidth,nH=threeCanvas.offsetHeight;
-        renderer.setSize(nW,nH);
-        camera.aspect=nW/nH;
-        camera.updateProjectionMatrix();
-      });
-    }
-
-    requestAnimationFrame(()=>initThree());
-
-    // ────────────────────────────────────────────────
-    // HEATMAP — github-style, weeks × days-of-week
-    // ────────────────────────────────────────────────
-    (function() {
-      const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun',
-                      'Jul','Aug','Sep','Oct','Nov','Dec'];
-      const MONTH_FULL = ['January','February','March','April','May','June',
-                          'July','August','September','October','November','December'];
-
-      // Deterministic fake hours per day (0–10)
-      function hoursForDate(y, m, d) {
-        const v = Math.abs(Math.sin(y*374.1 + m*53.7 + d*127.3) * 43758.5);
-        const n = v - Math.floor(v);
-        const dow = new Date(y, m, d).getDay(); // 0=Sun
-        const isWeekend = dow === 0 || dow === 6;
-        if (n < (isWeekend ? 0.48 : 0.18)) return 0;
-        return Math.round(n * (isWeekend ? 5 : 10) * 10) / 10;
-      }
-
-      // Blue heat scale — no rounded corners, scanlines via CSS ::after
-      function heatBg(h) {
-        if (h <= 0)  return '#111118';
-        if (h < 1.5) return '#0e1e3a';
-        if (h < 3)   return '#14294f';
-        if (h < 4.5) return '#1f3f70';
-        if (h < 6)   return '#3a6aa1';
-        if (h < 8)   return '#477bb0';
-        return '#9dc6e1';
-      }
-      function heatGlow(h) {
-        if (h >= 8)   return '0 0 5px 1px rgba(157,198,225,0.5),0 0 10px 2px rgba(71,123,176,0.28)';
-        if (h >= 6)   return '0 0 3px 1px rgba(71,123,176,0.3)';
-        return 'none';
-      }
-
-      const now = new Date();
-      let activeMonth = now.getMonth();
-      let activeYear  = now.getFullYear();
-
-      // We show the full year of activeYear, highlight activeMonth
-      const grid     = document.getElementById('hm-week-grid');
-      const mlabels  = document.getElementById('hm-month-labels');
-      const totalEl  = document.getElementById('hm-total');
-      const nav      = document.getElementById('hm-nav');
-
-      // Build month nav pills (Jan–Dec for activeYear)
-      function buildNav() {
-        nav.innerHTML = '';
-        MONTHS.forEach((mn, mi) => {
-          const pill = document.createElement('div');
-          pill.className = 'hm-nav-pill' + (mi === activeMonth ? ' active' : '');
-          pill.textContent = mn + ' \'' + String(activeYear).slice(2);
-          pill.addEventListener('click', () => { activeMonth = mi; render(); });
-          nav.appendChild(pill);
-        });
-        // Scroll active pill into view within the nav strip only (no page scroll)
-        const activePill = nav.querySelector('.active');
-        if (activePill) {
-          nav.scrollLeft = activePill.offsetLeft - (nav.offsetWidth / 2) + (activePill.offsetWidth / 2);
-        }
-      }
-
-      function render() {
-        grid.innerHTML = '';
-        mlabels.innerHTML = '';
-
-        // Full year: Jan 1 → Dec 31 of activeYear
-        const yearStart = new Date(activeYear, 0, 1);
-        // Offset: make Mon = index 0 (JS: Sun=0 Mon=1... so (dow+6)%7)
-        const startOffset = (yearStart.getDay() + 6) % 7;
-
-        // Total weeks needed
-        const daysInYear = ((activeYear % 4 === 0 && activeYear % 100 !== 0) || activeYear % 400 === 0) ? 366 : 365;
-        const totalWeeks = Math.ceil((daysInYear + startOffset) / 7);
-
-        // Month label positions: track which week each month starts on
-        const monthWeekStart = {};
-        for (let dayIdx = 0; dayIdx < daysInYear; dayIdx++) {
-          const d = new Date(activeYear, 0, 1 + dayIdx);
-          if (d.getDate() === 1) {
-            monthWeekStart[d.getMonth()] = Math.floor((dayIdx + startOffset) / 7);
-          }
-        }
-
-        // Build month label row — positioned by pixel after grid renders
-        mlabels.style.position = 'relative';
-        mlabels.style.height = '14px';
-        mlabels.style.marginLeft = '28px';
-
-        // Defer label positioning until grid has rendered dimensions
-        requestAnimationFrame(() => {
-          const gridW = grid.offsetWidth || 1;
-          MONTHS.forEach((mn, mi) => {
-            const weekIdx = monthWeekStart[mi];
-            if (weekIdx === undefined) return;
-            const el = document.createElement('div');
-            el.className = 'hm-month-label';
-            el.textContent = mn;
-            const px = (weekIdx / totalWeeks) * gridW;
-            el.style.cssText = `position:absolute;left:${px}px;`;
-            mlabels.appendChild(el);
-          });
-        });
-
-        // Compute month total for activeMonth
-        const daysInActive = new Date(activeYear, activeMonth + 1, 0).getDate();
-        let monthTotal = 0;
-        for (let d = 1; d <= daysInActive; d++) monthTotal += hoursForDate(activeYear, activeMonth, d);
-        totalEl.textContent = Math.round(monthTotal * 10) / 10 + ' hrs';
-
-        // Build week columns
-        for (let w = 0; w < totalWeeks; w++) {
-          const col = document.createElement('div');
-          col.className = 'hm-week-col';
-          for (let dow = 0; dow < 7; dow++) {
-            const dayIdx = w * 7 + dow - startOffset;
-            const cell = document.createElement('div');
-            cell.className = 'hm-cell';
-            if (dayIdx < 0 || dayIdx >= daysInYear) {
-              cell.style.background = 'transparent';
-              cell.style.pointerEvents = 'none';
-            } else {
-              const d = new Date(activeYear, 0, 1 + dayIdx);
-              const dm = d.getMonth(), dd = d.getDate();
-              const h = hoursForDate(activeYear, dm, dd);
-              cell.style.background = heatBg(h);
-              cell.style.boxShadow  = heatGlow(h);
-              // Fade weeks outside active month
-              if (dm !== activeMonth) cell.classList.add('faded');
-              cell.title = `${MONTH_FULL[dm]} ${dd}: ${h}h`;
-            }
-            col.appendChild(cell);
-          }
-          grid.appendChild(col);
-        }
-
-        buildNav();
-      }
-
-      render();
-    })();
-
-    // ── PROJECT PROGRESS BARS ────────────────────────
-    (function() {
-      const SEGS = 28;
-      const projects = [
-        { id: 'proj-bar-0', pct: 78, color: '#9dc6e1' },
-        { id: 'proj-bar-1', pct: 55, color: '#477bb0' },
-        { id: 'proj-bar-2', pct: 30, color: '#3a6aa1' },
-        { id: 'proj-bar-3', pct: 12, color: '#1f3f70' },
-      ];
-      projects.forEach(({ id, pct, color }) => {
-        const bar = document.getElementById(id);
-        if (!bar) return;
-        const filled = Math.round(pct / 100 * SEGS);
-        for (let i = 0; i < SEGS; i++) {
-          const seg = document.createElement('div');
-          seg.className = 'proj-seg ' + (i < filled ? 'filled' : 'empty');
-          if (i < filled) {
-            // Slight gradient fade toward the fill edge
-            const fade = 0.5 + 0.5 * (i / filled);
-            seg.style.background = color;
-            seg.style.opacity = fade;
-          }
-          bar.appendChild(seg);
-        }
-      });
-    })();
-
-    // ── FAN ALBUM ────────────────────────────────────
-    (function() {
-      // ── YOUR PHOTOS ── update filenames/extensions as needed
-      const PHOTOS = [
-        { src: '_UYU5063.jpg',                                        label: 'Photo 1' },
-        { src: 'IMG-20251112-WA0006.jpg',                             label: 'Photo 2' },
-        { src: 'tmp_66489b32-aec7-46ed-bcec-aeca9d59fe34.jpeg',       label: 'Photo 3' },
-        { src: 'Untitled.png',                                        label: 'Photo 4' },
-      ];
-
-      const ring    = document.getElementById('fan-ring');
-      const stage   = document.getElementById('fan-stage');
-      const counter = document.getElementById('fan-counter');
-      const prevBtn = document.getElementById('fan-prev');
-      const nextBtn = document.getElementById('fan-next');
-
-      const N = PHOTOS.length;
-      let offset = 0;
-      counter.textContent = '1 / ' + N;
-
-      // ── Measure stage and size cards to fill it ──────
-      function getCardSize() {
-        const sw = stage.offsetWidth  || 300;
-        const sh = stage.offsetHeight || 400;
-        // Target aspect ratio 3:4 (portrait photos).
-        // Fill ~88% of the shorter constraint.
-        let w = sw * 0.88;
-        let h = w * (4 / 3);
-        if (h > sh * 0.92) {
-          h = sh * 0.92;
-          w = h * (3 / 4);
-        }
-        return { w: Math.round(w), h: Math.round(h) };
-      }
-
-      // ── Build cards ──────────────────────────────────
-      const cards = PHOTOS.map(({ src, label }, i) => {
-        const card = document.createElement('div');
-        card.className = 'fan-card';
-        card.style.background = '#0d1c36';
-
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = label;
-        img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:center;display:block;pointer-events:none;user-select:none;';
-        img.onerror = () => { img.style.display = 'none'; };
-        card.appendChild(img);
-
-        card.addEventListener('click', () => {
-          const cur   = ((offset % N) + N) % N;
-          let   delta = i - cur;
-          if (delta >  N / 2) delta -= N;
-          if (delta < -N / 2) delta += N;
-          offset += delta;
-          applyRender(true);
-        });
-
-        ring.appendChild(card);
-        return card;
-      });
-
-      // ── Layout: active card fills stage, side cards peek ─
-      function applyRender(animated) {
-        const cur = ((offset % N) + N) % N;
-        counter.textContent = (cur + 1) + ' / ' + N;
-
-        const { w, h } = getCardSize();
-        const sw = stage.offsetWidth  || 300;
-        const sh = stage.offsetHeight || 400;
-
-        // How far side cards slide out (so they just peek at the edge)
-        const peekX    = sw * 0.28;   // horizontal shift for side cards
-        const sideAngle = 16;          // Y-rotation for side cards (degrees)
-        const sideScale = 0.88;        // slightly smaller
-
-        cards.forEach((card, i) => {
-          // Relative position to active: -1, 0, +1
-          let rel = i - cur;
-          if (rel >  N / 2) rel -= N;
-          if (rel < -N / 2) rel += N;
-
-          // Size all cards identically
-          card.style.width  = w + 'px';
-          card.style.height = h + 'px';
-          card.style.left   = Math.round((sw - w) / 2) + 'px';
-          card.style.top    = Math.round((sh - h) / 2) + 'px';
-
-          const trans = animated
-            ? 'transform 0.52s cubic-bezier(0.34,1.06,0.64,1), opacity 0.52s ease'
-            : 'none';
-          card.style.transition = trans;
-
-          if (rel === 0) {
-            // Active — front and centre, full opacity
-            card.style.transform  = 'translateX(0px) rotateY(0deg) scale(1)';
-            card.style.opacity    = '1';
-            card.style.zIndex     = '10';
-          } else {
-            // Side cards — angled and dimmed so they clearly peek out
-            const sign = rel > 0 ? 1 : -1;
-            card.style.transform  = `translateX(${sign * peekX}px) rotateY(${sign * sideAngle}deg) scale(${sideScale})`;
-            card.style.opacity    = '0.28';
-            card.style.zIndex     = '5';
-          }
-
-          card.classList.toggle('fan-active', rel === 0);
-        });
-      }
-
-      prevBtn.addEventListener('click', e => { e.stopPropagation(); offset--; applyRender(true); });
-      nextBtn.addEventListener('click', e => { e.stopPropagation(); offset++; applyRender(true); });
-
-      // Re-layout on resize
-      window.addEventListener('resize', () => applyRender(false));
-
-      // Initial render after layout is ready
-      requestAnimationFrame(() => requestAnimationFrame(() => applyRender(false)));
-    })();
-    // ── GLOBE ─────────────────────────────────────────
-    (function() {
-      const canvas = document.getElementById('globe-canvas');
-      if (!canvas) return;
-      const wrap = document.getElementById('globe-wrap');
-
-      function resize() {
-        const w = wrap.offsetWidth;
-        const h = wrap.offsetHeight - 40; // reserve space for label
-        const size = Math.min(w, h) * 0.82;
-        canvas.width  = size * (window.devicePixelRatio || 1);
-        canvas.height = size * (window.devicePixelRatio || 1);
-        canvas.style.width  = size + 'px';
-        canvas.style.height = size + 'px';
-      }
-      window.addEventListener('resize', resize);
-
-      const ctx = canvas.getContext('2d');
-
-      // Vancouver: lat 49.25N, lng -123.1W
-      const VAN_LAT = 49.25 * Math.PI / 180;
-      const VAN_LNG = -123.1 * Math.PI / 180;
-
-      let rot = 0;
-
-      function project(lat, lng, R) {
-        // Rotate by rot around Y axis
-        const x0 = Math.cos(lat) * Math.sin(lng + rot);
-        const y0 = Math.sin(lat);
-        const z0 = Math.cos(lat) * Math.cos(lng + rot);
-        return { x: x0 * R, y: -y0 * R, z: z0 };
-      }
-
-      function drawGlobe() {
-        const dpr = window.devicePixelRatio || 1;
-        const W = canvas.width / dpr;
-        const H = canvas.height / dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, W, H);
-
-        const cx = W / 2, cy = H / 2;
-        const R  = W * 0.44;
-
-        // Background sphere
-        const grad = ctx.createRadialGradient(cx - R*0.2, cy - R*0.2, R*0.1, cx, cy, R);
-        grad.addColorStop(0, 'rgba(20,41,79,0.18)');
-        grad.addColorStop(1, 'rgba(4,8,18,0.06)');
-        ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        // Outer ring
-        ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(71,123,176,0.22)';
-        ctx.lineWidth = 0.8;
-        ctx.stroke();
-
-        // Latitude lines
-        const LATS = [-60,-45,-30,-15,0,15,30,45,60];
-        LATS.forEach(latDeg => {
-          const lat = latDeg * Math.PI / 180;
-          const pts = [];
-          for (let a = 0; a <= 360; a += 3) {
-            const lng = a * Math.PI / 180;
-            const p = project(lat, lng, R);
-            if (p.z > 0) pts.push({ x: cx + p.x, y: cy + p.y, vis: true });
-            else if (pts.length && pts[pts.length-1].vis) pts.push(null);
-          }
-          let started = false;
-          ctx.beginPath();
-          pts.forEach(pt => {
-            if (!pt) { started = false; return; }
-            if (!started) { ctx.moveTo(pt.x, pt.y); started = true; }
-            else ctx.lineTo(pt.x, pt.y);
-          });
-          ctx.strokeStyle = latDeg === 0 ? 'rgba(71,123,176,0.28)' : 'rgba(71,123,176,0.11)';
-          ctx.lineWidth = latDeg === 0 ? 0.9 : 0.6;
-          ctx.stroke();
-        });
-
-        // Longitude lines
-        for (let lngDeg = 0; lngDeg < 360; lngDeg += 20) {
-          const lng = lngDeg * Math.PI / 180;
-          const pts = [];
-          for (let a = -90; a <= 90; a += 3) {
-            const lat = a * Math.PI / 180;
-            const p = project(lat, lng, R);
-            if (p.z > 0) pts.push({ x: cx + p.x, y: cy + p.y });
-            else if (pts.length) pts.push(null);
-          }
-          let started = false;
-          ctx.beginPath();
-          pts.forEach(pt => {
-            if (!pt) { started = false; return; }
-            if (!started) { ctx.moveTo(pt.x, pt.y); started = true; }
-            else ctx.lineTo(pt.x, pt.y);
-          });
-          ctx.strokeStyle = 'rgba(71,123,176,0.09)';
-          ctx.lineWidth = 0.6;
-          ctx.stroke();
-        }
-
-        // Continent outlines
-        const CONTINENTS = [
-          // North America
-          [[71,-156],[70,-140],[60,-136],[56,-130],[48,-124],[46,-124],[38,-122],[30,-114],[22,-106],[20,-105],[16,-96],[15,-88],[16,-82],[20,-87],[22,-90],[22,-80],[24,-76],[28,-80],[30,-80],[34,-76],[38,-74],[42,-70],[44,-66],[46,-60],[50,-56],[52,-56],[56,-60],[58,-68],[60,-64],[60,-70],[62,-78],[64,-84],[62,-90],[60,-94],[58,-94],[60,-82],[64,-76],[66,-72],[68,-72],[70,-70],[72,-78],[72,-90],[70,-98],[68,-100],[68,-110],[70,-120],[72,-126],[72,-136],[70,-140],[68,-148],[68,-162],[66,-164],[64,-168],[62,-166],[60,-162],[58,-158],[56,-158],[54,-164],[52,-170],[52,-178],[54,-166],[56,-160],[56,-154],[58,-150],[58,-144],[56,-132],[54,-130],[52,-128],[50,-126],[50,-124],[48,-124]],
-          // South America
-          [[12,-72],[10,-62],[8,-60],[6,-52],[2,-50],[0,-50],[-4,-36],[-8,-34],[-10,-38],[-14,-40],[-18,-38],[-22,-42],[-24,-44],[- 28,-48],[-32,-52],[-34,-54],[-38,-58],[-42,-64],[-46,-66],[-50,-68],[-54,-68],[-56,-68],[-54,-64],[-52,-58],[-50,-52],[-46,-44],[-42,-40],[-38,-44],[-34,-52],[-30,-50],[-24,-44],[-20,-40],[-16,-38],[-10,-36],[-6,-34],[-4,-38],[-2,-44],[0,-50],[4,-52],[6,-54],[8,-60],[10,-62],[12,-72],[10,-74],[8,-76],[6,-76],[4,-76],[2,-78],[0,-76],[-2,-78],[-4,-80],[-6,-78],[-8,-78],[-10,-76],[-12,-76],[-14,-76],[-16,-74],[-18,-70],[-20,-70],[-22,-68],[-18,-66],[-16,-68],[-14,-74],[-12,-76]],
-          // Europe
-          [[70,28],[68,18],[66,14],[64,10],[62,4],[60,4],[58,4],[56,8],[54,8],[52,4],[50,2],[48,-2],[44,-2],[42,2],[40,0],[38,-8],[36,-6],[36,0],[38,8],[40,16],[38,14],[36,10],[36,14],[38,20],[40,22],[40,26],[38,22],[36,26],[38,28],[40,26],[42,26],[44,28],[46,30],[48,22],[50,18],[52,18],[54,18],[56,20],[58,22],[60,22],[62,24],[64,26],[66,28],[68,28],[70,28]],
-          // Africa
-          [[36,10],[34,10],[30,32],[26,34],[22,36],[18,40],[14,42],[12,44],[10,42],[8,40],[4,36],[0,32],[-4,36],[-8,36],[-12,40],[-16,36],[-20,34],[-24,34],[-28,32],[-32,28],[-34,26],[-34,18],[-32,18],[-28,16],[-24,14],[-20,16],[-16,12],[-12,12],[-8,12],[-4,10],[0,8],[4,4],[4,2],[0,-2],[-4,-8],[-4,-14],[0,-16],[4,-14],[8,-12],[12,-14],[14,-16],[16,-14],[18,-14],[20,-16],[16,-18],[12,-18],[8,-14],[8,-8],[12,-4],[16,-4],[20,2],[22,8],[24,12],[26,12],[28,14],[30,16],[32,14],[34,10],[36,10]],
-          // Asia
-          [[70,28],[70,40],[68,52],[66,58],[62,60],[60,56],[58,52],[56,52],[54,54],[52,56],[50,60],[50,68],[48,68],[46,60],[44,52],[42,50],[40,52],[38,56],[36,60],[34,60],[32,56],[28,52],[24,56],[20,58],[16,52],[12,44],[10,44],[8,48],[6,52],[8,56],[8,62],[6,78],[8,80],[12,80],[16,82],[20,86],[24,90],[26,92],[22,92],[18,92],[16,96],[14,98],[10,100],[6,100],[4,104],[2,108],[0,110],[-2,116],[-4,114],[-2,108],[0,104],[2,100],[4,100],[8,98],[10,98],[14,102],[18,104],[22,114],[22,120],[24,122],[28,122],[32,122],[34,120],[36,120],[38,120],[38,116],[36,112],[34,108],[34,104],[36,100],[38,98],[40,96],[42,92],[44,88],[46,82],[48,76],[50,72],[52,66],[52,60],[54,54],[56,50],[58,44],[60,40],[62,34],[64,28],[66,26],[68,28],[70,28]],
-          // Australia
-          [[-16,136],[-18,140],[-20,148],[-24,152],[-28,154],[-32,152],[-36,150],[-38,146],[-38,140],[-36,136],[-32,134],[-28,116],[-24,114],[-20,116],[-18,122],[-16,124],[-14,128],[-14,132],[-16,136]],
-          // Greenland
-          [[76,-18],[78,-22],[80,-28],[82,-36],[82,-50],[80,-58],[78,-62],[76,-64],[74,-56],[72,-52],[70,-52],[68,-56],[66,-52],[64,-46],[62,-42],[60,-44],[60,-46],[62,-52],[64,-56],[66,-60],[68,-64],[70,-68],[70,-72],[72,-70],[74,-66],[76,-60],[76,-52],[78,-46],[80,-36],[82,-26],[80,-18],[78,-16],[76,-18]],
-        ];
-
-        CONTINENTS.forEach(coords => {
-          ctx.beginPath();
-          let started = false;
-          coords.forEach(([latDeg, lngDeg]) => {
-            const lat = latDeg * Math.PI / 180;
-            const lng = lngDeg * Math.PI / 180;
-            const p = project(lat, lng, R);
-            if (p.z > 0) {
-              const px = cx + p.x, py = cy + p.y;
-              if (!started) { ctx.moveTo(px, py); started = true; }
-              else ctx.lineTo(px, py);
-            } else {
-              started = false;
-            }
-          });
-          ctx.strokeStyle = 'rgba(71,123,176,0.45)';
-          ctx.lineWidth = 0.7;
-          ctx.stroke();
-        });
-
-        // Vancouver dot
-        const vp = project(VAN_LAT, VAN_LNG, R);
-        if (vp.z > 0) {
-          const vx = cx + vp.x, vy = cy + vp.y;
-          // Pulse ring
-          const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 600);
-          ctx.beginPath();
-          ctx.arc(vx, vy, 4 + pulse * 3, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(157,198,225,${0.12 + pulse * 0.14})`;
-          ctx.lineWidth = 0.8;
-          ctx.stroke();
-          // Core dot
-          ctx.beginPath();
-          ctx.arc(vx, vy, 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = '#9dc6e1';
-          ctx.shadowColor = '#9dc6e1';
-          ctx.shadowBlur = 6;
-          ctx.fill();
-          ctx.shadowBlur = 0;
-        }
-
-        rot += 0.003;
-        requestAnimationFrame(drawGlobe);
-      }
-
-      // Defer first resize until layout is settled, then start the loop
-      requestAnimationFrame(() => {
-        resize();
-        // If layout still not ready (e.g. display:none parent), retry once more
-        if (canvas.width === 0 || canvas.height === 0) {
-          requestAnimationFrame(() => { resize(); requestAnimationFrame(drawGlobe); });
-        } else {
-          requestAnimationFrame(drawGlobe);
-        }
-      });
-    })();
-
-  </script>
-
+    blocksEl.appendChild(el);
+  });
+
+  // Notes
+  const notesEl = document.getElementById('notes');
+  notesEl.value = dayData.notes || '';
+  notesEl.oninput = () => { dayData.notes = notesEl.value; saveStore(store); };
+
+  // Stats
+  const active = activeSessions(selectedDate).length;
+  const done   = doneSessions(selectedDate).length;
+  document.getElementById('stat-today').textContent = `${done}/${active}`;
+  document.getElementById('stat-week').textContent  = `${weekDone(weekDates)}%`;
+  document.getElementById('stat-streak').textContent = `${streak()}d`;
+  document.getElementById('stat-kayak').textContent  = totalKayaks();
+
+  // Subject counts
+  const counts = weekSubjectCounts(weekDates);
+  const subEl  = document.getElementById('subjects');
+  subEl.innerHTML = '';
+  ['phys','math','chem','geo','chin','deb','kayak'].forEach(s => {
+    const sub = SUBJECTS[s]; const c = counts[s]||0;
+    const card = document.createElement('div');
+    card.className = 'subject-card';
+    card.innerHTML = `<div class="subject-dot" style="background:${sub.color}"></div><span class="subject-name">${sub.label}</span><span class="subject-count">${c}</span>`;
+    subEl.appendChild(card);
+  });
+
+  // Streak dots
+  const dotsEl = document.getElementById('streak-dots');
+  dotsEl.innerHTML = '';
+  const now = new Date();
+  for (let i = 41; i >= 0; i--) {
+    const d2 = new Date(now); d2.setDate(d2.getDate()-i);
+    const k = dateKey(d2); const p = dayProgress(k);
+    const cl = p>=0.8?'hit':p>=0.4?'partial':'';
+    const dot = document.createElement('div');
+    dot.className = 'streak-dot'+(cl?' '+cl:'');
+    dotsEl.appendChild(dot);
+  }
+  document.getElementById('streak-label').textContent = `${streak()}d streak`;
+}
+
+function toggleExpand(key) {
+  expandedBlock = expandedBlock === key ? null : key;
+  render();
+}
+
+function goToday() { selectedDate = today(); expandedBlock = null; render(); }
+
+let lastToday = today();
+
+function tickClock() {
+  const now = new Date();
+  const dateStr = new Date(selectedDate+'T12:00:00')
+    .toLocaleDateString('en-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  const timeStr = now.toLocaleTimeString('en-CA', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+  const el = document.getElementById('header-date');
+  if (el) el.textContent = `${dateStr} · ${timeStr}`;
+
+  // update now-line time display without full re-render
+  const nowEl = document.getElementById('now-time');
+  if (nowEl) nowEl.textContent = timeStr;
+
+  // auto-advance at midnight
+  const newToday = today();
+  if (newToday !== lastToday) {
+    if (selectedDate === lastToday) { selectedDate = newToday; render(); }
+    lastToday = newToday;
+  }
+}
+
+render();
+tickClock();
+setInterval(tickClock, 1000);
+</script>
 </body>
 </html>
