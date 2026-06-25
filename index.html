@@ -6,229 +6,140 @@
 <title>Summer Tracker</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-
   :root {
-    --bg: #0d0d0f;
-    --bg1: #131316;
-    --bg2: #1a1a1f;
-    --bg3: #222228;
-    --border: rgba(255,255,255,0.07);
-    --border-hi: rgba(255,255,255,0.13);
-    --text: #e8e8ec;
-    --muted: #6b6b7a;
-    --dim: #3a3a46;
-    --phys: #f0a030;
-    --math: #8b78f0;
-    --chem: #2db87a;
-    --geo:  #e06040;
-    --chin: #d45880;
-    --deb:  #4a9ef0;
-    --kayak:#2080d0;
-    --radius: 8px;
-    --radius-lg: 12px;
+    --bg:#0d0d0f; --bg1:#131316; --bg2:#1a1a1f; --bg3:#222228;
+    --border:rgba(255,255,255,0.07); --border-hi:rgba(255,255,255,0.13);
+    --text:#e8e8ec; --muted:#6b6b7a; --dim:#3a3a46;
+    --phys:#f0a030; --math:#8b78f0; --chem:#2db87a; --geo:#e06040;
+    --chin:#d45880; --deb:#4a9ef0; --kayak:#2080d0; --mock:#c060e0;
+    --radius:8px;
   }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    min-height: 100vh;
-    line-height: 1.5;
-  }
-
-  .app { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh;line-height:1.5}
+  .app{max-width:900px;margin:0 auto;padding:2rem 1.25rem 4rem}
 
   /* Header */
-  .header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap; }
-  .header-left h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
-  .header-left p { color: var(--muted); font-size: 13px; margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
-  .today-btn {
-    background: var(--bg3); border: 0.5px solid var(--border-hi);
-    color: var(--text); font-size: 12px; font-family: 'JetBrains Mono', monospace;
-    padding: 6px 14px; border-radius: var(--radius); cursor: pointer; transition: border-color 0.15s;
-  }
-  .today-btn:hover { border-color: rgba(255,255,255,0.22); }
+  .header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem;gap:1rem;flex-wrap:wrap}
+  .header-left h1{font-size:22px;font-weight:600;letter-spacing:-0.02em}
+  .header-left p{color:var(--muted);font-size:13px;margin-top:2px;font-family:'JetBrains Mono',monospace}
+  .today-btn{background:var(--bg3);border:0.5px solid var(--border-hi);color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;padding:6px 14px;border-radius:var(--radius);cursor:pointer;transition:border-color .15s}
+  .today-btn:hover{border-color:rgba(255,255,255,0.22)}
 
   /* Week strip */
-  .week-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 1.75rem; }
-  .day-btn {
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 10px 4px; border-radius: var(--radius); border: 0.5px solid var(--border);
-    background: var(--bg1); cursor: pointer; transition: all 0.15s; position: relative;
-  }
-  .day-btn:hover { border-color: var(--border-hi); background: var(--bg2); }
-  .day-btn.active { border-color: rgba(255,255,255,0.25); background: var(--bg2); }
-  .day-btn.today .day-num { color: var(--deb); }
-  .day-name { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; }
-  .day-num { font-size: 16px; font-weight: 500; }
-  .day-kayak { display: block; width: 5px; height: 5px; background: var(--kayak); border-radius: 50%; }
-  .day-progress { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--border); border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
-  .day-progress-fill { height: 100%; background: var(--chem); transition: width 0.3s; }
+  .week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:1.75rem}
+  .day-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;border-radius:var(--radius);border:0.5px solid var(--border);background:var(--bg1);cursor:pointer;transition:all .15s;position:relative}
+  .day-btn:hover{border-color:var(--border-hi);background:var(--bg2)}
+  .day-btn.active{border-color:rgba(255,255,255,0.25);background:var(--bg2)}
+  .day-btn.today .day-num{color:var(--deb)}
+  .day-name{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+  .day-num{font-size:16px;font-weight:500}
+  .day-pip{display:block;width:5px;height:5px;border-radius:50%}
+  .day-progress{position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--border);border-radius:0 0 var(--radius) var(--radius);overflow:hidden}
+  .day-progress-fill{height:100%;background:var(--chem);transition:width .3s}
 
   /* Stats */
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.75rem; }
-  .stat { background: var(--bg1); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
-  .stat-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-  .stat-value { font-size: 20px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.75rem}
+  .stat{background:var(--bg1);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+  .stat-label{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+  .stat-value{font-size:20px;font-weight:600;font-family:'JetBrains Mono',monospace}
 
-  .section-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
+  .section-label{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
 
   /* Blocks */
-  .blocks { display: flex; flex-direction: column; gap: 5px; margin-bottom: 1.75rem; }
+  .blocks{display:flex;flex-direction:column;gap:5px;margin-bottom:1.75rem}
+  .block{border-radius:var(--radius);border:0.5px solid var(--border);overflow:hidden;transition:border-color .15s}
+  .block:not(.passive){cursor:pointer}
+  .block:not(.passive):hover{border-color:var(--border-hi)}
+  .block.done{opacity:.4}
+  .block.expanded{border-color:var(--border-hi)}
+  .block.mock-block{border-color:rgba(192,96,224,0.25)}
+  .block.mock-block:hover{border-color:rgba(192,96,224,0.5)}
 
-  .block {
-    border-radius: var(--radius); border: 0.5px solid var(--border);
-    overflow: hidden; transition: border-color 0.15s;
-  }
-  .block:not(.passive) { cursor: pointer; }
-  .block:not(.passive):hover { border-color: var(--border-hi); }
-  .block.done { opacity: 0.4; }
-  .block.expanded { border-color: var(--border-hi); }
+  .block-header{display:flex;align-items:stretch}
+  .block-accent{width:3px;flex-shrink:0}
+  .block-time{width:88px;flex-shrink:0;padding:10px 12px;background:var(--bg1);color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;border-right:0.5px solid var(--border)}
+  .block-body{padding:10px 14px;flex:1;background:var(--bg2);display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .block-text{flex:1}
+  .block-label{font-weight:500;font-size:13px}
+  .block-note{font-size:12px;color:var(--muted);margin-top:1px}
+  .block-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .expand-btn{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;background:none;border:none;cursor:pointer;padding:2px 0;transition:color .15s;white-space:nowrap}
+  .expand-btn:hover{color:var(--text)}
+  .block.expanded .expand-btn{color:var(--text)}
+  .block-check{width:18px;height:18px;flex-shrink:0;border:1.5px solid var(--dim);border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .block.done .block-check{background:var(--chem);border-color:var(--chem)}
+  .checkmark{display:none}
+  .block.done .checkmark{display:block}
+  .block.passive{cursor:default;opacity:.45}
+  .block.passive:hover{border-color:var(--border)}
+  .block.passive .block-check,.block.passive .expand-btn{display:none}
+  .block.now{border-color:rgba(74,158,240,0.4);box-shadow:0 0 0 1px rgba(74,158,240,0.1)}
+  .now-line{display:flex;align-items:center;gap:8px;margin:2px 0;padding:0 4px}
+  .now-line-dot{width:7px;height:7px;border-radius:50%;background:var(--deb);flex-shrink:0}
+  .now-line-bar{flex:1;height:1px;background:var(--deb);opacity:.4}
+  .now-line-time{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--deb);white-space:nowrap}
 
-  .block-header {
-    display: flex; align-items: stretch;
-  }
-  .block-accent { width: 3px; flex-shrink: 0; }
-  .block-time {
-    width: 88px; flex-shrink: 0; padding: 10px 12px;
-    background: var(--bg1); color: var(--muted); font-size: 11px;
-    font-family: 'JetBrains Mono', monospace;
-    display: flex; align-items: center;
-    border-right: 0.5px solid var(--border);
-  }
-  .block-body {
-    padding: 10px 14px; flex: 1; background: var(--bg2);
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  }
-  .block-text { flex: 1; }
-  .block-label { font-weight: 500; font-size: 13px; }
-  .block-note { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  /* Mock exam badge */
+  .mock-badge{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:3px;background:rgba(192,96,224,0.15);color:var(--mock);flex-shrink:0}
 
-  .block-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-
-  .expand-btn {
-    font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace;
-    background: none; border: none; cursor: pointer; padding: 2px 0;
-    transition: color 0.15s; white-space: nowrap;
-  }
-  .expand-btn:hover { color: var(--text); }
-  .block.expanded .expand-btn { color: var(--text); }
-
-  .block-check {
-    width: 18px; height: 18px; flex-shrink: 0;
-    border: 1.5px solid var(--dim); border-radius: 4px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
-  }
-  .block.done .block-check { background: var(--chem); border-color: var(--chem); }
-  .checkmark { display: none; }
-  .block.done .checkmark { display: block; }
-
-  .block.passive { cursor: default; opacity: 0.45; }
-  .block.passive:hover { border-color: var(--border); }
-  .block.passive .block-check, .block.passive .expand-btn { display: none; }
-
-  /* now indicator */
-  .block.now { border-color: rgba(74,158,240,0.4); box-shadow: 0 0 0 1px rgba(74,158,240,0.1); }
-  .now-line {
-    display: flex; align-items: center; gap: 8px;
-    margin: 2px 0; padding: 0 4px;
-  }
-  .now-line-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--deb); flex-shrink: 0; }
-  .now-line-bar { flex: 1; height: 1px; background: var(--deb); opacity: 0.4; }
-  .now-line-time { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--deb); white-space: nowrap; }
+  /* Mock subject picker */
+  .mock-picker{padding:12px 14px 12px 105px;background:var(--bg1);border-top:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .mock-picker-label{font-size:12px;color:var(--muted)}
+  .mock-subject-btn{font-size:12px;padding:4px 10px;border-radius:5px;border:0.5px solid var(--border);background:var(--bg2);color:var(--muted);cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all .15s}
+  .mock-subject-btn:hover{border-color:var(--border-hi);color:var(--text)}
+  .mock-subject-btn.selected{color:#fff;border-color:transparent}
 
   /* Expanded task panel */
-  .block-tasks {
-    display: none;
-    background: var(--bg1);
-    border-top: 0.5px solid var(--border);
-    padding: 14px 14px 14px 105px;
-  }
-  .block.expanded .block-tasks { display: block; }
-
-  .task-section { margin-bottom: 14px; }
-  .task-section:last-child { margin-bottom: 0; }
-  .task-section-title {
-    font-size: 10px; font-family: 'JetBrains Mono', monospace;
-    text-transform: uppercase; letter-spacing: 0.08em;
-    color: var(--muted); margin-bottom: 7px;
-  }
-
-  .task-list { display: flex; flex-direction: column; gap: 5px; }
-  .task-item {
-    display: flex; align-items: flex-start; gap: 9px;
-    font-size: 12px; line-height: 1.55; color: var(--text);
-    cursor: pointer; padding: 5px 8px; border-radius: 5px;
-    border: 0.5px solid transparent; transition: border-color 0.12s, background 0.12s;
-    user-select: none;
-  }
-  .task-item:hover { background: var(--bg2); border-color: var(--border); }
-  .task-item.task-done { opacity: 0.35; }
-  .task-item.task-done .task-text { text-decoration: line-through; }
-  .task-cb {
-    width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px;
-    border: 1px solid var(--dim); border-radius: 3px;
-    display: flex; align-items: center; justify-content: center; transition: all 0.12s;
-  }
-  .task-item.task-done .task-cb { background: var(--chem); border-color: var(--chem); }
-  .task-check-sm { display: none; }
-  .task-item.task-done .task-check-sm { display: block; }
-  .task-text { flex: 1; }
-  .task-tag {
-    font-size: 10px; font-family: 'JetBrains Mono', monospace;
-    padding: 2px 6px; border-radius: 3px; flex-shrink: 0; margin-top: 1px;
-  }
-  .tag-sim   { background: rgba(240,160,48,0.15); color: #f0a030; }
-  .tag-drill { background: rgba(74,158,240,0.15); color: #4a9ef0; }
-  .tag-review{ background: rgba(139,120,240,0.15); color: #8b78f0; }
-  .tag-vocab { background: rgba(212,88,128,0.15); color: #d45880; }
-  .tag-essay { background: rgba(224,96,64,0.15); color: #e06040; }
-  .tag-error { background: rgba(45,184,122,0.15); color: #2db87a; }
-
-  .task-note {
-    font-size: 11px; color: var(--muted); line-height: 1.5;
-    padding: 6px 8px; margin-top: 2px;
-    border-left: 2px solid var(--dim);
-  }
+  .block-tasks{display:none;background:var(--bg1);border-top:0.5px solid var(--border);padding:14px 14px 14px 105px}
+  .block.expanded .block-tasks{display:block}
+  .task-section{margin-bottom:14px}
+  .task-section:last-child{margin-bottom:0}
+  .task-section-title{font-size:10px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px}
+  .task-list{display:flex;flex-direction:column;gap:5px}
+  .task-item{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.55;color:var(--text);cursor:pointer;padding:5px 8px;border-radius:5px;border:0.5px solid transparent;transition:border-color .12s,background .12s;user-select:none}
+  .task-item:hover{background:var(--bg2);border-color:var(--border)}
+  .task-item.task-done{opacity:.35}
+  .task-item.task-done .task-text{text-decoration:line-through}
+  .task-cb{width:14px;height:14px;flex-shrink:0;margin-top:1px;border:1px solid var(--dim);border-radius:3px;display:flex;align-items:center;justify-content:center;transition:all .12s}
+  .task-item.task-done .task-cb{background:var(--chem);border-color:var(--chem)}
+  .task-check-sm{display:none}
+  .task-item.task-done .task-check-sm{display:block}
+  .task-text{flex:1}
+  .task-tag{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 6px;border-radius:3px;flex-shrink:0;margin-top:1px}
+  .tag-sim{background:rgba(240,160,48,.15);color:#f0a030}
+  .tag-drill{background:rgba(74,158,240,.15);color:#4a9ef0}
+  .tag-review{background:rgba(139,120,240,.15);color:#8b78f0}
+  .tag-vocab{background:rgba(212,88,128,.15);color:#d45880}
+  .tag-essay{background:rgba(224,96,64,.15);color:#e06040}
+  .tag-error{background:rgba(45,184,122,.15);color:#2db87a}
+  .tag-mock{background:rgba(192,96,224,.15);color:#c060e0}
+  .task-note{font-size:11px;color:var(--muted);line-height:1.5;padding:6px 8px;margin-top:2px;border-left:2px solid var(--dim)}
 
   /* Notes */
-  .notes-area {
-    width: 100%; background: var(--bg1); border: 0.5px solid var(--border);
-    border-radius: var(--radius); color: var(--text); font-family: 'Inter', sans-serif;
-    font-size: 13px; padding: 12px 14px; resize: vertical; min-height: 80px;
-    outline: none; transition: border-color 0.15s; line-height: 1.6;
-  }
-  .notes-area:focus { border-color: var(--border-hi); }
-  .notes-area::placeholder { color: var(--dim); }
+  .notes-area{width:100%;background:var(--bg1);border:0.5px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:12px 14px;resize:vertical;min-height:80px;outline:none;transition:border-color .15s;line-height:1.6}
+  .notes-area:focus{border-color:var(--border-hi)}
+  .notes-area::placeholder{color:var(--dim)}
 
   /* Subject totals */
-  .subjects { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; margin-top: 1.75rem; }
-  .subject-card {
-    background: var(--bg1); border: 0.5px solid var(--border);
-    border-radius: var(--radius); padding: 10px 12px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .subject-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .subject-name { font-size: 12px; color: var(--muted); flex: 1; }
-  .subject-count { font-size: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .subjects{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin-top:1.75rem}
+  .subject-card{background:var(--bg1);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;align-items:center;gap:8px}
+  .subject-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .subject-name{font-size:12px;color:var(--muted);flex:1}
+  .subject-count{font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:500}
 
   /* Streak */
-  .streak-row { display: flex; align-items: center; gap: 8px; margin-top: 1.75rem; }
-  .streak-dots { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
-  .streak-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bg3); border: 0.5px solid var(--border); flex-shrink: 0; }
-  .streak-dot.hit { background: var(--chem); border-color: var(--chem); }
-  .streak-dot.partial { background: var(--phys); border-color: var(--phys); }
-  .streak-label { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+  .streak-row{display:flex;align-items:center;gap:8px;margin-top:1.75rem}
+  .streak-dots{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+  .streak-dot{width:10px;height:10px;border-radius:50%;background:var(--bg3);border:0.5px solid var(--border);flex-shrink:0}
+  .streak-dot.hit{background:var(--chem);border-color:var(--chem)}
+  .streak-dot.partial{background:var(--phys);border-color:var(--phys)}
+  .streak-label{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;white-space:nowrap}
 
-  @media (max-width: 580px) {
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .week-strip { gap: 3px; }
-    .day-num { font-size: 14px; }
-    .block-tasks { padding-left: 14px; }
+  @media(max-width:580px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .week-strip{gap:3px}
+    .day-num{font-size:14px}
+    .block-tasks,.mock-picker{padding-left:14px}
   }
 </style>
 </head>
@@ -256,7 +167,7 @@
   <div class="blocks" id="blocks"></div>
 
   <div class="section-label" style="margin-top:1.25rem">Notes</div>
-  <textarea class="notes-area" id="notes" placeholder="anything from today — errors made, things that clicked, what to revisit..."></textarea>
+  <textarea class="notes-area" id="notes" placeholder="errors made, things that clicked, what to revisit..."></textarea>
 
   <div class="section-label" style="margin-top:1.75rem">This week — sessions done</div>
   <div class="subjects" id="subjects"></div>
@@ -268,737 +179,577 @@
 
 </div>
 <script>
-// ─── Subject metadata ───────────────────────────────────────────────────────
 const SUBJECTS = {
-  phys:  { label:'Physics',   color:'#f0a030' },
-  math:  { label:'Math',      color:'#8b78f0' },
-  chem:  { label:'Chemistry', color:'#2db87a' },
-  geo:   { label:'Geography', color:'#e06040' },
-  chin:  { label:'Chinese',   color:'#d45880' },
-  deb:   { label:'Debate',    color:'#4a9ef0' },
-  kayak: { label:'Kayak',     color:'#2080d0' },
-  rest:  { label:null,        color:'#3a3a46' },
-  tran:  { label:null,        color:'#2a2a34' },
+  phys:{label:'Physics',color:'#f0a030'}, math:{label:'Math',color:'#8b78f0'},
+  chem:{label:'Chemistry',color:'#2db87a'}, geo:{label:'Geography',color:'#e06040'},
+  chin:{label:'Chinese',color:'#d45880'}, deb:{label:'Debate',color:'#4a9ef0'},
+  kayak:{label:'Kayak',color:'#2080d0'}, mock:{label:'Mock',color:'#c060e0'},
+  rest:{label:null,color:'#3a3a46'}, tran:{label:null,color:'#2a2a34'},
+  misc:{label:null,color:'#3a4a5a'}, cool:{label:null,color:'#2a3a2a'},
 };
 
-// ─── Task definitions ───────────────────────────────────────────────────────
-// tag: sim | drill | review | vocab | essay | error
-// Each task has: text, tag (optional), note (optional)
+const MOCK_SUBJECTS = [
+  {id:'phys',label:'Physics',color:'#f0a030'},
+  {id:'math',label:'Math',color:'#8b78f0'},
+  {id:'chem',label:'Chemistry',color:'#2db87a'},
+  {id:'geo',label:'Geography',color:'#e06040'},
+];
 
-const T = {
-  // PHYSICS — approach-first. Every session starts with method ID before numbers.
-  phys_approach: {
-    title:'Approach first', note:'Before touching numbers: write down (1) what quantity is being asked, (2) which principle applies, (3) what equation links them. Do this in words before algebra.',
-    tasks:[
-      { text:'Pick 3 unseen questions — write the approach in words before writing any equation', tag:'sim' },
-      { text:'For each: identify the given quantities and what you\'re solving for', tag:'sim' },
-      { text:'Check: did you define a sign convention before substituting?', tag:'review' },
-    ]
-  },
-  phys_mechanics: {
-    title:'Mechanics + energy methods',
-    tasks:[
-      { text:'2 questions using Newton\'s laws — draw free body diagram before anything else', tag:'sim' },
-      { text:'1 conservation of energy problem — write E_initial = E_final with terms labelled', tag:'sim' },
-      { text:'1 circular motion or momentum question — identify the centripetal direction explicitly', tag:'sim' },
-      { text:'Mark all answers against markscheme — note where method marks would be lost', tag:'error' },
-    ]
-  },
-  phys_waves: {
-    title:'Waves + optics',
-    tasks:[
-      { text:'Sketch the wavefront or ray diagram before solving — always', tag:'sim' },
-      { text:'2 questions on superposition / interference — identify path difference first', tag:'sim' },
-      { text:'1 refraction or lenses question — label n1, n2, angles before Snell\'s law', tag:'sim' },
-      { text:'Review: when does the phase change on reflection? (dense→less dense boundary)', tag:'review' },
-    ]
-  },
-  phys_thermo: {
-    title:'Thermodynamics',
-    tasks:[
-      { text:'1 ideal gas law question — convert to SI units before substituting', tag:'sim' },
-      { text:'1 first law question — define Q and W sign conventions explicitly before solving', tag:'sim' },
-      { text:'PV diagram: practise labelling isothermal vs adiabatic vs isobaric', tag:'review' },
-      { text:'1 past paper data question — show all unit cancellations in working', tag:'sim' },
-    ]
-  },
-  phys_shm: {
-    title:'SHM + simple harmonic',
-    tasks:[
-      { text:'Write x(t), v(t), a(t) expressions from scratch — no looking', tag:'review' },
-      { text:'2 SHM questions — identify x=0 and x=A before substituting any formula', tag:'sim' },
-      { text:'Energy in SHM: draw KE and PE vs displacement graph from memory', tag:'review' },
-      { text:'1 pendulum or spring question — derive T, then solve', tag:'sim' },
-    ]
-  },
-  phys_relativity: {
-    title:'Special relativity',
-    tasks:[
-      { text:'Write the two postulates from memory before solving anything', tag:'review' },
-      { text:'1 time dilation question — identify who measures proper time (the observer present at both events)', tag:'sim' },
-      { text:'1 length contraction question — label which frame is the rest frame', tag:'sim' },
-      { text:'1 spacetime interval question — confirm s² is invariant', tag:'sim' },
-    ]
-  },
-  phys_paper: {
-    title:'Past paper simulation',
-    tasks:[
-      { text:'Set 45-min timer — answer one full paper section under timed conditions', tag:'sim' },
-      { text:'No markscheme until time is up', tag:'sim' },
-      { text:'After: go through every wrong answer — was it approach or execution?', tag:'error' },
-      { text:'Write the correct approach (not just the answer) for each miss', tag:'error' },
-    ]
-  },
-  phys_errorreview: {
-    title:'Error autopsy',
-    tasks:[
-      { text:'List every question you got wrong this week', tag:'error' },
-      { text:'Classify each: wrong approach / right approach wrong execution / silly unit error', tag:'error' },
-      { text:'For approach errors: write the correct method in full sentences', tag:'error' },
-      { text:'For execution errors: redo the question with slower working shown', tag:'error' },
-    ]
-  },
-
-  // MATH — conceptual understanding + combinatorics focus
-  math_trig_review: {
-    title:'Trig consolidation',
-    note:'Don\'t just memorise identities — derive them from first principles so you know where they come from.',
-    tasks:[
-      { text:'Derive sin²+cos²=1 from unit circle, then write tan, sec, csc, cot', tag:'review' },
-      { text:'Prove one double-angle identity without looking', tag:'review' },
-      { text:'2 problems: solve trig equation on a given interval — list ALL solutions', tag:'sim' },
-      { text:'1 problem: use compound angle formula — set up before substituting', tag:'sim' },
-    ]
-  },
-  math_combinatorics: {
-    title:'Combinatorics',
-    note:'The core question every time: does ORDER matter? If yes → permutation. If no → combination. Ask it out loud before writing anything.',
-    tasks:[
-      { text:'3 counting problems — write "order matters: yes/no" before starting each', tag:'sim' },
-      { text:'1 problem with restrictions (e.g. "at least one of X") — try complement method', tag:'sim' },
-      { text:'1 problem with identical objects — check if you need to divide by repeated arrangements', tag:'sim' },
-      { text:'Derive nCr formula from first principles — don\'t just cite it', tag:'review' },
-    ]
-  },
-  math_binomial: {
-    title:'Binomial theorem',
-    tasks:[
-      { text:'Write the general term T(r+1) = nCr · a^(n-r) · b^r from memory', tag:'review' },
-      { text:'2 expansion questions — find a specific term (not the full expansion)', tag:'sim' },
-      { text:'1 problem: find coefficient of x^k — set up the exponent equation before solving', tag:'sim' },
-      { text:'1 application problem — use binomial to approximate (1+x)^n for small x', tag:'sim' },
-    ]
-  },
-  math_concept: {
-    title:'Conceptual deep work',
-    note:'Competition-style problems require you to see the structure, not pattern-match. Read the problem twice. Ask: what does this problem WANT me to notice?',
-    tasks:[
-      { text:'1 hard unseen problem — spend 10 min just reading and annotating before solving', tag:'sim' },
-      { text:'Write down what approach you\'re trying and WHY before executing', tag:'sim' },
-      { text:'If stuck after 15 min: identify exactly where you\'re stuck, write it out', tag:'review' },
-      { text:'After solving: could you have spotted the structure faster? What was the key insight?', tag:'review' },
-    ]
-  },
-  math_paper: {
-    title:'Timed past paper',
-    tasks:[
-      { text:'Full section under strict time — no pausing, no calculator unless permitted', tag:'sim' },
-      { text:'Show all working — method marks exist even if the answer is wrong', tag:'sim' },
-      { text:'Flag questions where you knew the method but ran out of time', tag:'sim' },
-      { text:'After: identify the 2 questions that cost you the most marks — do them again', tag:'error' },
-    ]
-  },
-  math_errorreview: {
-    title:'Error review',
-    tasks:[
-      { text:'Pull out every wrong answer from this week\'s sessions', tag:'error' },
-      { text:'For each: write one sentence explaining what you misunderstood', tag:'error' },
-      { text:'Redo the 3 hardest ones cold — no notes', tag:'sim' },
-    ]
-  },
-
-  // CHEMISTRY — silly error elimination
-  chem_checklist: {
-    title:'Error-prevention protocol',
-    note:'Before submitting any answer: (1) units consistent? (2) sig figs correct? (3) sign correct for ΔH/ΔG? (4) charges balanced in ionic equations? Treat this as a mandatory last step.',
-    tasks:[
-      { text:'Write your personal error checklist from memory before starting any questions', tag:'review' },
-      { text:'3 past paper questions — apply checklist after each answer before moving on', tag:'sim' },
-      { text:'On any wrong answer: identify which checklist item would have caught it', tag:'error' },
-    ]
-  },
-  chem_bonding: {
-    title:'Bonding + structure',
-    tasks:[
-      { text:'Draw 3 Lewis structures — check formal charges and octets explicitly', tag:'sim' },
-      { text:'1 question on VSEPR — draw electron geometry AND molecular geometry separately', tag:'sim' },
-      { text:'Compare bond polarity vs molecular polarity for 2 molecules', tag:'review' },
-      { text:'1 ionic equation question — verify charges balance before AND after', tag:'sim' },
-    ]
-  },
-  chem_thermo: {
-    title:'Thermochemistry',
-    tasks:[
-      { text:'1 Hess\'s law question — write each step with correct sign manipulation', tag:'sim' },
-      { text:'1 calorimetry calculation — check: q = mcΔT (is ΔT positive in the right direction?)', tag:'sim' },
-      { text:'Bond enthalpy question: bonds broken (positive) vs bonds formed (negative)', tag:'sim' },
-      { text:'After each: apply full error checklist', tag:'error' },
-    ]
-  },
-  chem_organic: {
-    title:'Organic chemistry',
-    tasks:[
-      { text:'Identify functional groups in 3 molecules — write the reaction type each undergoes', tag:'review' },
-      { text:'1 mechanism question — draw curly arrows correctly (from electron-rich to electron-poor)', tag:'sim' },
-      { text:'Name 3 compounds using IUPAC — check suffix before finalising', tag:'sim' },
-    ]
-  },
-  chem_mcq: {
-    title:'MCQ simulation',
-    note:'MCQ rewards elimination + checking. If unsure: eliminate clearly wrong answers, then verify your choice against units and logic before committing.',
-    tasks:[
-      { text:'20 MCQ questions under timed conditions — 1 min per question max', tag:'sim' },
-      { text:'After: review every question you weren\'t 100% sure about', tag:'error' },
-      { text:'For wrong answers: was it a knowledge gap or a silly error?', tag:'error' },
-    ]
-  },
-
-  // GEOGRAPHY — IB essay strategy
-  geo_essay_structure: {
-    title:'IB essay structure',
-    note:'IB Geography HL essays want: clear thesis → specific case studies named early → analytical links to the question → evaluative conclusion that returns to the question. Avoid description — every paragraph should EXPLAIN, not just state.',
-    tasks:[
-      { text:'Write a timed essay plan in 10 min — thesis + 3 argument points + case study for each', tag:'essay' },
-      { text:'Check: does each paragraph answer the question directly or just describe a case?', tag:'review' },
-      { text:'Write the opening paragraph — does it contain a clear, specific thesis?', tag:'essay' },
-    ]
-  },
-  geo_casestudies: {
-    title:'Case study consolidation',
-    tasks:[
-      { text:'List your 5 strongest case studies — write 2 specific statistics for each from memory', tag:'review' },
-      { text:'Identify 2 case studies you can\'t name statistics for — these are the gaps', tag:'review' },
-      { text:'For 1 weak case study: write a 3-sentence summary you\'d use in an exam', tag:'essay' },
-    ]
-  },
-  geo_markscheme: {
-    title:'Markscheme analysis',
-    note:'IB markschemes for essays reward: named examples, specific data, explicit link to the question command term, and evaluative statements (not just descriptive ones).',
-    tasks:[
-      { text:'Read the markscheme for last essay attempt — what did the examiner reward?', tag:'review' },
-      { text:'Identify 2 marks you lost — write what you would add to get them', tag:'error' },
-      { text:'Rewrite one body paragraph incorporating markscheme language', tag:'essay' },
-    ]
-  },
-  geo_ppn: {
-    title:'Power, Places & Networks',
-    tasks:[
-      { text:'Write a timed response to a PPnN question — 25 min', tag:'essay' },
-      { text:'Focus: use \'resistance\', \'flows\', \'networks\', \'global governance\' explicitly', tag:'essay' },
-      { text:'Check conclusion: does it evaluate (not just summarise)?', tag:'review' },
-    ]
-  },
-
-  // CHINESE — vocab-first, exam comprehension
-  chin_vocab: {
-    title:'Vocabulary for comprehension',
-    note:'Your goal is reading comprehension under exam conditions — focus on high-frequency IB SL exam vocabulary, not general Mandarin. Prioritise words that appear in question stems so you understand what\'s being asked.',
-    tasks:[
-      { text:'Anki: 20 new cards — topic vocabulary (environment, health, education, technology)', tag:'vocab' },
-      { text:'Review yesterday\'s cards — suspend any you get right 3x in a row', tag:'vocab' },
-      { text:'Write 5 new words in a sentence each — in Chinese, not English', tag:'vocab' },
-    ]
-  },
-  chin_reading: {
-    title:'Reading comprehension practice',
-    tasks:[
-      { text:'Read one past paper text — underline every word you don\'t know before reading questions', tag:'sim' },
-      { text:'Answer the questions using context clues even for unknown words', tag:'sim' },
-      { text:'After: look up underlined words — add the new ones to Anki', tag:'vocab' },
-    ]
-  },
-  chin_output: {
-    title:'Output practice',
-    tasks:[
-      { text:'Write 5 sentences in Chinese on today\'s topic — focus on using this week\'s new vocab', tag:'sim' },
-      { text:'Read them aloud — does each sentence sound natural?', tag:'drill' },
-      { text:'Correct any grammar errors you notice — write the correct version', tag:'error' },
-    ]
-  },
-  chin_listening: {
-    title:'Listening + speaking',
-    tasks:[
-      { text:'Listen to 10 min of Mandarin content (podcast, YouTube) — note new vocab', tag:'vocab' },
-      { text:'Summarise what you heard in 3 sentences in Chinese — spoken aloud', tag:'drill' },
-      { text:'Add any new topic words to Anki', tag:'vocab' },
-    ]
-  },
-
-  // DEBATE — World Schools, POI + delivery focus
-  deb_poi_drill: {
-    title:'POI drilling',
-    note:'WSDC POIs: 15 seconds max. They should (1) disrupt the speaker\'s flow, (2) expose a concession or contradiction, (3) be answerable in 5 words so you sound in control. Bad POIs make a statement. Good POIs ask a sharp question.',
-    tasks:[
-      { text:'Set 8-min timer — deliver a random 3-min constructive speech on any topic', tag:'drill' },
-      { text:'Record yourself — replay and offer a POI at every minute mark', tag:'drill' },
-      { text:'Evaluate each POI: was it a question or a statement? Did it target a weakness?', tag:'review' },
-      { text:'Drill 5 more POIs — each must be a genuine question under 15 seconds', tag:'drill' },
-    ]
-  },
-  deb_delivery: {
-    title:'Delivery + pace',
-    note:'WSDC judging rewards clarity, not speed. Vary pace deliberately: slow down on key claims so the judge can write them down. Pause before your main argument. Filler words (um, like, so) are the enemy — silence is better.',
-    tasks:[
-      { text:'Record a 4-min speech — play it back at 1.25x speed and note every filler word', tag:'drill' },
-      { text:'Redo the same speech with a conscious 2-second pause before each argument', tag:'drill' },
-      { text:'Rate yourself: 1-5 on pace, clarity, vocal variety — write what specifically to fix', tag:'review' },
-    ]
-  },
-  deb_case: {
-    title:'Case construction',
-    note:'WSDC Gov case structure: definition → team split → your material (3 arguments: cause/mechanism/impact). Each argument needs a warrant — the logical reason it\'s true — not just an assertion.',
-    tasks:[
-      { text:'Pick a motion — write a full 8-min gov case from scratch, timed', tag:'sim' },
-      { text:'For each argument: write the warrant in one sentence — why is this TRUE?', tag:'sim' },
-      { text:'Check: does the case prove the motion or just discuss the topic?', tag:'review' },
-    ]
-  },
-  deb_rebuttal: {
-    title:'Rebuttal practice',
-    tasks:[
-      { text:'Find a WSDC speech on YouTube — pause every 2 min and write a rebuttal', tag:'drill' },
-      { text:'For each rebuttal: identify the specific logical weakness you\'re attacking', tag:'drill' },
-      { text:'Deliver the rebuttal aloud — is it clear WHAT you\'re rebutting before you explain why?', tag:'drill' },
-    ]
-  },
-  deb_motion: {
-    title:'Motion knowledge audit',
-    tasks:[
-      { text:'Pick 3 likely WSDC motion areas (economy, environment, social policy)', tag:'review' },
-      { text:'For each: write 2 gov arguments and 2 opp arguments you could deploy', tag:'review' },
-      { text:'Identify the weakest area — this is what to research next week', tag:'review' },
-    ]
-  },
-  deb_mockround: {
-    title:'Full mock round',
-    tasks:[
-      { text:'Pick a motion — run a full 8-min constructive speech start to finish, no stopping', tag:'sim' },
-      { text:'Record it — watch back for pace, structure clarity, and POI readiness', tag:'review' },
-      { text:'Write 3 specific things to fix before the next mock', tag:'review' },
-    ]
-  },
-  deb_watchround: {
-    title:'Watch + annotate a round',
-    tasks:[
-      { text:'Find a WSDC round on YouTube — watch Gov 1 with a notepad', tag:'review' },
-      { text:'Note: when did they take POIs? Were the POIs answered well?', tag:'review' },
-      { text:'Note: what delivery choices made the speech more or less persuasive?', tag:'review' },
-      { text:'Write 2 things you will steal and use in your next speech', tag:'review' },
-    ]
-  },
-
-  // KAYAK
-  kayak: {
-    title:'On the water',
-    tasks:[
-      { text:'Show up', tag:'sim' },
-    ]
-  },
+const T_UNUSED = { // replaced by standard 3-step structure
+  phys_approach:{title:'Approach first',note:'Before touching numbers: write down (1) what quantity is asked, (2) which principle applies, (3) what equation links them. In words before algebra.',tasks:[
+    {text:'Pick 3 unseen questions — write the approach in words before any equation',tag:'sim'},
+    {text:'Identify given quantities and what you\'re solving for in each',tag:'sim'},
+    {text:'Check: did you define a sign convention before substituting?',tag:'review'},
+  ]},
+  phys_mechanics:{title:'Mechanics + energy methods',tasks:[
+    {text:'2 questions using Newton\'s laws — draw free body diagram before anything else',tag:'sim'},
+    {text:'1 conservation of energy problem — write E_initial = E_final with terms labelled',tag:'sim'},
+    {text:'1 circular motion or momentum question — identify centripetal direction explicitly',tag:'sim'},
+    {text:'Mark against markscheme — note where method marks would be lost',tag:'error'},
+  ]},
+  phys_waves:{title:'Waves + optics',tasks:[
+    {text:'Sketch wavefront or ray diagram before solving — always',tag:'sim'},
+    {text:'2 superposition/interference questions — identify path difference first',tag:'sim'},
+    {text:'1 refraction question — label n1, n2, angles before Snell\'s law',tag:'sim'},
+    {text:'Review: when does phase change on reflection? (dense→less dense boundary)',tag:'review'},
+  ]},
+  phys_thermo:{title:'Thermodynamics',tasks:[
+    {text:'1 ideal gas law question — convert to SI units before substituting',tag:'sim'},
+    {text:'1 first law question — define Q and W sign conventions explicitly before solving',tag:'sim'},
+    {text:'PV diagram: label isothermal vs adiabatic vs isobaric from memory',tag:'review'},
+    {text:'1 data question — show all unit cancellations in working',tag:'sim'},
+  ]},
+  phys_shm:{title:'SHM',tasks:[
+    {text:'Write x(t), v(t), a(t) from scratch — no looking',tag:'review'},
+    {text:'2 SHM questions — identify x=0 and x=A before substituting',tag:'sim'},
+    {text:'Energy in SHM: draw KE and PE vs displacement graph from memory',tag:'review'},
+    {text:'1 pendulum or spring question — derive T, then solve',tag:'sim'},
+  ]},
+  phys_relativity:{title:'Special relativity',tasks:[
+    {text:'Write the two postulates from memory before solving anything',tag:'review'},
+    {text:'1 time dilation question — identify who measures proper time',tag:'sim'},
+    {text:'1 length contraction question — label which frame is the rest frame',tag:'sim'},
+    {text:'1 spacetime interval question — confirm s² is invariant',tag:'sim'},
+  ]},
+  phys_paper:{title:'Past paper simulation',tasks:[
+    {text:'45-min timer — one full paper section under timed conditions',tag:'sim'},
+    {text:'No markscheme until time is up',tag:'sim'},
+    {text:'After: every wrong answer — approach error or execution error?',tag:'error'},
+    {text:'Write the correct approach (not just answer) for each miss',tag:'error'},
+  ]},
+  phys_errorreview:{title:'Error autopsy',tasks:[
+    {text:'List every question wrong this week',tag:'error'},
+    {text:'Classify: wrong approach / right approach wrong execution / unit/sign error',tag:'error'},
+    {text:'For approach errors: write correct method in full sentences',tag:'error'},
+    {text:'For execution errors: redo with slower working shown',tag:'error'},
+  ]},
+  math_trig:{title:'Trig consolidation',note:'Derive identities from first principles — know where they come from, not just what they are.',tasks:[
+    {text:'Derive sin²+cos²=1 from unit circle, then write tan, sec, csc, cot',tag:'review'},
+    {text:'Prove one double-angle identity without looking',tag:'review'},
+    {text:'2 problems: solve trig equation on a given interval — list ALL solutions',tag:'sim'},
+    {text:'1 problem using compound angle formula — set up before substituting',tag:'sim'},
+  ]},
+  math_combinatorics:{title:'Combinatorics',note:'Every problem: ask out loud "does ORDER matter?" before writing anything. Yes → permutation. No → combination.',tasks:[
+    {text:'3 counting problems — write "order matters: yes/no" before each',tag:'sim'},
+    {text:'1 problem with restrictions — try complement method',tag:'sim'},
+    {text:'1 problem with identical objects — check if dividing by repeats is needed',tag:'sim'},
+    {text:'Derive nCr formula from first principles',tag:'review'},
+  ]},
+  math_binomial:{title:'Binomial theorem',tasks:[
+    {text:'Write general term T(r+1) = nCr · a^(n-r) · b^r from memory',tag:'review'},
+    {text:'2 expansion questions — find a specific term (not the full expansion)',tag:'sim'},
+    {text:'1 problem: find coefficient of x^k — set up exponent equation before solving',tag:'sim'},
+    {text:'1 application: use binomial to approximate (1+x)^n for small x',tag:'sim'},
+  ]},
+  math_concept:{title:'Conceptual deep work',note:'Competition problems require seeing the structure. Read the problem twice. Ask: what does this problem WANT me to notice?',tasks:[
+    {text:'1 hard unseen problem — 10 min reading and annotating before solving',tag:'sim'},
+    {text:'Write down what approach you\'re trying and WHY before executing',tag:'sim'},
+    {text:'If stuck after 15 min: identify exactly where, write it out',tag:'review'},
+    {text:'After solving: what was the key structural insight?',tag:'review'},
+  ]},
+  math_paper:{title:'Timed past paper',tasks:[
+    {text:'Full section — strict timing, no pausing',tag:'sim'},
+    {text:'Show all working — method marks exist even if answer is wrong',tag:'sim'},
+    {text:'Flag questions where you knew method but ran out of time',tag:'sim'},
+    {text:'After: the 2 questions that cost most marks — do them again',tag:'error'},
+  ]},
+  math_errorreview:{title:'Error review',tasks:[
+    {text:'Pull every wrong answer from this week',tag:'error'},
+    {text:'For each: one sentence explaining the misunderstanding',tag:'error'},
+    {text:'Redo the 3 hardest ones cold — no notes',tag:'sim'},
+  ]},
+  chem_checklist:{title:'Error-prevention protocol',note:'Before any answer: (1) units consistent? (2) sig figs? (3) sign correct for ΔH/ΔG? (4) charges balanced? Mandatory last step every time.',tasks:[
+    {text:'Write your error checklist from memory before starting questions',tag:'review'},
+    {text:'3 past paper questions — apply checklist after each before moving on',tag:'sim'},
+    {text:'On any wrong answer: which checklist item would have caught it?',tag:'error'},
+  ]},
+  chem_bonding:{title:'Bonding + structure',tasks:[
+    {text:'Draw 3 Lewis structures — check formal charges and octets explicitly',tag:'sim'},
+    {text:'1 VSEPR question — draw electron geometry AND molecular geometry separately',tag:'sim'},
+    {text:'Compare bond polarity vs molecular polarity for 2 molecules',tag:'review'},
+    {text:'1 ionic equation — verify charges balance before AND after',tag:'sim'},
+  ]},
+  chem_thermo:{title:'Thermochemistry',tasks:[
+    {text:'1 Hess\'s law question — write each step with correct sign manipulation',tag:'sim'},
+    {text:'1 calorimetry — check: q=mcΔT, is ΔT positive in the right direction?',tag:'sim'},
+    {text:'Bond enthalpy: bonds broken (positive) vs bonds formed (negative)',tag:'sim'},
+    {text:'After each: apply full error checklist',tag:'error'},
+  ]},
+  chem_organic:{title:'Organic chemistry',tasks:[
+    {text:'Identify functional groups in 3 molecules — write reaction type each undergoes',tag:'review'},
+    {text:'1 mechanism question — curly arrows from electron-rich to electron-poor',tag:'sim'},
+    {text:'Name 3 compounds using IUPAC — check suffix before finalising',tag:'sim'},
+  ]},
+  chem_mcq:{title:'MCQ simulation',note:'MCQ: eliminate clearly wrong answers first, then verify your choice against units and logic before committing.',tasks:[
+    {text:'20 MCQ under timed conditions — 1 min per question max',tag:'sim'},
+    {text:'After: review every question you weren\'t 100% sure about',tag:'error'},
+    {text:'For wrong answers: knowledge gap or silly error?',tag:'error'},
+  ]},
+  geo_essay:{title:'IB essay structure',note:'IB Geography rewards: clear thesis → named case studies early → analytical links to the question → evaluative conclusion that returns to the question. Describe nothing — every paragraph must EXPLAIN.',tasks:[
+    {text:'10-min timed plan — thesis + 3 argument points + case study each',tag:'essay'},
+    {text:'Check: does each paragraph answer the question or just describe a case?',tag:'review'},
+    {text:'Write opening paragraph — does it contain a specific, arguable thesis?',tag:'essay'},
+  ]},
+  geo_casestudies:{title:'Case study consolidation',tasks:[
+    {text:'List your 5 strongest case studies — write 2 specific statistics each from memory',tag:'review'},
+    {text:'Identify 2 case studies with no statistics — these are the gaps',tag:'review'},
+    {text:'For 1 weak case study: write a 3-sentence exam-ready summary',tag:'essay'},
+  ]},
+  geo_markscheme:{title:'Markscheme analysis',note:'IB markschemes reward: named examples, specific data, explicit link to command term, evaluative statements.',tasks:[
+    {text:'Read the markscheme for last essay — what did the examiner reward?',tag:'review'},
+    {text:'Identify 2 marks lost — write what you\'d add to get them',tag:'error'},
+    {text:'Rewrite one body paragraph incorporating markscheme language',tag:'essay'},
+  ]},
+  geo_ppn:{title:'Power, Places & Networks',tasks:[
+    {text:'25-min timed response to a PPnN question',tag:'essay'},
+    {text:'Use \'resistance\', \'flows\', \'networks\', \'global governance\' explicitly',tag:'essay'},
+    {text:'Check conclusion: does it evaluate (not just summarise)?',tag:'review'},
+  ]},
+  chin_vocab:{title:'Vocabulary for comprehension',note:'Goal is exam reading comprehension. Prioritise high-frequency IB topic vocab — environment, health, education, technology. Focus on question-stem words.',tasks:[
+    {text:'Anki: 20 new cards — IB topic vocabulary',tag:'vocab'},
+    {text:'Review yesterday\'s cards — suspend any right 3x in a row',tag:'vocab'},
+    {text:'Write 5 new words each in a sentence — in Chinese',tag:'vocab'},
+  ]},
+  chin_reading:{title:'Reading comprehension',tasks:[
+    {text:'Read one past paper text — underline every unknown word before questions',tag:'sim'},
+    {text:'Answer questions using context clues even for unknown words',tag:'sim'},
+    {text:'After: look up underlined words — add new ones to Anki',tag:'vocab'},
+  ]},
+  chin_output:{title:'Output practice',tasks:[
+    {text:'Write 5 sentences in Chinese using this week\'s new vocab',tag:'sim'},
+    {text:'Read them aloud — does each sound natural?',tag:'drill'},
+    {text:'Correct any grammar errors — write the correct version',tag:'error'},
+  ]},
+  chin_listening:{title:'Listening + speaking',tasks:[
+    {text:'10 min Mandarin audio — note new vocab',tag:'vocab'},
+    {text:'Summarise what you heard in 3 sentences in Chinese — spoken aloud',tag:'drill'},
+    {text:'Add new topic words to Anki',tag:'vocab'},
+  ]},
+  deb_poi:{title:'POI drilling',note:'WSDC POIs: 15 seconds max. Must (1) disrupt flow, (2) expose a concession or contradiction, (3) be a genuine question — not a statement.',tasks:[
+    {text:'Set 8-min timer — deliver a 3-min constructive on any topic',tag:'drill'},
+    {text:'Record — replay and offer a POI at every minute mark',tag:'drill'},
+    {text:'Evaluate each: question or statement? Did it target a weakness?',tag:'review'},
+    {text:'Drill 5 more POIs — each a genuine question under 15 seconds',tag:'drill'},
+  ]},
+  deb_delivery:{title:'Delivery + pace',note:'WSDC rewards clarity, not speed. Slow down on key claims. Pause before main arguments. Silence > filler words.',tasks:[
+    {text:'Record a 4-min speech — play back at 1.25x, note every filler word',tag:'drill'},
+    {text:'Redo same speech with a 2-second pause before each argument',tag:'drill'},
+    {text:'Rate 1–5 on pace, clarity, vocal variety — write what specifically to fix',tag:'review'},
+  ]},
+  deb_case:{title:'Case construction',note:'Gov case: definition → team split → 3 arguments. Each needs a warrant — the logical reason it\'s true. Not an assertion.',tasks:[
+    {text:'Pick a motion — write full 8-min gov case from scratch, timed',tag:'sim'},
+    {text:'For each argument: write the warrant in one sentence',tag:'sim'},
+    {text:'Check: does the case prove the motion or just discuss the topic?',tag:'review'},
+  ]},
+  deb_rebuttal:{title:'Rebuttal practice',tasks:[
+    {text:'Find a WSDC speech — pause every 2 min and write a rebuttal',tag:'drill'},
+    {text:'For each rebuttal: identify the specific logical weakness being attacked',tag:'drill'},
+    {text:'Deliver rebuttal aloud — is it clear WHAT you\'re rebutting before the why?',tag:'drill'},
+  ]},
+  deb_motion:{title:'Motion knowledge audit',tasks:[
+    {text:'Pick 3 likely WSDC motion areas (economy, environment, social policy)',tag:'review'},
+    {text:'For each: 2 gov arguments and 2 opp arguments you could deploy',tag:'review'},
+    {text:'Identify weakest area — research this next week',tag:'review'},
+  ]},
+  deb_mock:{title:'Full mock round',tasks:[
+    {text:'Pick a motion — run full 8-min constructive, no stopping',tag:'sim'},
+    {text:'Record — watch back for pace, structure, POI readiness',tag:'review'},
+    {text:'Write 3 specific things to fix before next mock',tag:'review'},
+  ]},
+  deb_watch:{title:'Watch + annotate a round',tasks:[
+    {text:'Find a WSDC round on YouTube — watch Gov 1 with notepad',tag:'review'},
+    {text:'Note: when did they take POIs? Were they answered well?',tag:'review'},
+    {text:'Note: what delivery choices made the speech more/less persuasive?',tag:'review'},
+    {text:'Write 2 things to steal for your next speech',tag:'review'},
+  ]},
+  kayak:{title:'On the water',tasks:[{text:'Show up',tag:'sim'}]},
+  misc:{title:'Miscellaneous work',note:'Post-kayak window. Lower cognitive load — admin, planning, light reading, organising notes, prep for tomorrow.',tasks:[
+    {text:'Review tomorrow\'s schedule — is everything prepped?',tag:'review'},
+    {text:'Organise notes or flashcards from today\'s sessions',tag:'review'},
+    {text:'Any admin, emails, ARI or project tasks',tag:'review'},
+    {text:'If none of the above: light reading in an area of interest',tag:'review'},
+  ]},
+  cooldown:{title:'Cooldown + revision',note:'1 hour light revision of yesterday\'s material. No new content — just consolidate what you already did.',tasks:[
+    {text:'Re-read notes from yesterday\'s main session (no new problems)',tag:'review'},
+    {text:'Write 3 things you learned yesterday from memory — test yourself',tag:'review'},
+    {text:'Add anything that didn\'t stick to Anki or error log',tag:'error'},
+    {text:'If a concept felt shaky: read one worked example slowly',tag:'review'},
+  ]},
+  mock_exam:{title:'Mock exam — 1.5 hours',note:'Full simulation. No notes. No phone. Strict timing. Mark it immediately after using the markscheme.',tasks:[
+    {text:'Set timer to 90 minutes — start the paper cold',tag:'mock'},
+    {text:'Work through without stopping — flag uncertain questions, don\'t dwell',tag:'mock'},
+    {text:'When time is up: mark immediately against markscheme',tag:'mock'},
+    {text:'Log your score and every question you lost marks on',tag:'mock'},
+    {text:'Categorise each loss: approach / execution / knowledge gap / silly error',tag:'error'},
+    {text:'Write the 3 highest-priority things to fix based on this paper',tag:'error'},
+  ]},
 };
 
-// ─── Schedule (0=Mon … 6=Sun) ────────────────────────────────────────────────
-// Each block: { t, l, n, s, passive?, tasks: ['key1','key2',...] }
-// tasks = keys into T above. Multiple keys allowed — they concatenate.
+// 0=Mon … 6=Sun. Kayak: Mon/Wed/Fri 4–6pm, Sat 8–11am.
+// Tue + Sun are mock exam days.
+// Post-kayak (Mon/Wed/Fri): 18:20–19:50 misc, 19:50–20:50 cooldown
+// Sat post-kayak is already mid-morning so misc+cooldown fit in afternoon
 const SCHEDULE = {
-  0: [
-    { t:'8:00–9:30',   l:'Physics',          n:'Approach + mechanics',              s:'phys', tasks:['phys_approach','phys_mechanics'] },
-    { t:'9:30–9:45',   l:'Break',             n:'',                                  s:'rest', passive:true },
-    { t:'9:45–11:15',  l:'Math',              n:'Trig review or combinatorics',      s:'math', tasks:['math_trig_review','math_combinatorics'] },
-    { t:'11:15–12:00', l:'Chemistry',         n:'Error-prevention protocol + MCQ',   s:'chem', tasks:['chem_checklist','chem_mcq'] },
-    { t:'12:00–12:45', l:'Lunch',             n:'',                                  s:'rest', passive:true },
-    { t:'12:45–13:05', l:'Transit → library', n:'20 min',                            s:'tran', passive:true },
-    { t:'13:05–14:35', l:'Physics',           n:'Past paper simulation',             s:'phys', tasks:['phys_paper'] },
-    { t:'14:35–15:20', l:'Debate',            n:'POI drilling — record yourself',    s:'deb',  tasks:['deb_poi_drill'] },
-    { t:'15:20–15:40', l:'Transit → kayak',   n:'20 min',                            s:'tran', passive:true },
-    { t:'16:00–18:00', l:'Kayak',             n:'',                                  s:'kayak',tasks:['kayak'] },
-    { t:'18:00–18:20', l:'Transit home',      n:'',                                  s:'tran', passive:true },
+  0:[ // Mon — kayak 4–6pm
+    {t:'8:30–10:00', l:'Physics',          n:'Approach + mechanics',             s:'phys',  tasks:['phys_approach','phys_mechanics']},
+    {t:'10:00–10:15',l:'Break',             n:'',                                 s:'rest',  passive:true},
+    {t:'10:15–11:45',l:'Math',              n:'Trig or combinatorics',            s:'math',  tasks:['math_trig','math_combinatorics']},
+    {t:'11:45–12:30',l:'Chemistry',         n:'Error-prevention + MCQ',           s:'chem',  tasks:['chem_checklist','chem_mcq']},
+    {t:'12:30–13:15',l:'Lunch',             n:'',                                 s:'rest',  passive:true},
+    {t:'13:15–13:35',l:'Transit → library', n:'20 min',                           s:'tran',  passive:true},
+    {t:'13:35–15:05',l:'Physics',           n:'Past paper simulation',            s:'phys',  tasks:['phys_paper']},
+    {t:'15:05–15:40',l:'Debate',            n:'POI drilling — record yourself',   s:'deb',   tasks:['deb_poi']},
+    {t:'15:40–16:00',l:'Transit → kayak',   n:'20 min',                           s:'tran',  passive:true},
+    {t:'16:00–18:00',l:'Kayak',             n:'',                                 s:'kayak', tasks:['kayak']},
+    {t:'18:00–18:20',l:'Transit home',      n:'',                                 s:'tran',  passive:true},
+    {t:'18:20–19:50',l:'Misc work',         n:'Admin, notes, planning, light tasks',s:'misc',tasks:['misc']},
+    {t:'19:50–20:50',l:'Cooldown',          n:'Light revision of yesterday\'s material',s:'cool',tasks:['cooldown']},
   ],
-  1: [
-    { t:'8:00–9:30',   l:'Physics',           n:'Waves + optics or SHM',             s:'phys', tasks:['phys_approach','phys_waves'] },
-    { t:'9:30–9:45',   l:'Break',             n:'',                                  s:'rest', passive:true },
-    { t:'9:45–11:15',  l:'Math',              n:'Conceptual deep work',              s:'math', tasks:['math_concept'] },
-    { t:'11:15–12:00', l:'Geography',         n:'Essay structure practice',          s:'geo',  tasks:['geo_essay_structure'] },
-    { t:'12:00–13:00', l:'Lunch',             n:'',                                  s:'rest', passive:true },
-    { t:'13:00–14:30', l:'Chemistry',         n:'Bonding + thermochemistry',         s:'chem', tasks:['chem_bonding','chem_thermo'] },
-    { t:'14:30–15:30', l:'Debate',            n:'Full 8-min case — record it',       s:'deb',  tasks:['deb_case'] },
-    { t:'15:30–16:00', l:'Chinese',           n:'Vocab + output',                    s:'chin', tasks:['chin_vocab','chin_output'] },
+  1:[ // Tue — mock exam day
+    {t:'8:30–9:00',  l:'Warm-up',           n:'Read notes only — no new problems',s:'rest',  passive:true},
+    {t:'9:00–10:30', l:'Mock Exam',         n:'1.5 hr timed — pick your subject', s:'mock',  tasks:['mock_exam'], isMock:true},
+    {t:'10:30–10:45',l:'Break',             n:'',                                 s:'rest',  passive:true},
+    {t:'10:45–12:00',l:'Mock debrief',      n:'Mark + error categorisation',      s:'mock',  tasks:['mock_exam']},
+    {t:'12:00–13:00',l:'Lunch',             n:'',                                 s:'rest',  passive:true},
+    {t:'13:00–14:30',l:'Chemistry',         n:'Bonding + thermochemistry',        s:'chem',  tasks:['chem_bonding','chem_thermo']},
+    {t:'14:30–15:30',l:'Debate',            n:'Full 8-min case — record it',      s:'deb',   tasks:['deb_case']},
+    {t:'15:30–16:15',l:'Geography',         n:'Essay structure practice',         s:'geo',   tasks:['geo_essay']},
+    {t:'16:15–16:45',l:'Chinese',           n:'Vocab + output',                   s:'chin',  tasks:['chin_vocab','chin_output']},
   ],
-  2: [
-    { t:'8:00–9:30',   l:'Math',              n:'Timed past paper — strict',         s:'math', tasks:['math_paper'] },
-    { t:'9:30–9:45',   l:'Break',             n:'',                                  s:'rest', passive:true },
-    { t:'9:45–11:00',  l:'Physics',           n:'SHM + special relativity',          s:'phys', tasks:['phys_shm','phys_relativity'] },
-    { t:'11:00–11:45', l:'Chinese',           n:'Grammar + output paragraph',        s:'chin', tasks:['chin_vocab','chin_output'] },
-    { t:'11:45–12:30', l:'Lunch',             n:'',                                  s:'rest', passive:true },
-    { t:'12:30–12:50', l:'Transit → library', n:'20 min',                            s:'tran', passive:true },
-    { t:'12:50–14:20', l:'Debate',            n:'Motion research + arg mapping',     s:'deb',  tasks:['deb_motion'] },
-    { t:'14:20–15:10', l:'Geography',         n:'Case studies + markscheme review',  s:'geo',  tasks:['geo_casestudies','geo_markscheme'] },
-    { t:'15:10–15:40', l:'Transit → kayak',   n:'20 min (leave by 3:10)',            s:'tran', passive:true },
-    { t:'16:00–18:00', l:'Kayak',             n:'',                                  s:'kayak',tasks:['kayak'] },
-    { t:'18:00–18:20', l:'Transit home',      n:'',                                  s:'tran', passive:true },
+  2:[ // Wed — kayak 4–6pm
+    {t:'8:30–10:00', l:'Math',              n:'Timed past paper — strict',        s:'math',  tasks:['math_paper']},
+    {t:'10:00–10:15',l:'Break',             n:'',                                 s:'rest',  passive:true},
+    {t:'10:15–11:30',l:'Physics',           n:'SHM + special relativity',         s:'phys',  tasks:['phys_shm','phys_relativity']},
+    {t:'11:30–12:15',l:'Chinese',           n:'Grammar + output paragraph',       s:'chin',  tasks:['chin_vocab','chin_output']},
+    {t:'12:15–13:00',l:'Lunch',             n:'',                                 s:'rest',  passive:true},
+    {t:'13:00–13:20',l:'Transit → library', n:'20 min',                           s:'tran',  passive:true},
+    {t:'13:20–14:50',l:'Debate',            n:'Motion research + arg mapping',    s:'deb',   tasks:['deb_motion']},
+    {t:'14:50–15:40',l:'Geography',         n:'Case studies + markscheme review', s:'geo',   tasks:['geo_casestudies','geo_markscheme']},
+    {t:'15:40–16:00',l:'Transit → kayak',   n:'20 min (leave by 3:40)',           s:'tran',  passive:true},
+    {t:'16:00–18:00',l:'Kayak',             n:'',                                 s:'kayak', tasks:['kayak']},
+    {t:'18:00–18:20',l:'Transit home',      n:'',                                 s:'tran',  passive:true},
+    {t:'18:20–19:50',l:'Misc work',         n:'Admin, notes, planning, light tasks',s:'misc',tasks:['misc']},
+    {t:'19:50–20:50',l:'Cooldown',          n:'Light revision of yesterday\'s material',s:'cool',tasks:['cooldown']},
   ],
-  3: [
-    { t:'8:00–9:30',   l:'Physics',           n:'Thermodynamics — heavy session',    s:'phys', tasks:['phys_approach','phys_thermo'] },
-    { t:'9:30–9:45',   l:'Break',             n:'',                                  s:'rest', passive:true },
-    { t:'9:45–11:00',  l:'Chemistry',         n:'Organic chemistry',                 s:'chem', tasks:['chem_organic','chem_checklist'] },
-    { t:'11:00–12:00', l:'Math',              n:'Error review from Wed paper',       s:'math', tasks:['math_errorreview'] },
-    { t:'12:00–13:00', l:'Lunch',             n:'',                                  s:'rest', passive:true },
-    { t:'13:00–14:30', l:'Physics',           n:'Past paper — full section',         s:'phys', tasks:['phys_paper'] },
-    { t:'14:30–15:30', l:'Debate',            n:'Rebuttal practice + POI drills',    s:'deb',  tasks:['deb_rebuttal','deb_poi_drill'] },
-    { t:'15:30–16:15', l:'Geo / Chinese',     n:'Light — pick one',                  s:'geo',  tasks:['geo_ppn','chin_reading'] },
+  3:[ // Thu
+    {t:'8:30–10:00', l:'Physics',           n:'Thermodynamics — heavy session',   s:'phys',  tasks:['phys_approach','phys_thermo']},
+    {t:'10:00–10:15',l:'Break',             n:'',                                 s:'rest',  passive:true},
+    {t:'10:15–11:15',l:'Chemistry',         n:'Organic chemistry',                s:'chem',  tasks:['chem_organic','chem_checklist']},
+    {t:'11:15–12:15',l:'Math',              n:'Error review from Wed paper',      s:'math',  tasks:['math_errorreview']},
+    {t:'12:15–13:00',l:'Lunch',             n:'',                                 s:'rest',  passive:true},
+    {t:'13:00–14:30',l:'Physics',           n:'Past paper — full section',        s:'phys',  tasks:['phys_paper']},
+    {t:'14:30–15:30',l:'Debate',            n:'Rebuttal + POI drills',            s:'deb',   tasks:['deb_rebuttal','deb_poi']},
+    {t:'15:30–16:15',l:'Geo / Chinese',     n:'Light — pick one',                 s:'geo',   tasks:['geo_ppn','chin_reading']},
   ],
-  4: [
-    { t:'8:00–9:30',   l:'Physics',           n:'Error autopsy — weakest topic',     s:'phys', tasks:['phys_errorreview'] },
-    { t:'9:30–9:45',   l:'Break',             n:'',                                  s:'rest', passive:true },
-    { t:'9:45–10:45',  l:'Math',              n:'Binomial theorem',                  s:'math', tasks:['math_binomial'] },
-    { t:'10:45–11:30', l:'Chemistry',         n:'MCQ simulation — 20 questions',     s:'chem', tasks:['chem_mcq'] },
-    { t:'11:30–12:15', l:'Lunch',             n:'',                                  s:'rest', passive:true },
-    { t:'12:15–12:35', l:'Transit → library', n:'20 min',                            s:'tran', passive:true },
-    { t:'12:35–14:05', l:'Debate',            n:'Watch a round — annotate delivery', s:'deb',  tasks:['deb_watchround'] },
-    { t:'14:05–14:50', l:'Chinese',           n:'Vocab + listening',                 s:'chin', tasks:['chin_vocab','chin_listening'] },
-    { t:'15:30–15:50', l:'Transit → kayak',   n:'20 min (leave 3:30)',               s:'tran', passive:true },
-    { t:'16:00–18:00', l:'Kayak',             n:'',                                  s:'kayak',tasks:['kayak'] },
-    { t:'18:00–18:20', l:'Transit home',      n:'',                                  s:'tran', passive:true },
+  4:[ // Fri — kayak 4–6pm
+    {t:'8:30–10:00', l:'Physics',           n:'Error autopsy — weakest topic',    s:'phys',  tasks:['phys_errorreview']},
+    {t:'10:00–10:15',l:'Break',             n:'',                                 s:'rest',  passive:true},
+    {t:'10:15–11:15',l:'Math',              n:'Binomial theorem',                 s:'math',  tasks:['math_binomial']},
+    {t:'11:15–12:00',l:'Chemistry',         n:'MCQ simulation',                   s:'chem',  tasks:['chem_mcq']},
+    {t:'12:00–12:45',l:'Lunch',             n:'',                                 s:'rest',  passive:true},
+    {t:'12:45–13:05',l:'Transit → library', n:'20 min',                           s:'tran',  passive:true},
+    {t:'13:05–14:35',l:'Debate',            n:'Watch a round — annotate delivery',s:'deb',   tasks:['deb_watch']},
+    {t:'14:35–15:20',l:'Chinese',           n:'Vocab + listening',                s:'chin',  tasks:['chin_vocab','chin_listening']},
+    {t:'15:40–16:00',l:'Transit → kayak',   n:'20 min (leave 3:40)',              s:'tran',  passive:true},
+    {t:'16:00–18:00',l:'Kayak',             n:'',                                 s:'kayak', tasks:['kayak']},
+    {t:'18:00–18:20',l:'Transit home',      n:'',                                 s:'tran',  passive:true},
+    {t:'18:20–19:50',l:'Misc work',         n:'Admin, notes, planning, light tasks',s:'misc',tasks:['misc']},
+    {t:'19:50–20:50',l:'Cooldown',          n:'Light revision of yesterday\'s material',s:'cool',tasks:['cooldown']},
   ],
-  5: [
-    { t:'7:40–8:00',   l:'Transit → kayak',   n:'20 min',                            s:'tran', passive:true },
-    { t:'8:00–11:00',  l:'Kayak',             n:'Morning session',                   s:'kayak',tasks:['kayak'] },
-    { t:'11:00–11:20', l:'Transit → library', n:'20 min',                            s:'tran', passive:true },
-    { t:'11:20–11:50', l:'Settle + lunch',    n:'Eat before studying',               s:'rest', passive:true },
-    { t:'11:50–13:20', l:'Math',              n:'Full timed past paper — library',   s:'math', tasks:['math_paper'] },
-    { t:'13:20–14:50', l:'Physics',           n:'Concept gaps — shorter problems',   s:'phys', tasks:['phys_approach','phys_shm'] },
-    { t:'14:50–15:50', l:'Debate',            n:'Full mock round — 8-min case',      s:'deb',  tasks:['deb_mockround'] },
-    { t:'15:50–16:20', l:'Chinese',           n:'Speaking or listening — light',     s:'chin', tasks:['chin_listening'] },
-    { t:'16:20–16:40', l:'Transit home',      n:'',                                  s:'tran', passive:true },
+  5:[ // Sat — kayak 8–11am
+    {t:'7:40–8:00',  l:'Transit → kayak',   n:'20 min',                           s:'tran',  passive:true},
+    {t:'8:00–11:00', l:'Kayak',             n:'Morning session',                  s:'kayak', tasks:['kayak']},
+    {t:'11:00–11:20',l:'Transit → library', n:'20 min',                           s:'tran',  passive:true},
+    {t:'11:20–11:50',l:'Settle + lunch',    n:'Eat before studying',              s:'rest',  passive:true},
+    {t:'11:50–13:20',l:'Misc work',         n:'Post-kayak — admin, notes, light tasks',s:'misc',tasks:['misc']},
+    {t:'13:20–14:20',l:'Cooldown',          n:'Light revision of yesterday\'s material',s:'cool',tasks:['cooldown']},
+    {t:'14:20–14:35',l:'Break',             n:'',                                 s:'rest',  passive:true},
+    {t:'14:35–16:05',l:'Math',              n:'Full timed past paper — library',  s:'math',  tasks:['math_paper']},
+    {t:'16:05–17:05',l:'Debate',            n:'Full mock round — 8-min case',     s:'deb',   tasks:['deb_mock']},
+    {t:'17:05–17:35',l:'Chinese',           n:'Speaking or listening — light',    s:'chin',  tasks:['chin_listening']},
+    {t:'17:35–17:55',l:'Transit home',      n:'',                                 s:'tran',  passive:true},
   ],
-  6: [
-    { t:'9:00–10:30',  l:'Math',              n:'Error review — every wrong answer', s:'math', tasks:['math_errorreview'] },
-    { t:'10:30–11:15', l:'Geography',         n:'Essay plan or markscheme compare',  s:'geo',  tasks:['geo_essay_structure','geo_markscheme'] },
-    { t:'11:15–12:00', l:'Chinese',           n:'Weekly vocab consolidation',        s:'chin', tasks:['chin_vocab'] },
-    { t:'12:00–13:00', l:'Lunch',             n:'',                                  s:'rest', passive:true },
-    { t:'13:00–14:00', l:'Debate',            n:'Motion knowledge audit',            s:'deb',  tasks:['deb_motion'] },
-    { t:'14:00+',      l:'Rest',              n:'Notes only if needed',              s:'rest', passive:true },
+  6:[ // Sun — mock exam day
+    {t:'8:30–9:00',  l:'Warm-up',           n:'Read notes only — no new problems',s:'rest',  passive:true},
+    {t:'9:00–10:30', l:'Mock Exam',         n:'1.5 hr timed — pick your subject', s:'mock',  tasks:['mock_exam'], isMock:true},
+    {t:'10:30–10:45',l:'Break',             n:'',                                 s:'rest',  passive:true},
+    {t:'10:45–12:00',l:'Mock debrief',      n:'Mark + error categorisation',      s:'mock',  tasks:['mock_exam']},
+    {t:'12:00–13:00',l:'Lunch',             n:'',                                 s:'rest',  passive:true},
+    {t:'13:00–14:00',l:'Math',              n:'Error review — every wrong answer this week',s:'math',tasks:['math_errorreview']},
+    {t:'14:00–14:45',l:'Geography',         n:'Essay plan or markscheme compare', s:'geo',   tasks:['geo_essay','geo_markscheme']},
+    {t:'14:45–15:15',l:'Chinese',           n:'Weekly vocab consolidation',       s:'chin',  tasks:['chin_vocab']},
+    {t:'15:15–16:00',l:'Debate',            n:'Motion knowledge audit',           s:'deb',   tasks:['deb_motion']},
+    {t:'16:00+',     l:'Rest',              n:'Notes only if needed',             s:'rest',  passive:true},
   ],
 };
 
-const DAY_NAMES  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const DAY_SHORT  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const KAYAK_DAYS = [0,2,4,5];
+const DAY_NAMES=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const DAY_SHORT=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const KAYAK_DAYS=[0,2,4,5];
+const MOCK_DAYS=[1,6]; // Tue, Sun
 
-// ─── Store ────────────────────────────────────────────────────────────────────
-function today() { return new Date().toISOString().slice(0,10); }
-function dateKey(d) { return d.toISOString().slice(0,10); }
-
-function getWeekDates(anchor) {
-  const d = new Date(anchor);
-  const dow = (d.getDay() + 6) % 7;
-  d.setDate(d.getDate() - dow);
-  const dates = [];
-  for (let i = 0; i < 7; i++) { dates.push(new Date(d)); d.setDate(d.getDate()+1); }
+function today(){return new Date().toISOString().slice(0,10)}
+function dateKey(d){return d.toISOString().slice(0,10)}
+function getWeekDates(anchor){
+  const d=new Date(anchor),dow=(d.getDay()+6)%7;
+  d.setDate(d.getDate()-dow);
+  const dates=[];for(let i=0;i<7;i++){dates.push(new Date(d));d.setDate(d.getDate()+1)}
   return dates;
 }
+function loadStore(){try{return JSON.parse(localStorage.getItem('summer-tracker3')||'{}')}catch{return{}}}
+function saveStore(s){localStorage.setItem('summer-tracker3',JSON.stringify(s))}
 
-function loadStore() { try { return JSON.parse(localStorage.getItem('summer-tracker2') || '{}'); } catch { return {}; } }
-function saveStore(s) { localStorage.setItem('summer-tracker2', JSON.stringify(s)); }
+let store=loadStore();
+let selectedDate=today();
+let expandedBlock=null;
 
-let store = loadStore();
-let selectedDate = today();
-let expandedBlock = null; // "dateKey:blockIndex"
-
-function getDay(key) {
-  if (!store[key]) store[key] = { done:{}, tasks:{}, notes:'' };
-  if (!store[key].tasks) store[key].tasks = {};
+function getDay(key){
+  if(!store[key])store[key]={done:{},tasks:{},notes:'',mockSubject:{}};
+  if(!store[key].tasks)store[key].tasks={};
+  if(!store[key].mockSubject)store[key].mockSubject={};
   return store[key];
 }
+function dowFromKey(key){return(new Date(key+'T12:00:00').getDay()+6)%7}
+function schedule(key){return SCHEDULE[dowFromKey(key)]||[]}
+function checkable(b){return !b.passive}
+function activeSessions(key){return schedule(key).filter(checkable)}
 
-function schedule(key) { return SCHEDULE[(new Date(key+'T12:00:00').getDay()+6)%7] || []; }
-function dowFromKey(key) { return (new Date(key+'T12:00:00').getDay()+6)%7; }
-function checkable(b) { return !b.passive; }
-
-function parseBlockMinutes(t) {
-  const parts = t.split('–');
-  const parse = s => { const [h,m] = s.trim().replace('+','').split(':').map(Number); return h*60+(m||0); };
-  return { start: parse(parts[0]), end: parts[1] ? parse(parts[1]) : Infinity };
+function parseBlockMinutes(t){
+  const parts=t.split('–');
+  const parse=s=>{const[h,m]=s.trim().replace('+','').split(':').map(Number);return h*60+(m||0)};
+  return{start:parse(parts[0]),end:parts[1]?parse(parts[1]):Infinity};
 }
-
-function nowMinutes() { const d = new Date(); return d.getHours()*60+d.getMinutes(); }
-
-function currentBlockIdx(key) {
-  if (key !== today()) return -1;
-  const nm = nowMinutes();
-  const sch = schedule(key);
-  for (let i = 0; i < sch.length; i++) {
-    const { start, end } = parseBlockMinutes(sch[i].t);
-    if (nm >= start && nm < end) return i;
-  }
+function nowMinutes(){const d=new Date();return d.getHours()*60+d.getMinutes()}
+function currentBlockIdx(key){
+  if(key!==today())return -1;
+  const nm=nowMinutes(),sch=schedule(key);
+  for(let i=0;i<sch.length;i++){const{start,end}=parseBlockMinutes(sch[i].t);if(nm>=start&&nm<end)return i}
   return -1;
 }
-function activeSessions(key) { return schedule(key).filter(checkable); }
-
-function doneSessions(key) {
-  const d = getDay(key);
-  return activeSessions(key).filter((_,i) => d.done[i]);
+function doneSessions(key){const d=getDay(key);return activeSessions(key).filter((_,i)=>d.done[i])}
+function dayProgress(key){const t=activeSessions(key).length;return t?doneSessions(key).length/t:0}
+function weekDone(dates){
+  const tot=dates.reduce((s,d)=>s+activeSessions(dateKey(d)).length,0);
+  const don=dates.reduce((s,d)=>s+doneSessions(dateKey(d)).length,0);
+  return tot?Math.round(100*don/tot):0;
 }
-
-function dayProgress(key) {
-  const total = activeSessions(key).length;
-  return total ? doneSessions(key).length / total : 0;
-}
-
-function weekDone(dates) {
-  const total = dates.reduce((s,d) => s + activeSessions(dateKey(d)).length, 0);
-  const done  = dates.reduce((s,d) => s + doneSessions(dateKey(d)).length, 0);
-  return total ? Math.round(100*done/total) : 0;
-}
-
-function streak() {
-  let s = 0; const d = new Date();
-  for (let i = 0; i < 42; i++) {
-    if (dayProgress(dateKey(d)) < 0.5) break;
-    s++; d.setDate(d.getDate()-1);
-  }
+function streak(){
+  let s=0;const d=new Date();
+  for(let i=0;i<42;i++){if(dayProgress(dateKey(d))<0.5)break;s++;d.setDate(d.getDate()-1)}
   return s;
 }
-
-function totalKayaks() {
-  return Object.keys(store).reduce((n,k) => {
-    if (!KAYAK_DAYS.includes(dowFromKey(k))) return n;
-    const sch = schedule(k);
-    const ki = sch.findIndex(b => b.s==='kayak');
-    return n + (ki>=0 && store[k]?.done?.[ki] ? 1 : 0);
-  }, 0);
+function totalKayaks(){
+  return Object.keys(store).reduce((n,k)=>{
+    if(!KAYAK_DAYS.includes(dowFromKey(k)))return n;
+    const ki=schedule(k).findIndex(b=>b.s==='kayak');
+    return n+(ki>=0&&store[k]?.done?.[ki]?1:0);
+  },0);
 }
-
-function weekSubjectCounts(dates) {
-  const counts = {};
-  dates.forEach(dt => {
-    const k = dateKey(dt); const d = getDay(k);
-    schedule(k).forEach((b,i) => {
-      if (!checkable(b) || !d.done[i]) return;
-      if (SUBJECTS[b.s]?.label) counts[b.s] = (counts[b.s]||0)+1;
+function weekSubjectCounts(dates){
+  const counts={};
+  dates.forEach(dt=>{
+    const k=dateKey(dt),d=getDay(k);
+    schedule(k).forEach((b,i)=>{
+      if(!checkable(b)||!d.done[i])return;
+      if(SUBJECTS[b.s]?.label)counts[b.s]=(counts[b.s]||0)+1;
     });
   });
   return counts;
 }
 
-// ─── Task rendering ────────────────────────────────────────────────────────────
-function buildTasksHTML(blockIdx, blockTaskKeys, dateKey) {
-  if (!blockTaskKeys || !blockTaskKeys.length) return '';
-  const dayData = getDay(dateKey);
-  let html = '';
-  blockTaskKeys.forEach(key => {
-    const def = T[key];
-    if (!def) return;
-    html += `<div class="task-section">`;
-    html += `<div class="task-section-title">${def.title}</div>`;
-    if (def.note) html += `<div class="task-note">${def.note}</div>`;
-    html += `<div class="task-list" style="margin-top:${def.note?'8px':'0'}">`;
-    def.tasks.forEach((task, ti) => {
-      const taskId = `${blockIdx}:${key}:${ti}`;
-      const isDone = !!(dayData.tasks[taskId]);
-      const tagHTML = task.tag ? `<span class="task-tag tag-${task.tag}">${task.tag}</span>` : '';
-      html += `
-        <div class="task-item${isDone?' task-done':''}" data-taskid="${taskId}" onclick="toggleTask('${dateKey}','${taskId}')">
-          <div class="task-cb">
-            <svg class="task-check-sm" width="8" height="6" viewBox="0 0 8 6" fill="none">
-              <path d="M1 3L3 5L7 1" stroke="#0d0d0f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <span class="task-text">${task.text}</span>
-          ${tagHTML}
-        </div>`;
-    });
-    html += `</div></div>`;
+function buildTasksHTML(blockIdx,block,dk){
+  const dayData=getDay(dk);
+  const topic=block.n||block.l;
+  const subLabel=block._mockLabel||block.l;
+  const tasks=[
+    {text:`YouTube tutorial — search "${topic}" and watch before starting`,tag:'review'},
+    {text:`Self-tutoring — work through ${subLabel} from memory, no external help`,tag:'drill'},
+    {text:`Practice questions on ${subLabel} — timed, mark yourself after`,tag:'sim'},
+  ];
+  let html='<div class="task-section"><div class="task-list">';
+  tasks.forEach((task,ti)=>{
+    const tid=`${blockIdx}:std:${ti}`;
+    const done=!!(dayData.tasks[tid]);
+    const tagH=task.tag?`<span class="task-tag tag-${task.tag}">${task.tag}</span>`:'';
+    html+=`<div class="task-item${done?' task-done':''}" data-taskid="${tid}" onclick="toggleTask('${dk}','${tid}')">
+      <div class="task-cb"><svg class="task-check-sm" width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="#0d0d0f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="task-text">${task.text}</span>${tagH}</div>`;
   });
+  html+='</div></div>';
   return html;
 }
 
-function toggleTask(dateStr, taskId) {
-  const d = getDay(dateStr);
-  d.tasks[taskId] = !d.tasks[taskId];
-  saveStore(store);
-  // Update just that task item without full re-render
-  const el = document.querySelector(`[data-taskid="${taskId}"]`);
-  if (el) el.classList.toggle('task-done', !!d.tasks[taskId]);
+function toggleTask(dk,tid){
+  const d=getDay(dk);d.tasks[tid]=!d.tasks[tid];saveStore(store);
+  const el=document.querySelector(`[data-taskid="${tid}"]`);
+  if(el)el.classList.toggle('task-done',!!d.tasks[tid]);
 }
 
-// ─── Render ───────────────────────────────────────────────────────────────────
-function render() {
-  const anchorDate = new Date(selectedDate+'T12:00:00');
-  const weekDates  = getWeekDates(anchorDate);
-  const todayKey   = today();
+function setMockSubject(dk,blockIdx,subjectId){
+  const d=getDay(dk);d.mockSubject[blockIdx]=subjectId;saveStore(store);render();
+}
 
-  // header-date is kept live by tickClock()
+function render(){
+  const anchorDate=new Date(selectedDate+'T12:00:00');
+  const weekDates=getWeekDates(anchorDate);
+  const todayKey=today();
+
+  // header-date kept live by tickClock()
 
   // Week strip
-  const strip = document.getElementById('week-strip');
-  strip.innerHTML = '';
-  weekDates.forEach((dt, i) => {
-    const k = dateKey(dt);
-    const pct = dayProgress(k);
-    const btn = document.createElement('button');
-    btn.className = 'day-btn' + (k===selectedDate?' active':'') + (k===todayKey?' today':'');
-    btn.innerHTML = `
-      <span class="day-name">${DAY_SHORT[i]}</span>
-      <span class="day-num">${dt.getDate()}</span>
-      ${KAYAK_DAYS.includes(i) ? '<span class="day-kayak"></span>' : '<span style="width:5px;height:5px"></span>'}
+  const strip=document.getElementById('week-strip');strip.innerHTML='';
+  weekDates.forEach((dt,i)=>{
+    const k=dateKey(dt),pct=dayProgress(k);
+    const isKayak=KAYAK_DAYS.includes(i),isMock=MOCK_DAYS.includes(i);
+    const pipColor=isKayak?'#2080d0':isMock?'#c060e0':'transparent';
+    const btn=document.createElement('button');
+    btn.className='day-btn'+(k===selectedDate?' active':'')+(k===todayKey?' today':'');
+    btn.innerHTML=`<span class="day-name">${DAY_SHORT[i]}</span><span class="day-num">${dt.getDate()}</span>
+      <span class="day-pip" style="background:${pipColor}"></span>
       <div class="day-progress"><div class="day-progress-fill" style="width:${Math.round(pct*100)}%"></div></div>`;
-    btn.onclick = () => { selectedDate = k; expandedBlock = null; render(); };
+    btn.onclick=()=>{selectedDate=k;expandedBlock=null;render()};
     strip.appendChild(btn);
   });
 
-  document.getElementById('day-label').textContent = DAY_NAMES[dowFromKey(selectedDate)];
+  document.getElementById('day-label').textContent=DAY_NAMES[dowFromKey(selectedDate)];
 
-  // Blocks
-  const blocksEl = document.getElementById('blocks');
-  blocksEl.innerHTML = '';
-  const dayData = getDay(selectedDate);
-  const sch = schedule(selectedDate);
+  const blocksEl=document.getElementById('blocks');blocksEl.innerHTML='';
+  const dayData=getDay(selectedDate);
+  const sch=schedule(selectedDate);
 
-  const nowIdx = currentBlockIdx(selectedDate);
+  const nowIdx=currentBlockIdx(selectedDate);
 
-  sch.forEach((b, i) => {
-    const isPassive = !!b.passive;
-    const isDone    = !isPassive && !!dayData.done[i];
-    const color     = SUBJECTS[b.s]?.color || '#444';
-    const expandKey = `${selectedDate}:${i}`;
-    const isExpanded = expandedBlock === expandKey;
-    const hasTasks  = b.tasks && b.tasks.length;
+  sch.forEach((b,i)=>{
+    const isPassive=!!b.passive;
+    const isDone=!isPassive&&!!dayData.done[i];
+    const isNow=i===nowIdx&&!isPassive;
+    const isMockBlock=!!b.isMock;
+    const expandKey=`${selectedDate}:${i}`;
+    const isExpanded=expandedBlock===expandKey;
+    const hasTasks=!isPassive;
 
-    if (i === nowIdx && !isPassive) {
-      const line = document.createElement('div');
-      line.className = 'now-line';
-      line.innerHTML = `<div class="now-line-dot"></div><div class="now-line-bar"></div><span class="now-line-time" id="now-time"></span>`;
+    if(isNow){
+      const line=document.createElement('div');
+      line.className='now-line';
+      line.innerHTML='<div class="now-line-dot"></div><div class="now-line-bar"></div><span class="now-line-time" id="now-time"></span>';
       blocksEl.appendChild(line);
     }
+    const chosenMock=dayData.mockSubject[i];
+    const mockSub=chosenMock?MOCK_SUBJECTS.find(s=>s.id===chosenMock):null;
 
-    const el = document.createElement('div');
-    const isNow = i === nowIdx && !isPassive;
-    el.className = 'block' + (isDone?' done':'') + (isPassive?' passive':'') + (isExpanded?' expanded':'') + (isNow?' now':'');
+    let color=SUBJECTS[b.s]?.color||'#444';
+    if(isMockBlock&&mockSub)color=mockSub.color;
 
-    const expandBtnHTML = (!isPassive && hasTasks)
-      ? `<button class="expand-btn" onclick="event.stopPropagation();toggleExpand('${expandKey}')">${isExpanded ? '▲ hide' : '▼ tasks'}</button>`
-      : '';
+    const el=document.createElement('div');
+    el.className='block'+(isDone?' done':'')+(isPassive?' passive':'')+(isExpanded?' expanded':'')+(isMockBlock?' mock-block':'')+(isNow?' now':'');
 
-    const checkHTML = !isPassive
-      ? `<div class="block-check"><svg class="checkmark" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0d0d0f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`
-      : '';
+    const expandBtnHTML=(!isPassive&&hasTasks)?`<button class="expand-btn" onclick="event.stopPropagation();toggleExpand('${expandKey}')">${isExpanded?'▲ hide':'▼ tasks'}</button>`:'';
+    const checkHTML=!isPassive?`<div class="block-check"><svg class="checkmark" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="#0d0d0f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`:'';
+    const mockBadge=isMockBlock&&mockSub?`<span class="mock-badge">${mockSub.label}</span>`:(isMockBlock?`<span class="mock-badge">pick subject ↓</span>`:'');
 
-    const tasksHTML = (isExpanded && hasTasks)
-      ? `<div class="block-tasks">${buildTasksHTML(i, b.tasks, selectedDate)}</div>`
-      : `<div class="block-tasks"></div>`;
+    let tasksHTML='';
+    if(isMockBlock&&isExpanded){
+      // Subject picker + tasks
+      const pickerBtns=MOCK_SUBJECTS.map(s=>`<button class="mock-subject-btn${chosenMock===s.id?' selected':''}" style="${chosenMock===s.id?`background:${s.color}20;border-color:${s.color};color:${s.color}`:''}" onclick="event.stopPropagation();setMockSubject('${selectedDate}',${i},'${s.id}')">${s.label}</button>`).join('');
+      const pickerHTML=`<div class="mock-picker"><span class="mock-picker-label">Subject:</span>${pickerBtns}</div>`;
+      const mockBlock={...b,_mockLabel:mockSub?mockSub.label:b.l};
+      const taskContent=buildTasksHTML(i,mockBlock,selectedDate);
+      tasksHTML=`${pickerHTML}<div class="block-tasks" style="display:block">${taskContent}</div>`;
+    } else if(isExpanded&&hasTasks){
+      tasksHTML=`<div class="block-tasks">${buildTasksHTML(i,b,selectedDate)}</div>`;
+    } else {
+      tasksHTML=`<div class="block-tasks"></div>`;
+    }
 
-    el.innerHTML = `
+    el.innerHTML=`
       <div class="block-header">
         <div class="block-accent" style="background:${color}"></div>
         <div class="block-time">${b.t}</div>
         <div class="block-body">
           <div class="block-text">
             <div class="block-label">${b.l}</div>
-            ${b.n ? `<div class="block-note">${b.n}</div>` : ''}
+            ${b.n?`<div class="block-note">${b.n}</div>`:''}
           </div>
-          <div class="block-right">
-            ${expandBtnHTML}
-            ${checkHTML}
-          </div>
+          <div class="block-right">${mockBadge}${expandBtnHTML}${checkHTML}</div>
         </div>
-      </div>
-      ${tasksHTML}`;
+      </div>${tasksHTML}`;
 
-    if (!isPassive) {
-      // Clicking the header area (not the expand btn) toggles done
-      el.querySelector('.block-header').onclick = (e) => {
-        if (e.target.closest('.expand-btn')) return;
-        dayData.done[i] = !dayData.done[i];
-        saveStore(store);
-        render();
+    if(!isPassive){
+      el.querySelector('.block-header').onclick=(e)=>{
+        if(e.target.closest('.expand-btn')||e.target.closest('.mock-subject-btn'))return;
+        dayData.done[i]=!dayData.done[i];saveStore(store);render();
       };
     }
-
     blocksEl.appendChild(el);
   });
 
-  // Notes
-  const notesEl = document.getElementById('notes');
-  notesEl.value = dayData.notes || '';
-  notesEl.oninput = () => { dayData.notes = notesEl.value; saveStore(store); };
+  const notesEl=document.getElementById('notes');
+  notesEl.value=dayData.notes||'';
+  notesEl.oninput=()=>{dayData.notes=notesEl.value;saveStore(store)};
 
-  // Stats
-  const active = activeSessions(selectedDate).length;
-  const done   = doneSessions(selectedDate).length;
-  document.getElementById('stat-today').textContent = `${done}/${active}`;
-  document.getElementById('stat-week').textContent  = `${weekDone(weekDates)}%`;
-  document.getElementById('stat-streak').textContent = `${streak()}d`;
-  document.getElementById('stat-kayak').textContent  = totalKayaks();
+  const active=activeSessions(selectedDate).length,done=doneSessions(selectedDate).length;
+  document.getElementById('stat-today').textContent=`${done}/${active}`;
+  document.getElementById('stat-week').textContent=`${weekDone(weekDates)}%`;
+  document.getElementById('stat-streak').textContent=`${streak()}d`;
+  document.getElementById('stat-kayak').textContent=totalKayaks();
 
-  // Subject counts
-  const counts = weekSubjectCounts(weekDates);
-  const subEl  = document.getElementById('subjects');
-  subEl.innerHTML = '';
-  ['phys','math','chem','geo','chin','deb','kayak'].forEach(s => {
-    const sub = SUBJECTS[s]; const c = counts[s]||0;
-    const card = document.createElement('div');
-    card.className = 'subject-card';
-    card.innerHTML = `<div class="subject-dot" style="background:${sub.color}"></div><span class="subject-name">${sub.label}</span><span class="subject-count">${c}</span>`;
+  const counts=weekSubjectCounts(weekDates);
+  const subEl=document.getElementById('subjects');subEl.innerHTML='';
+  ['phys','math','chem','geo','chin','deb','kayak'].forEach(s=>{
+    const sub=SUBJECTS[s],c=counts[s]||0;
+    const card=document.createElement('div');card.className='subject-card';
+    card.innerHTML=`<div class="subject-dot" style="background:${sub.color}"></div><span class="subject-name">${sub.label}</span><span class="subject-count">${c}</span>`;
     subEl.appendChild(card);
   });
 
-  // Streak dots
-  const dotsEl = document.getElementById('streak-dots');
-  dotsEl.innerHTML = '';
-  const now = new Date();
-  for (let i = 41; i >= 0; i--) {
-    const d2 = new Date(now); d2.setDate(d2.getDate()-i);
-    const k = dateKey(d2); const p = dayProgress(k);
-    const cl = p>=0.8?'hit':p>=0.4?'partial':'';
-    const dot = document.createElement('div');
-    dot.className = 'streak-dot'+(cl?' '+cl:'');
+  const dotsEl=document.getElementById('streak-dots');dotsEl.innerHTML='';
+  const now=new Date();
+  for(let i=41;i>=0;i--){
+    const d2=new Date(now);d2.setDate(d2.getDate()-i);
+    const k=dateKey(d2),p=dayProgress(k);
+    const cl=p>=0.8?'hit':p>=0.4?'partial':'';
+    const dot=document.createElement('div');
+    dot.className='streak-dot'+(cl?' '+cl:'');
     dotsEl.appendChild(dot);
   }
-  document.getElementById('streak-label').textContent = `${streak()}d streak`;
+  document.getElementById('streak-label').textContent=`${streak()}d streak`;
 }
 
-function toggleExpand(key) {
-  expandedBlock = expandedBlock === key ? null : key;
-  render();
+function toggleExpand(key){expandedBlock=expandedBlock===key?null:key;render()}
+function goToday(){selectedDate=today();expandedBlock=null;render()}
+
+let lastToday=today();
+function tickClock(){
+  const now=new Date();
+  const dateStr=new Date(selectedDate+'T12:00:00').toLocaleDateString('en-CA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const timeStr=now.toLocaleTimeString('en-CA',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  const el=document.getElementById('header-date');if(el)el.textContent=`${dateStr} · ${timeStr}`;
+  const nowEl=document.getElementById('now-time');if(nowEl)nowEl.textContent=timeStr;
+  const newToday=today();
+  if(newToday!==lastToday){if(selectedDate===lastToday){selectedDate=newToday;render()}lastToday=newToday}
 }
 
-function goToday() { selectedDate = today(); expandedBlock = null; render(); }
-
-let lastToday = today();
-
-function tickClock() {
-  const now = new Date();
-  const dateStr = new Date(selectedDate+'T12:00:00')
-    .toLocaleDateString('en-CA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-  const timeStr = now.toLocaleTimeString('en-CA', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
-  const el = document.getElementById('header-date');
-  if (el) el.textContent = `${dateStr} · ${timeStr}`;
-
-  // update now-line time display without full re-render
-  const nowEl = document.getElementById('now-time');
-  if (nowEl) nowEl.textContent = timeStr;
-
-  // auto-advance at midnight
-  const newToday = today();
-  if (newToday !== lastToday) {
-    if (selectedDate === lastToday) { selectedDate = newToday; render(); }
-    lastToday = newToday;
-  }
-}
-
-render();
-tickClock();
-setInterval(tickClock, 1000);
+render();tickClock();setInterval(tickClock,1000);
 </script>
 </body>
 </html>
