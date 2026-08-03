@@ -10,6 +10,11 @@
     src: url("fonts/SFPRODISPLAYREGULAR.OTF") format("opentype");
     font-weight: 400; font-display: swap;
   }
+  @font-face {
+    font-family: "SF Pro Display";
+    src: url("fonts/SFPRODISPLAYBOLD.OTF") format("opentype");
+    font-weight: 700; font-display: swap;
+  }
   :root { --bg: #000000; --ink: #ff00ff; }
   * { box-sizing: border-box; }
   html, body {
@@ -19,35 +24,81 @@
                  "Helvetica Neue", Arial, sans-serif;
     overflow: hidden; cursor: crosshair;
   }
-  /* The band and the nav share one column, so the outer links sit flush with
-     the ends of the stage — same layout as the sprite-era walker. */
-  .page {
-    height: 100%;
-    padding: 9.6vh 1.72vw 0;
-    display: flex; flex-direction: column;
+
+  /* The stage is the upper half of the page and the character walks along its
+     bottom edge, so the figure sits in open space above the link columns
+     rather than in a strip of its own. */
+  #stage {
+    position: fixed; top: 0; left: 0;
+    width: 100vw; height: 50vh;
+    display: block;
   }
-  #stage { display: block; width: 100%; height: 38vh; min-height: 240px; }
-  nav {
-    display: flex; justify-content: space-between;
-    margin-top: 16px;
-    font-size: 16px; letter-spacing: 0.005em;
+
+  .name {
+    position: fixed; top: 14px; left: 24px;
+    margin: 0; font-size: 17px; font-weight: 700;
+    letter-spacing: 0.01em;
   }
-  nav a {
+
+  .cols {
+    position: fixed; top: 50vh; left: 4.7vw;
+    display: flex; gap: 0;
+  }
+  .cols section { width: 274px; }
+  .cols section:first-child { width: 290px; }
+  .cols h2 {
+    margin: 0 0 14px; font-size: 15px; font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+  .cols a {
+    display: block; margin-bottom: 8px;
+    font-size: 11.5px; letter-spacing: 0.01em;
     color: var(--ink); text-decoration: none;
     opacity: 0.92; transition: opacity 0.18s ease;
   }
-  nav a:hover { opacity: 1; }
+  .cols a:hover { opacity: 1; }
+  .cols a.dl { font-style: italic; text-decoration: underline; }
+
+  .scroll-cue {
+    position: fixed; right: 26px; bottom: 22px;
+    width: 16px; height: 10px;
+    opacity: 0.85; pointer-events: none;
+  }
+  .scroll-cue svg { display: block; width: 100%; height: 100%; }
 </style>
 </head>
 <body>
-<div class="page">
-  <canvas id="stage"></canvas>
-  <nav>
-    <a href="#projects">Projects</a>
-    <a href="#resume">Resume</a>
-    <a href="#gallery">Gallery</a>
-    <a href="#contacts">Contacts</a>
-  </nav>
+<canvas id="stage"></canvas>
+
+<h1 class="name">Owen Kan</h1>
+
+<div class="cols">
+  <section>
+    <h2>Projects</h2>
+    <!-- hrefs to be filled in once the destinations are supplied -->
+    <a href="#">Freightscope</a>
+    <a href="#">ARI</a>
+    <a href="#">Resilead</a>
+    <a href="#">Hand</a>
+  </section>
+  <section>
+    <h2>Resume</h2>
+    <a class="dl" href="#">download here</a>
+    <a href="#">view online</a>
+  </section>
+  <section>
+    <h2>Contacts</h2>
+    <a href="#">gmail</a>
+    <a href="#">insta</a>
+    <a href="#">X</a>
+    <a href="#">linkedin</a>
+  </section>
+</div>
+
+<div class="scroll-cue" aria-hidden="true">
+  <svg viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1 1L8 8L15 1" stroke="#ff00ff" stroke-width="1.2"/>
+  </svg>
 </div>
 
 <script type="importmap">
@@ -72,22 +123,34 @@ const CONFIG = {
   // 211 hip keyframes), so idle.glb is deliberately not loaded and the page
   // saves a redundant 2.4 MB download.
   MODEL_WALK: "models/walk.glb",
+  // Mesh-free export (181 KB vs 2.4 MB) and it carries BOTH halves: clip 0 is
+  // the jump, identical to the separately supplied jump.glb, so that file is
+  // not loaded. Clips 1 and 2 are the same landing; 1 is used.
+  MODEL_LAND: "models/landing.glb",
   // Separate Mixamo exports of the same rig; each download keeps every clip
   // picked in earlier downloads too, so the file that introduces a clip
   // carries it at a different index than later files. Matched by duration:
   // 0.667s = run, 1.583s = slide, 0.958s = stop, 8.792s = idle, 1.083s = walk.
   RUN_CLIP_IDX: 0, SLIDE_CLIP_IDX: 1, STOP_CLIP_IDX: 2,
   IDLE_CLIP_IDX: 0, WALK_CLIP_IDX: 1,
+  JUMP_CLIP_IDX: 0, LAND_CLIP_IDX: 1,
 
   // Orthographic, not perspective — he moves left/right along a fixed lane,
   // same flat side-on read as the old sprite walker. No perspective means no
   // running toward/away from camera to worry about, and world size doesn't
   // depend on depth, which also simplifies the resolution math in resize().
-  CAM_Z: 3.7, CAM_Y: 0.75, LOOK_Y: 0.75,
-  ORTHO_HEIGHT: 2.19,  // vertical world units the frustum shows, top to
+  CAM_Z: 3.7,
+  ORTHO_HEIGHT: 3.30,  // vertical world units the frustum shows, top to
                      // bottom. Apparent character size is inversely
-                     // proportional to this, so shrinking him 20% means
-                     // dividing by 0.8: 1.75 -> 2.19.
+                     // proportional to this: 2.19 -> 3.30 makes him ~34%
+                     // smaller, so he reads as a figure standing in the open
+                     // upper half rather than filling a strip.
+  GROUND_MARGIN: 0.12,  // world units of floor left under his feet. The camera
+                     // height is derived from this and ORTHO_HEIGHT in
+                     // resize(), so the ground line stays pinned to the
+                     // bottom of the stage no matter how he's scaled — a
+                     // fixed CAM_Y would drift him off the edge on every
+                     // size change.
   // The rig's own root already carries a 0.01 scale that converts its
   // (roughly centimeter-scale) bone data down to real meters — confirmed by
   // reading live bone transforms, not the raw pre-skinning vertex data, which
@@ -104,7 +167,14 @@ const CONFIG = {
   KEY_INTENSITY: 2.0,
   FILL_INTENSITY: 0.45,
 
-  GRANULARITY_SQUARES: 54,  // character height, in character cells. Derived
+  // 52 is the practical ceiling at this figure size, not a free dial. Cell
+  // size is (figure height / this), and a glyph needs roughly 4.5 CSS px to
+  // still read as a letterform — compared side by side at 1440x804, 52 gives
+  // 4.2px cells and keeps glyph texture, 60 gives 3.6px and turns dotty, 72
+  // gives 3.0px and collapses into a plain halftone dot screen with no
+  // character left in it. Cells are still finer than before the shrink
+  // (4.2px vs 4.6px), so absolute resolution did go up.
+  GRANULARITY_SQUARES: 52,  // character height, in character cells. Derived
                      // per-resize from the band's actual height (see resize())
                      // rather than a flat px constant — a fixed cell size
                      // quietly lost resolution once before (the walker's old
@@ -141,15 +211,59 @@ const CONFIG = {
   EDGE_MARGIN: 0.45, // world units of clearance kept between the character and
                      // the band's edge, so a long slide can't skid him
                      // off-screen (see boundX)
-  WALK_SPEED_MAX: 2.6,  // px/ms of pointer motion at or below which he WALKS
-                     // instead of runs. A slow cursor emits many small moves,
-                     // and answering each with a run meant a blink of run
-                     // frames then a near-second stop clip, over and over —
-                     // the stutter. The walk gait covers those short hops at
-                     // its own pace and settles straight into idle, no stop.
-  WALK_ARRIVE: 0.06, // world units — a walk just ends where it ends; there is
-                     // no deceleration clip to hand off to, so this only needs
-                     // to be tight enough that the last step lands cleanly
+  // --- continuous locomotion.
+  // Walk and run are no longer separate states picked by a speed threshold.
+  // Both clips play at once and are cross-weighted by how fast he needs to
+  // move, which removes the gait-switch pop entirely. Two things make this
+  // work rather than turn to mush:
+  //   1. A single shared phase clock drives BOTH clips, so their gait cycles
+  //      stay locked. Their timeScale is set to 0 and their .time is written
+  //      directly from that phase each frame.
+  //   2. The clips lead with opposite feet — measured contact phases are
+  //      walk L 0.800 / R 0.325 against run L 0.475 / R 0.850. Blending them
+  //      naively puts one clip mid-left-step against the other's right and
+  //      the legs scissor. RUN_PHASE_OFFSET realigns them.
+  MOVE_GAIN: 3.2,    // desired speed = gap * this. Proportional control, so
+                     // he eases off as he closes in and no explicit
+                     // deceleration trigger is needed for ordinary arrivals.
+  MOVE_MIN_SPEED: 0.55,  // world u/s. Below this the walk clip is playing so
+                     // slowly it reads as slow motion, so he moves at least
+                     // this fast or not at all.
+  SPEED_SMOOTH: 9.0, // per-second rate the actual speed chases the desired
+                     // one. Stops a jumpy cursor translating into jumpy gait.
+  // Walk and run are not a constant phase shift of each other — run has a
+  // flight phase where walk has double-support, so their feet are spaced
+  // differently within the cycle. A single offset aligns one foot and leaves
+  // the other ~0.2 cycle out, and a treadmill measurement put foot skate at
+  // 82.7% of travel in the blend zone against 19.8% at pure walk. These two
+  // control points map walk phase to run phase so BOTH contacts line up;
+  // between them the run is warped slightly faster or slower. Measured
+  // contacts: walk L 0.800 R 0.325, run L 0.475 R 0.850 (see __contactPhases).
+  PHASE_WARP: [{ w: 0.325, r: 0.850 }, { w: 0.800, r: 1.475 }],
+  MOVE_ARRIVE: 0.06, // world units — close enough to stop and settle
+  // Speed range over which the gait crossfades. Deliberately NARROW, and not
+  // the full walk-to-run span. Time-scaling a single clip keeps its feet
+  // planted exactly; blending two clips cannot, because the average of a
+  // walk-planted foot and a run-planted foot travels at neither clip's rate.
+  // Measured skate: ~20% of travel on a pure gait against 67% mid-blend even
+  // after phase warping. So the answer is to pass through the blend quickly
+  // rather than live in it — below LO he is a time-scaled walk (up to ~1.4x
+  // natural), above HI a time-scaled run (down to ~0.7x), and only the sliver
+  // between is a true blend.
+  BLEND_LO: 2.2, BLEND_HI: 3.8,
+
+  JUMP_RISE_PX: 95,  // cumulative upward pointer travel, in screen px, that
+                     // fires a jump. Accumulated rather than per-event so a
+                     // steady upward drag works as well as a quick flick; any
+                     // downward movement resets it, so it takes a genuine
+                     // upward gesture and not incidental wander.
+  JUMP_FALL_CROSSFADE: 0.30,  // sec. The jump clip ends at its apex with the
+                     // hips at 1.478 and the landing clip opens grounded at
+                     // 0.907 — there is no falling phase in either. Blending
+                     // between them over this window IS the descent: 0.57
+                     // world units in 0.3s, close to what a real fall from
+                     // that apex would take (~0.33s), so it reads as gravity
+                     // rather than as a cut.
   SLIDE_SPEED: 9.0   // px/ms of raw pointer motion — above this, ANY mouse
                      // move triggers a slide immediately, from whatever state
                      // he's currently in. Raised from 3.5, which fired on
@@ -229,9 +343,10 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setClearColor(0x000000, 1);
 
 const scene = new THREE.Scene();
+// Height and look-at are set in resize(), derived from ORTHO_HEIGHT so the
+// ground line stays pinned to the bottom of the stage at any scale.
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.05, 20);
-camera.position.set(0, CONFIG.CAM_Y, CONFIG.CAM_Z);
-camera.lookAt(0, CONFIG.LOOK_Y, 0);
+camera.position.set(0, 1, CONFIG.CAM_Z);
 
 const key = new THREE.DirectionalLight(0xffffff, CONFIG.KEY_INTENSITY);
 key.position.set(...CONFIG.KEY_DIR);
@@ -263,8 +378,11 @@ const asciiCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 asciiScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), asciiMat));
 
 // ---------------------------------------------------------------- character
+// MOVE replaces the old separate WALK and RUN states: one locomotion state
+// whose gait is a continuous blend rather than a discrete choice.
 const STATE = {
-  IDLE: "idle", WALK: "walk", RUN: "run", STOP: "stop", SLIDE: "slide"
+  IDLE: "idle", MOVE: "move", STOP: "stop", SLIDE: "slide",
+  JUMP: "jump", LAND: "land"
 };
 let state = STATE.IDLE;
 let charRoot = null, mixer = null;
@@ -274,6 +392,12 @@ let charX = 0, targetX = 0, facing = 1;
 let stopStartX = 0, stopTargetX = 0;
 let slideStartX = 0, slideDir = 1;
 let lastPX = null, lastPT = 0, lastSpeed = 0;
+// Upward pointer travel banked since the last downward move — see
+// CONFIG.JUMP_RISE_PX.
+let lastPY = null, riseAccum = 0;
+// Shared gait clock, in cycles. Both locomotion clips read their time from
+// this, which is what keeps them in step with each other and with the ground.
+let movePhase = 0, moveSpeed = 0, moveGate = 0;
 // World-space distances each clip's own root motion covers, measured at load
 // (see rootTravel). Driving movement at these rates is what keeps the feet
 // planted instead of skating — the character covers exactly the ground the
@@ -283,6 +407,20 @@ const travel = { run: 0, slide: 0, stop: 0, walk: 0, runSpeed: 0, walkSpeed: 0 }
 // (see rootCurve). Position follows these rather than a linear ramp, so the
 // character eases and plants exactly when the animation does.
 const curves = { slide: null, stop: null };
+
+// Cyclic piecewise-linear map from walk-cycle phase to run-cycle phase, built
+// from the two measured contact pairs so both feet land together across the
+// blend. Monotonic and wraps, so f(p + 1) === f(p) + 1.
+function warpPhase(p) {
+  const [a, b] = CONFIG.PHASE_WARP;
+  p = ((p % 1) + 1) % 1;
+  if (p >= a.w && p < b.w) {
+    return a.r + ((p - a.w) / (b.w - a.w)) * (b.r - a.r);
+  }
+  // the segment that straddles the wrap point
+  const pw = p < a.w ? p + 1 : p;
+  return b.r + ((pw - b.w) / ((a.w + 1) - b.w)) * ((a.r + 1) - b.r);
+}
 
 // Progress 0..1 along a captured curve at clip time t.
 function sampleCurve(curve, t) {
@@ -308,6 +446,21 @@ let ready = false;
 const clock = new THREE.Clock();
 
 function fadeToAction(action, duration) {
+  // Leaving MOVE: the locomotion pair carries its own manually-set weights and
+  // isn't tracked by activeAction, so it has to be faded out explicitly or it
+  // would keep contributing underneath whatever comes next.
+  if (state === STATE.MOVE) {
+    [actions.walk, actions.run].forEach((a) => {
+      if (!a || a === action) return;
+      // Restore the timeScale first. It is 0 while blending so their time can
+      // be written by hand, and isRunning() reports false at timeScale 0 —
+      // guarding the fade on it silently skipped the fade and left the walk
+      // pinned at full weight underneath idle. Restoring it also lets the
+      // legs keep moving through the blend out instead of freezing.
+      a.setEffectiveTimeScale(1);
+      a.fadeOut(duration);
+    });
+  }
   const previous = activeAction;
   activeAction = action;
   if (previous && previous !== action) previous.fadeOut(duration);
@@ -321,15 +474,42 @@ function beginIdle() {
   fadeToAction(actions.idle, CONFIG.IDLE_CROSSFADE);
   state = STATE.IDLE;
 }
-function beginWalk() {
-  actions.walk.setLoop(THREE.LoopRepeat, Infinity);
-  fadeToAction(actions.walk, CONFIG.CROSSFADE);
-  state = STATE.WALK;
+// The locomotion pair is driven differently from every other clip: both run
+// continuously with timeScale 0 and have their time and weight written each
+// frame from the shared phase clock, so fadeToAction (which owns a single
+// active action) can't manage them. Fade the previous action out by hand and
+// let stepState take over the weights.
+function beginMove() {
+  if (state === STATE.MOVE) return;
+  if (activeAction && activeAction !== actions.walk && activeAction !== actions.run) {
+    activeAction.fadeOut(CONFIG.CROSSFADE);
+  }
+  [actions.walk, actions.run].forEach((a) => {
+    a.setLoop(THREE.LoopRepeat, Infinity);
+    a.enabled = true;
+    // Cancel any fade left over from the last exit. A live fade interpolant
+    // rewrites the effective weight during mixer.update and would overwrite
+    // the weights this state sets by hand every frame.
+    a.stopFading();
+    a.setEffectiveTimeScale(0);   // time is written manually from movePhase
+    if (!a.isRunning()) a.play();
+  });
+  activeAction = null;            // no single owner while blending
+  moveGate = 0;                   // ramps in over CROSSFADE
+  moveSpeed = Math.max(moveSpeed, CONFIG.MOVE_MIN_SPEED);
+  state = STATE.MOVE;
 }
-function beginRun() {
-  actions.run.setLoop(THREE.LoopRepeat, Infinity);
-  fadeToAction(actions.run, CONFIG.CROSSFADE);
-  state = STATE.RUN;
+// Jumps in place: the clip's own horizontal travel is 8cm, and the forward
+// channel is frozen like every other clip, so he goes straight up from
+// wherever he stands rather than tracking the cursor mid-air.
+function beginJump() {
+  fadeToAction(actions.jump, CONFIG.CROSSFADE);
+  riseAccum = 0;
+  state = STATE.JUMP;
+}
+function beginLanding() {
+  fadeToAction(actions.land, CONFIG.JUMP_FALL_CROSSFADE);
+  state = STATE.LAND;
 }
 // Precise arrival: lerps from wherever he currently is to the actual target
 // over the clip's duration, so he lands exactly on the cursor. Used both for
@@ -386,7 +566,7 @@ function pointerWorldX(clientX, clientY) {
 // pre-computed speed — sub-5ms setTimeout gaps aren't reliable enough in this
 // environment to control real elapsed time precisely, so verifying the fast
 // path needs a way to bypass performance.now() entirely.
-function handleMove(wx, speed) {
+function handleMove(wx, speed, rise) {
   // Clamp to the same bound charX is held to. Without this, a cursor past the
   // edge is a target he can never reach: STOP finishes, IDLE sees a leftover
   // gap, starts a RUN, which immediately hands back to STOP — an endless
@@ -394,6 +574,20 @@ function handleMove(wx, speed) {
   targetX = Math.max(-boundX, Math.min(boundX, wx));
   lastSpeed = speed;
   if (!ready) return;
+
+  const airborne = state === STATE.JUMP || state === STATE.LAND;
+
+  // Bank upward travel; any downward movement clears it, so the threshold
+  // has to be met by a genuinely upward gesture.
+  if (rise > 0) riseAccum += rise; else if (rise < 0) riseAccum = 0;
+  if (!airborne && riseAccum >= CONFIG.JUMP_RISE_PX) {
+    beginJump();
+    return;
+  }
+
+  // Mid-air the cursor still steers where he'll be headed once he lands
+  // (targetX above is already updated), but it can't start a gait.
+  if (airborne) return;
 
   // Nothing starts unless the cursor is genuinely somewhere else. This gates
   // the slide too, not just the run: a fast twitch that covers no ground is
@@ -407,27 +601,20 @@ function handleMove(wx, speed) {
     return;
   }
 
-  // Three tiers of pointer speed: flick -> slide (above), drift -> walk,
-  // anything in between -> run.
-  const wantWalk = speed <= CONFIG.WALK_SPEED_MAX;
-  const beginGait = wantWalk ? beginWalk : beginRun;
-
+  // No gait choice to make here any more — MOVE works out its own pace from
+  // the distance left to cover, and blends walk against run to match. This
+  // just decides whether locomotion should be running at all.
   if (state === STATE.IDLE) {
-    beginGait();
-  } else if (state === STATE.WALK) {
-    // Upgrade a walk to a run if the cursor picks up pace, but never the
-    // reverse — dropping back to a walk mid-run on one slow sample would
-    // flap between gaits while the pointer speed hovers near the threshold.
-    if (!wantWalk) beginRun();
+    beginMove();
   } else if (state === STATE.STOP) {
     // A slow correction while he's already settling: only worth breaking out
     // of the settle if the cursor moved meaningfully from where he's headed,
     // not for every sub-pixel jiggle of the mouse.
-    if (Math.abs(targetX - stopTargetX) > CONFIG.RETRIGGER_DIST) beginGait();
+    if (Math.abs(targetX - stopTargetX) > CONFIG.RETRIGGER_DIST) beginMove();
   }
-  // RUN and SLIDE need no further handling: RUN already re-reads targetX
-  // every frame in stepState, and a slide's distance is fixed once it starts
-  // — a slow move mid-slide is deliberately ignored until it ends.
+  // MOVE and SLIDE need no further handling: MOVE re-reads targetX every
+  // frame in stepState, and a slide's distance is fixed once it starts — a
+  // slow move mid-slide is deliberately ignored until it ends.
 }
 
 window.addEventListener("pointermove", (e) => {
@@ -440,16 +627,19 @@ window.addEventListener("pointermove", (e) => {
     const dt = now - lastPT;
     if (dt > 0) speed = Math.abs(e.clientX - lastPX) / dt;
   }
-  lastPX = e.clientX; lastPT = now;
+  // Screen y grows downward, so a decrease is upward movement.
+  const rise = lastPY === null ? 0 : lastPY - e.clientY;
+  lastPX = e.clientX; lastPT = now; lastPY = e.clientY;
 
-  handleMove(wx, speed);
+  handleMove(wx, speed, rise);
 });
 
 new GLTFLoader().loadAsync(CONFIG.MODEL_RUN).then(async (runG) => {
-  const [slideG, stopG, walkG] = await Promise.all([
+  const [slideG, stopG, walkG, landG] = await Promise.all([
     new GLTFLoader().loadAsync(CONFIG.MODEL_SLIDE),
     new GLTFLoader().loadAsync(CONFIG.MODEL_STOP),
-    new GLTFLoader().loadAsync(CONFIG.MODEL_WALK)
+    new GLTFLoader().loadAsync(CONFIG.MODEL_WALK),
+    new GLTFLoader().loadAsync(CONFIG.MODEL_LAND)
   ]);
 
   // The Armature carries a baked x offset (-1.444) from wherever it happened
@@ -519,6 +709,8 @@ new GLTFLoader().loadAsync(CONFIG.MODEL_RUN).then(async (runG) => {
   const stopClip = stopG.animations[CONFIG.STOP_CLIP_IDX];
   const walkClip = walkG.animations[CONFIG.WALK_CLIP_IDX];
   const idleClip = walkG.animations[CONFIG.IDLE_CLIP_IDX];
+  const jumpClip = landG.animations[CONFIG.JUMP_CLIP_IDX];
+  const landClip = landG.animations[CONFIG.LAND_CLIP_IDX];
 
   // Measure BEFORE freezing — afterwards the travel reads as zero.
   travel.run = rootTravel(runClip);
@@ -532,8 +724,14 @@ new GLTFLoader().loadAsync(CONFIG.MODEL_RUN).then(async (runG) => {
 
   // Idle is included: it has no meaningful forward travel, but it does drift
   // slightly, and left unfrozen that drift would slowly slide a standing
-  // character sideways over the clip's 8.8 seconds.
-  [runClip, slideClip, stopClip, walkClip, idleClip].forEach(freezeForward);
+  // character sideways over the clip's 8.8 seconds. Jump and landing are
+  // included for the same reason — their forward channels carry 8cm and 17cm
+  // respectively, which would otherwise nudge him sideways every jump.
+  // Only the forward channel goes: the vertical stays, and for these two it
+  // is the whole point — the jump's rise and the landing's absorb both live
+  // in it.
+  [runClip, slideClip, stopClip, walkClip, idleClip, jumpClip, landClip]
+    .forEach(freezeForward);
 
   charRoot = new THREE.Group();
   runG.scene.traverse((o) => {
@@ -556,10 +754,12 @@ new GLTFLoader().loadAsync(CONFIG.MODEL_RUN).then(async (runG) => {
   actions.stop = mixer.clipAction(stopClip);
   actions.walk = mixer.clipAction(walkClip);
   actions.idle = mixer.clipAction(idleClip);
-  actions.slide.setLoop(THREE.LoopOnce, 1);
-  actions.slide.clampWhenFinished = true;
-  actions.stop.setLoop(THREE.LoopOnce, 1);
-  actions.stop.clampWhenFinished = true;
+  actions.jump = mixer.clipAction(jumpClip);
+  actions.land = mixer.clipAction(landClip);
+  [actions.slide, actions.stop, actions.jump, actions.land].forEach((a) => {
+    a.setLoop(THREE.LoopOnce, 1);
+    a.clampWhenFinished = true;
+  });
 
   // Open on the idle loop rather than a held stop frame.
   activeAction = actions.idle;
@@ -590,6 +790,11 @@ function resize() {
   boundX = Math.max(0, halfW - CONFIG.EDGE_MARGIN);
   camera.left = -halfW; camera.right = halfW;
   camera.top = halfH; camera.bottom = -halfH;
+  // His feet are at world y = 0, so putting the frustum's bottom edge just
+  // below that lands him on the stage's lower edge — the ground line the link
+  // columns sit under. Derived, not a constant, so it survives scale changes.
+  camera.position.y = halfH - CONFIG.GROUND_MARGIN;
+  camera.lookAt(0, camera.position.y, 0);
   camera.updateProjectionMatrix();
   asciiMat.uniforms.uResolution.value.set(w * dpr, h * dpr);
 
@@ -617,33 +822,56 @@ function stepState(dt) {
   if (mixer) mixer.update(dt);
   if (!ready) return;
 
-  if (state === STATE.WALK) {
+  if (state === STATE.JUMP) {
+    // Airborne: no horizontal drive at all. The clip supplies the whole rise
+    // through the vertical channel of its root track.
+    if (actions.jump.time >= actions.jump.getClip().duration) beginLanding();
+  } else if (state === STATE.LAND) {
+    if (actions.land.time >= actions.land.getClip().duration) beginIdle();
+  } else if (state === STATE.MOVE) {
     const dx = targetX - charX;
     const dist = Math.abs(dx);
-    if (dist > CONFIG.WALK_ARRIVE) {
+
+    // Proportional control: speed falls away as the gap closes, so arrival
+    // decelerates on its own and needs no separate trigger.
+    let want = Math.min(dist * CONFIG.MOVE_GAIN, travel.runSpeed);
+    if (dist > CONFIG.MOVE_ARRIVE) want = Math.max(want, CONFIG.MOVE_MIN_SPEED);
+    else want = 0;
+
+    // Chase the target speed rather than snapping to it, so a jittery cursor
+    // doesn't translate into a jittery gait.
+    const k = Math.min(1, CONFIG.SPEED_SMOOTH * dt);
+    moveSpeed += (want - moveSpeed) * k;
+
+    if (dist > CONFIG.MOVE_ARRIVE) {
       const dir = Math.sign(dx);
-      charX += dir * Math.min(dist, travel.walkSpeed * dt);
+      charX += dir * Math.min(dist, moveSpeed * dt);
       facing = dir;
     } else {
-      // No stop clip on the end of a walk. The stop is a deceleration out of
-      // a run — chaining it here is exactly the run-then-stop stutter the
-      // walk exists to avoid. A walk just arrives and settles into idle.
       charX = targetX;
-      beginIdle();
+      if (moveSpeed < CONFIG.MOVE_MIN_SPEED * 0.6) { beginIdle(); return; }
     }
-  } else if (state === STATE.RUN) {
-    const dx = targetX - charX;
-    const dist = Math.abs(dx);
-    // Hand off to STOP exactly as far out as the stop clip's own root motion
-    // covers, so the settle lerp below travels the distance the animation was
-    // authored for rather than an arbitrary hand-picked one.
-    if (dist > travel.stop) {
-      const dir = Math.sign(dx);
-      charX += dir * Math.min(dist, travel.runSpeed * dt);
-      facing = dir;
-    } else {
-      beginStop();
-    }
+
+    // Gait blend: 0 = pure walk, 1 = pure run, keyed off the speed he is
+    // ACTUALLY moving at, not the speed requested. Smoothstepped so the
+    // crossing has no hard corners at either end of the band.
+    const lo = CONFIG.BLEND_LO, hi = CONFIG.BLEND_HI;
+    const t = Math.max(0, Math.min(1, (moveSpeed - lo) / Math.max(1e-6, hi - lo)));
+    const w = t * t * (3 - 2 * t);
+
+    // Stride for the blended gait, so the phase advances at the rate that
+    // keeps feet planted at ANY blend — the same no-skate rule as before,
+    // now interpolated.
+    const stride = travel.walk + (travel.run - travel.walk) * w;
+    if (stride > 1e-6) movePhase = (movePhase + (moveSpeed * dt) / stride) % 1;
+
+    const wrap = (p) => ((p % 1) + 1) % 1;
+    actions.walk.time = wrap(movePhase) * actions.walk.getClip().duration;
+    actions.run.time = wrap(warpPhase(movePhase)) * actions.run.getClip().duration;
+
+    moveGate = Math.min(1, moveGate + dt / Math.max(1e-6, CONFIG.CROSSFADE));
+    actions.walk.setEffectiveWeight((1 - w) * moveGate);
+    actions.run.setEffectiveWeight(w * moveGate);
   } else if (state === STATE.SLIDE) {
     const dur = actions.slide.getClip().duration;
     // Follow the slide's own motion curve, not a linear ramp: the skid is fast
@@ -683,7 +911,7 @@ function stepState(dt) {
     // to reconcile it. Same threshold the pointer handler uses — a tighter
     // one here would re-start movement that handleMove had deliberately
     // declined, defeating the buffer entirely.
-    if (Math.abs(targetX - charX) > CONFIG.MIN_MOVE) beginRun();
+    if (Math.abs(targetX - charX) > CONFIG.MIN_MOVE) beginMove();
   }
 
   // Keep him inside the visible band whatever the state machine wanted. A
@@ -699,6 +927,15 @@ function stepState(dt) {
 
 function frame() {
   const dt = clock.getDelta();
+  // Last line of defence on sizing. resize() bails when the stage has no box
+  // yet and the ResizeObserver is meant to re-run it, but if that observer
+  // never fires the page renders nothing at all — the worst failure this can
+  // have. Comparing the backing store against the client box each frame costs
+  // two property reads and makes a blank page impossible.
+  if (canvas.clientWidth &&
+      canvas.width !== Math.round(canvas.clientWidth * renderer.getPixelRatio())) {
+    resize();
+  }
   stepState(dt);
   if (ready) {
     renderer.setRenderTarget(sceneRT);
@@ -724,15 +961,16 @@ window.__camera = () => camera;
 window.__targetX = () => targetX;
 window.__pointerWorldX = pointerWorldX;
 window.__lastSpeed = () => lastSpeed;
+window.__riseAccum = () => riseAccum;
 window.__travel = () => travel;
 window.__curves = () => curves;
 window.__sampleCurve = sampleCurve;
 // Drives the exact same decision logic pointermove uses, with an exact,
 // caller-supplied speed instead of one derived from real elapsed time.
-window.__moveTo = (clientX, clientY, speedPxMs) => {
+window.__moveTo = (clientX, clientY, speedPxMs, risePx) => {
   const wx = pointerWorldX(clientX, clientY);
-  if (wx !== null) handleMove(wx, speedPxMs || 0);
-  return { targetX, state };
+  if (wx !== null) handleMove(wx, speedPxMs || 0, risePx || 0);
+  return { targetX, state, riseAccum };
 };
 // Steps the state machine directly by a fixed dt, bypassing rAF/clock
 // entirely. Rendering is separate (see __grab) — this only needs to move
