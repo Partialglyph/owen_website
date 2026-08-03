@@ -112,11 +112,11 @@
 <script type="module">
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 
 // ---------------------------------------------------------------- config
 const CONFIG = {
   MODEL_RUN: "models/run.glb",
-  MODEL_SLIDE: "models/slide.glb",
   MODEL_STOP: "models/stop.glb",
   // walk.glb also carries the idle clip at index 0 — verified bit-identical
   // to the separately supplied idle.glb (max abs difference 0.0 across all
@@ -127,12 +127,20 @@ const CONFIG = {
   // the jump, identical to the separately supplied jump.glb, so that file is
   // not loaded. Clips 1 and 2 are the same landing; 1 is used.
   MODEL_LAND: "models/landing.glb",
+  // Rig-only FBX exports. FBXLoader sanitises bone names to the same
+  // "mixamorigHips" form GLTFLoader produces, so the tracks bind to the
+  // existing skeleton directly — but the root track needs converting first,
+  // see fbxRootToGlb.
+  MODEL_IDLE_FBX: "models/idle.fbx",
+  MODEL_SLIDE_FBX: "models/slide.fbx",
+  MODEL_JUMPF_FBX: "models/jump-forward.fbx",
   // Separate Mixamo exports of the same rig; each download keeps every clip
   // picked in earlier downloads too, so the file that introduces a clip
   // carries it at a different index than later files. Matched by duration:
   // 0.667s = run, 1.583s = slide, 0.958s = stop, 8.792s = idle, 1.083s = walk.
-  RUN_CLIP_IDX: 0, SLIDE_CLIP_IDX: 1, STOP_CLIP_IDX: 2,
-  IDLE_CLIP_IDX: 0, WALK_CLIP_IDX: 1,
+  // Idle and slide now come from the rig-only FBX exports, so the GLB clip
+  // indices for those are gone along with slide.glb itself.
+  RUN_CLIP_IDX: 0, STOP_CLIP_IDX: 2, WALK_CLIP_IDX: 1,
   JUMP_CLIP_IDX: 0, LAND_CLIP_IDX: 1,
 
   // Orthographic, not perspective — he moves left/right along a fixed lane,
@@ -257,6 +265,10 @@ const CONFIG = {
                      // steady upward drag works as well as a quick flick; any
                      // downward movement resets it, so it takes a genuine
                      // upward gesture and not incidental wander.
+  JUMP_DIAGONAL_RATIO: 0.55,  // horizontal travel divided by upward travel,
+                     // measured over the same banked gesture. Above this the
+                     // cursor went diagonally rather than straight up and he
+                     // uses the forward jump, in the direction it leaned.
   JUMP_FALL_CROSSFADE: 0.30,  // sec. The jump clip ends at its apex with the
                      // hips at 1.478 and the landing clip opens grounded at
                      // 0.907 — there is no falling phase in either. Blending
@@ -382,7 +394,7 @@ asciiScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), asciiMat));
 // whose gait is a continuous blend rather than a discrete choice.
 const STATE = {
   IDLE: "idle", MOVE: "move", STOP: "stop", SLIDE: "slide",
-  JUMP: "jump", LAND: "land"
+  JUMP: "jump", LAND: "land", JUMPF: "jumpForward"
 };
 let state = STATE.IDLE;
 let charRoot = null, mixer = null;
@@ -394,7 +406,8 @@ let slideStartX = 0, slideDir = 1;
 let lastPX = null, lastPT = 0, lastSpeed = 0;
 // Upward pointer travel banked since the last downward move — see
 // CONFIG.JUMP_RISE_PX.
-let lastPY = null, riseAccum = 0;
+let lastPY = null, riseAccum = 0, sideAccum = 0;
+let jumpFStartX = 0, jumpFDir = 1;
 // Shared gait clock, in cycles. Both locomotion clips read their time from
 // this, which is what keeps them in step with each other and with the ground.
 let movePhase = 0, moveSpeed = 0, moveGate = 0;
@@ -402,11 +415,12 @@ let movePhase = 0, moveSpeed = 0, moveGate = 0;
 // (see rootTravel). Driving movement at these rates is what keeps the feet
 // planted instead of skating — the character covers exactly the ground the
 // animation was authored to cover.
-const travel = { run: 0, slide: 0, stop: 0, walk: 0, runSpeed: 0, walkSpeed: 0 };
+const travel = { run: 0, slide: 0, stop: 0, walk: 0, jumpF: 0,
+                 runSpeed: 0, walkSpeed: 0 };
 // Normalised forward-motion curves for the one-shot clips, captured at load
 // (see rootCurve). Position follows these rather than a linear ramp, so the
 // character eases and plants exactly when the animation does.
-const curves = { slide: null, stop: null };
+const curves = { slide: null, stop: null, jumpF: null };
 
 // Cyclic piecewise-linear map from walk-cycle phase to run-cycle phase, built
 // from the two measured contact pairs so both feet land together across the
@@ -504,8 +518,20 @@ function beginMove() {
 // wherever he stands rather than tracking the cursor mid-air.
 function beginJump() {
   fadeToAction(actions.jump, CONFIG.CROSSFADE);
-  riseAccum = 0;
+  riseAccum = 0; sideAccum = 0;
   state = STATE.JUMP;
+}
+// Unlike the straight jump, this clip is a COMPLETE arc — it takes off,
+// travels, lands and settles on its own, so it needs no landing chained
+// after it. Its 4 units of forward travel are driven from the clip's own
+// root curve, same as the slide.
+function beginJumpForward(dir) {
+  facing = dir;
+  fadeToAction(actions.jumpF, CONFIG.CROSSFADE);
+  jumpFStartX = charX;
+  jumpFDir = dir;
+  riseAccum = 0; sideAccum = 0;
+  state = STATE.JUMPF;
 }
 function beginLanding() {
   fadeToAction(actions.land, CONFIG.JUMP_FALL_CROSSFADE);
@@ -566,7 +592,8 @@ function pointerWorldX(clientX, clientY) {
 // pre-computed speed — sub-5ms setTimeout gaps aren't reliable enough in this
 // environment to control real elapsed time precisely, so verifying the fast
 // path needs a way to bypass performance.now() entirely.
-function handleMove(wx, speed, rise) {
+function handleMove(wx, speed, rise, sideMove) {
+  sideMove = sideMove || 0;
   // Clamp to the same bound charX is held to. Without this, a cursor past the
   // edge is a target he can never reach: STOP finishes, IDLE sees a leftover
   // gap, starts a RUN, which immediately hands back to STOP — an endless
@@ -575,13 +602,20 @@ function handleMove(wx, speed, rise) {
   lastSpeed = speed;
   if (!ready) return;
 
-  const airborne = state === STATE.JUMP || state === STATE.LAND;
+  const airborne =
+    state === STATE.JUMP || state === STATE.LAND || state === STATE.JUMPF;
 
   // Bank upward travel; any downward movement clears it, so the threshold
-  // has to be met by a genuinely upward gesture.
-  if (rise > 0) riseAccum += rise; else if (rise < 0) riseAccum = 0;
+  // has to be met by a genuinely upward gesture. Sideways travel over the
+  // same gesture is banked alongside it, purely to tell a straight-up flick
+  // from a diagonal one.
+  if (rise > 0) { riseAccum += rise; sideAccum += sideMove; }
+  else if (rise < 0) { riseAccum = 0; sideAccum = 0; }
   if (!airborne && riseAccum >= CONFIG.JUMP_RISE_PX) {
-    beginJump();
+    const diagonal =
+      Math.abs(sideAccum) / Math.max(1e-6, riseAccum) > CONFIG.JUMP_DIAGONAL_RATIO;
+    if (diagonal) beginJumpForward(Math.sign(sideAccum) || facing);
+    else beginJump();
     return;
   }
 
@@ -629,17 +663,20 @@ window.addEventListener("pointermove", (e) => {
   }
   // Screen y grows downward, so a decrease is upward movement.
   const rise = lastPY === null ? 0 : lastPY - e.clientY;
+  const sideMove = lastPX === null ? 0 : e.clientX - lastPX;
   lastPX = e.clientX; lastPT = now; lastPY = e.clientY;
 
-  handleMove(wx, speed, rise);
+  handleMove(wx, speed, rise, sideMove);
 });
 
 new GLTFLoader().loadAsync(CONFIG.MODEL_RUN).then(async (runG) => {
-  const [slideG, stopG, walkG, landG] = await Promise.all([
-    new GLTFLoader().loadAsync(CONFIG.MODEL_SLIDE),
+  const [stopG, walkG, landG, idleF, slideF, jumpFF] = await Promise.all([
     new GLTFLoader().loadAsync(CONFIG.MODEL_STOP),
     new GLTFLoader().loadAsync(CONFIG.MODEL_WALK),
-    new GLTFLoader().loadAsync(CONFIG.MODEL_LAND)
+    new GLTFLoader().loadAsync(CONFIG.MODEL_LAND),
+    new FBXLoader().loadAsync(CONFIG.MODEL_IDLE_FBX),
+    new FBXLoader().loadAsync(CONFIG.MODEL_SLIDE_FBX),
+    new FBXLoader().loadAsync(CONFIG.MODEL_JUMPF_FBX)
   ]);
 
   // The Armature carries a baked x offset (-1.444) from wherever it happened
@@ -664,6 +701,50 @@ new GLTFLoader().loadAsync(CONFIG.MODEL_RUN).then(async (runG) => {
   // hip no longer rises and falls to keep them planted. Freeze Y alone.
   const ROOT_BONE = "mixamorigHips";
   const FORWARD_AXIS = 1;   // local Y, per the measurements above
+
+  // --- FBX -> GLB rig conversion -----------------------------------------
+  // The rig-only FBX exports bind by name without help, but their ROOT track
+  // is authored in Mixamo's own frame (Y up, Z forward) while this skeleton's
+  // Hips sits under an Armature rotated [0.5, 0.5, -0.5, 0.5], where local Y
+  // is forward and local Z is vertical. Left unconverted the idle sinks him
+  // 0.2m into the floor and the slide drives him 6.4m straight DOWN instead
+  // of forward. Two fixes, both verified against the live skeleton:
+  //   position: (x, y, z) -> (x, z, -y)
+  //   rotation: q -> inverse(armatureQuaternion) * q
+  // Only the root needs it. Every other bone's rotation is relative to its
+  // parent BONE, and those rest orientations already match.
+  const armInv = armature
+    ? armature.quaternion.clone().invert()
+    : new THREE.Quaternion();
+  // ...and one more turn on top. Conjugating by the armature alone reproduces
+  // the clip's ORIGINAL world orientation, which for Mixamo FBX means the body
+  // faces +Z. Every GLB clip here faces +X (measured: hips forward vector
+  // fwdX ~1.0 for walk/run/stop against fwdZ ~1.0 for the raw FBX). Without
+  // this the character crabs — travelling along X while turned 90 degrees to
+  // it, most obvious on the forward jump where he actually covers ground.
+  const fbxYawFix = new THREE.Quaternion()
+    .setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+  function fbxRootToGlb(clip) {
+    const pos = clip.tracks.find((t) => t.name === ROOT_BONE + ".position");
+    if (pos) {
+      for (let i = 0; i < pos.values.length; i += 3) {
+        const x = pos.values[i], y = pos.values[i + 1], z = pos.values[i + 2];
+        pos.values[i] = x; pos.values[i + 1] = z; pos.values[i + 2] = -y;
+      }
+    }
+    const rot = clip.tracks.find((t) => t.name === ROOT_BONE + ".quaternion");
+    if (rot) {
+      const q = new THREE.Quaternion();
+      for (let i = 0; i < rot.values.length; i += 4) {
+        q.set(rot.values[i], rot.values[i + 1], rot.values[i + 2], rot.values[i + 3]);
+        // yaw first, then into the armature's frame: armInv * yawFix * q
+        q.premultiply(fbxYawFix).premultiply(armInv);
+        rot.values[i] = q.x; rot.values[i + 1] = q.y;
+        rot.values[i + 2] = q.z; rot.values[i + 3] = q.w;
+      }
+    }
+    return clip;
+  }
 
   // Net forward travel of one clip, expressed in world units — this is how
   // far the animation itself expects the character to move, so driving him at
@@ -705,22 +786,27 @@ new GLTFLoader().loadAsync(CONFIG.MODEL_RUN).then(async (runG) => {
   }
 
   const runClip = runG.animations[CONFIG.RUN_CLIP_IDX];
-  const slideClip = slideG.animations[CONFIG.SLIDE_CLIP_IDX];
   const stopClip = stopG.animations[CONFIG.STOP_CLIP_IDX];
   const walkClip = walkG.animations[CONFIG.WALK_CLIP_IDX];
-  const idleClip = walkG.animations[CONFIG.IDLE_CLIP_IDX];
   const jumpClip = landG.animations[CONFIG.JUMP_CLIP_IDX];
   const landClip = landG.animations[CONFIG.LAND_CLIP_IDX];
+  // Rig-only FBX, converted into this skeleton's frame before anything reads
+  // them. Idle and slide replace their GLB counterparts.
+  const idleClip = fbxRootToGlb(idleF.animations[0]);
+  const slideClip = fbxRootToGlb(slideF.animations[0]);
+  const jumpFClip = fbxRootToGlb(jumpFF.animations[0]);
 
   // Measure BEFORE freezing — afterwards the travel reads as zero.
   travel.run = rootTravel(runClip);
   travel.slide = rootTravel(slideClip);
   travel.stop = rootTravel(stopClip);
   travel.walk = rootTravel(walkClip);
+  travel.jumpF = rootTravel(jumpFClip);
   travel.runSpeed = runClip.duration > 0 ? travel.run / runClip.duration : CONFIG.RUN_SPEED;
   travel.walkSpeed = walkClip.duration > 0 ? travel.walk / walkClip.duration : CONFIG.RUN_SPEED;
   curves.slide = rootCurve(slideClip);
   curves.stop = rootCurve(stopClip);
+  curves.jumpF = rootCurve(jumpFClip);
 
   // Idle is included: it has no meaningful forward travel, but it does drift
   // slightly, and left unfrozen that drift would slowly slide a standing
@@ -730,8 +816,8 @@ new GLTFLoader().loadAsync(CONFIG.MODEL_RUN).then(async (runG) => {
   // Only the forward channel goes: the vertical stays, and for these two it
   // is the whole point — the jump's rise and the landing's absorb both live
   // in it.
-  [runClip, slideClip, stopClip, walkClip, idleClip, jumpClip, landClip]
-    .forEach(freezeForward);
+  [runClip, slideClip, stopClip, walkClip, idleClip, jumpClip, landClip,
+   jumpFClip].forEach(freezeForward);
 
   charRoot = new THREE.Group();
   runG.scene.traverse((o) => {
@@ -756,7 +842,9 @@ new GLTFLoader().loadAsync(CONFIG.MODEL_RUN).then(async (runG) => {
   actions.idle = mixer.clipAction(idleClip);
   actions.jump = mixer.clipAction(jumpClip);
   actions.land = mixer.clipAction(landClip);
-  [actions.slide, actions.stop, actions.jump, actions.land].forEach((a) => {
+  actions.jumpF = mixer.clipAction(jumpFClip);
+  [actions.slide, actions.stop, actions.jump, actions.land, actions.jumpF]
+    .forEach((a) => {
     a.setLoop(THREE.LoopOnce, 1);
     a.clampWhenFinished = true;
   });
@@ -826,6 +914,13 @@ function stepState(dt) {
     // Airborne: no horizontal drive at all. The clip supplies the whole rise
     // through the vertical channel of its root track.
     if (actions.jump.time >= actions.jump.getClip().duration) beginLanding();
+  } else if (state === STATE.JUMPF) {
+    // Drive the leap along the clip's own forward curve so the arc lands
+    // where the animation says it lands. Self-contained: no landing chained.
+    const dur = actions.jumpF.getClip().duration;
+    const p = sampleCurve(curves.jumpF, actions.jumpF.time);
+    charX = jumpFStartX + jumpFDir * travel.jumpF * p;
+    if (actions.jumpF.time >= dur) beginIdle();
   } else if (state === STATE.LAND) {
     if (actions.land.time >= actions.land.getClip().duration) beginIdle();
   } else if (state === STATE.MOVE) {
@@ -967,10 +1062,10 @@ window.__curves = () => curves;
 window.__sampleCurve = sampleCurve;
 // Drives the exact same decision logic pointermove uses, with an exact,
 // caller-supplied speed instead of one derived from real elapsed time.
-window.__moveTo = (clientX, clientY, speedPxMs, risePx) => {
+window.__moveTo = (clientX, clientY, speedPxMs, risePx, sidePx) => {
   const wx = pointerWorldX(clientX, clientY);
-  if (wx !== null) handleMove(wx, speedPxMs || 0, risePx || 0);
-  return { targetX, state, riseAccum };
+  if (wx !== null) handleMove(wx, speedPxMs || 0, risePx || 0, sidePx || 0);
+  return { targetX, state, riseAccum, sideAccum };
 };
 // Steps the state machine directly by a fixed dt, bypassing rAF/clock
 // entirely. Rendering is separate (see __grab) — this only needs to move
