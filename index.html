@@ -50,6 +50,11 @@
     color: var(--ink);
     user-select: none;
     font-weight: 400;
+    animation: heroPulse 2.6s ease-in-out infinite;
+  }
+  @keyframes heroPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
   }
 
   /* The band the character runs in. Reference has him 274px tall with his
@@ -141,28 +146,25 @@
   <div class="shot c" data-ph="03" aria-hidden="true"></div>
   <div class="shot d" data-ph="04" aria-hidden="true"></div>
 
+  <!-- Unlinked for now: plain labels, no href, until the links go live. -->
   <section class="col projects">
     <h2>Projects</h2>
-    <a href="https://demo.owenkan.com" target="_blank" rel="noopener">Tradewind</a>
-    <!-- remaining hrefs to be filled in once the destinations are supplied -->
-    <a href="#">ARI</a>
-    <a href="#">Resilead</a>
-    <a href="#">Hand</a>
+    <a>Tradewind</a>
+    <a>ARI</a>
+    <a>Resilead</a>
+    <a>Hand</a>
   </section>
   <section class="col resume">
     <h2>Resume</h2>
-    <!-- Same file both ways: the download attribute saves it, the plain
-         link hands it to the browser's own PDF viewer in a new tab. -->
-    <a class="dl" href="files/owen-kan-resume.pdf"
-       download="Owen Kan - resume.pdf">download here</a>
-    <a href="files/owen-kan-resume.pdf" target="_blank" rel="noopener">view online</a>
+    <a class="dl">download here</a>
+    <a>view online</a>
   </section>
   <section class="col contacts">
     <h2>Contacts</h2>
-    <a href="mailto:owenkan0316@gmail.com">gmail</a>
-    <a href="https://instagram.com/stonkgoose" target="_blank" rel="noopener">insta</a>
-    <a href="#">X</a>
-    <a href="#">linkedin</a>
+    <a>gmail</a>
+    <a>insta</a>
+    <a>X</a>
+    <a>linkedin</a>
   </section>
 
   <div class="scroll-cue" aria-hidden="true">
@@ -368,7 +370,11 @@ const CONFIG = {
 // ~0.5 ratio is what keeps the proportions of the source face.
 const HERO = {
   TEXT: "Owen Kan",
-  RAMP: " .:-=+*#%@",
+  // Fewer levels than the runner's ramp on purpose: at the hero's cell size,
+  // the full 10-step ramp switches character on almost every cell, which
+  // reads as noise rather than shading. Spacing the steps out (same range,
+  // fewer stops) keeps the letterforms but calms that down.
+  RAMP: " :=#@",
   // Reference sets Test Tiempos Headline Medium. That is a licensed face and
   // is not present here, so the nearest widely available relative stands in —
   // Tiempos descends from Times, which makes it the closest substitute.
@@ -384,6 +390,23 @@ const MONO_ADVANCE = (() => {
   const c = document.createElement("canvas").getContext("2d");
   c.font = `100px ${HERO.MONO}`;
   return c.measureText("M").width / 100;
+})();
+
+// Natural (non-overlapping) line height of the mono font, as a fraction of
+// font-size. A monospace glyph is roughly twice as tall as its advance is
+// wide, so sizing font-size off MONO_ADVANCE alone (to make the glyph exactly
+// cellPx wide) makes it render far taller than cellPx — line-height can space
+// rows apart but can't compress a glyph's own height, so clamping it to
+// cellPx directly just let successive rows overlap. Fix: lay out each row at
+// its natural height, then squash the whole block vertically with a single
+// scaleY so it lands on cellPx without any row overlapping another.
+const MONO_LINE_RATIO = (() => {
+  const c = document.createElement("canvas").getContext("2d");
+  c.font = `100px ${HERO.MONO}`;
+  const m = c.measureText("M");
+  const asc = m.fontBoundingBoxAscent || 80;
+  const desc = m.fontBoundingBoxDescent || 20;
+  return (asc + desc) / 100;
 })();
 
 const heroMeasureCtx = document.createElement("canvas").getContext("2d");
@@ -443,10 +466,16 @@ function buildHero(el, widthPx, cellPx) {
   }
   el.textContent = out;
 
-  // Make one glyph occupy exactly cellPx x cellPx: the advance sets the width,
-  // the line box sets the height.
-  el.style.fontSize = (cellPx / MONO_ADVANCE) + "px";
-  el.style.lineHeight = cellPx + "px";
+  // Make one glyph occupy exactly cellPx x cellPx: the advance sets the
+  // width, a natural (non-overlapping) line box sets each row's true height,
+  // and a single scaleY on the whole block squashes that down to cellPx —
+  // see MONO_LINE_RATIO above for why line-height alone can't do this.
+  const fontSizePx = cellPx / MONO_ADVANCE;
+  const naturalRowPx = fontSizePx * MONO_LINE_RATIO;
+  el.style.fontSize = fontSizePx + "px";
+  el.style.lineHeight = naturalRowPx + "px";
+  el.style.transform = `scaleY(${cellPx / naturalRowPx})`;
+  el.style.transformOrigin = "top left";
 }
 
 // ---------------------------------------------------------------- glyph atlas
