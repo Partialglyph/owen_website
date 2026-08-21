@@ -74,30 +74,15 @@
     display: block;
   }
 
-  /* --- lower band: bio, photo collage, three link columns --- */
-  .bio { position: absolute; left: 5.229%; top: 64.04%; width: 17.40%; }
+  /* --- lower band: bio, three link columns --- */
+  /* Widened to run up to the link columns now that the photo boxes are
+     gone, so justify has enough line length to actually read as justified
+     instead of a narrow column with awkward gaps. */
+  .bio { position: absolute; left: 5.229%; top: 64.04%; width: 51%; }
   .bio p {
     margin: 0; font-size: 0.677vw; line-height: 1.5;
     text-align: justify; opacity: 0.92;
   }
-
-  .shot {
-    position: absolute;
-    border: 1px solid rgba(255, 0, 255, 0.32);
-    background: rgba(255, 0, 255, 0.045);
-  }
-  .shot::after {
-    content: attr(data-ph);
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.52vw; letter-spacing: 0.06em;
-    opacity: 0.45;
-  }
-  /* Placements lifted from the reference's four image transforms. */
-  .shot.a { left: 28.583%; top: 64.514%; width: 9.557%;  height: 12.741%; }
-  .shot.b { left: 38.630%; top: 64.518%; width: 6.101%;  height: 12.741%; }
-  .shot.c { left: 24.040%; top: 78.071%; width: 10.510%; height: 14.012%; }
-  .shot.d { left: 35.538%; top: 78.082%; width: 9.104%;  height: 10.815%; }
 
   .col { position: absolute; }
   .col.projects { left: 59.004%; top: 64.31%; }
@@ -146,13 +131,6 @@
     eros et accumsan et iusto odio dignissim qui blandit praesent luptatum
     zzril delenit augue.</p>
   </section>
-
-  <!-- Placeholders until the real photos arrive; boxes match the reference's
-       four image placements. -->
-  <div class="shot a" data-ph="01" aria-hidden="true"></div>
-  <div class="shot b" data-ph="02" aria-hidden="true"></div>
-  <div class="shot c" data-ph="03" aria-hidden="true"></div>
-  <div class="shot d" data-ph="04" aria-hidden="true"></div>
 
   <!-- Unlinked for now: plain labels, no href, until the links go live. -->
   <section class="col projects">
