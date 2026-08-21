@@ -33,28 +33,36 @@
      measured against. */
   .page { position: relative; height: 100%; }
 
-  /* Hero. Generated at runtime (see buildHero): the name is rasterised to an
-     offscreen canvas, sampled on a grid, and each cell mapped to a density
-     ramp — the same treatment the character gets, at the same cell size, so
-     the two share one resolution rather than sitting at different scales.
-     font-size and line-height are both written by the script to make each
-     glyph occupy an exactly square cell. aria-label carries the real text;
-     a grid of punctuation is meaningless read aloud. */
+  /* Hero. Hand-drawn ASCII art (see HERO_ART) — 8 rows of 77 characters,
+     one <span> per character. font-size is written by sizeHeroArt() so the
+     77-column block exactly spans the box. aria-label carries the real
+     text; the art rows are aria-hidden since punctuation read aloud is
+     meaningless. */
   .hero {
     position: absolute;
     left: 5.304%; top: 3.60%; width: 90.10%;
     margin: 0;
     font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
     letter-spacing: 0;
-    white-space: pre;
+    line-height: 1.15;
     color: var(--ink);
     user-select: none;
     font-weight: 400;
-    animation: heroPulse 2.6s ease-in-out infinite;
   }
-  @keyframes heroPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+  .hero div { white-space: pre; }
+  /* Wave pulse: each character's animation starts at a different offset
+     into the same cycle, staggered by its column (--col), so brightness
+     sweeps left-to-right across the whole word instead of the word
+     fading as one block. The delay span (77 cols * 0.03s ~= one full
+     ANIM duration) is what makes the sweep loop seamlessly. */
+  .hero .wc {
+    display: inline-block;
+    animation: heroWave 2.4s ease-in-out infinite;
+    animation-delay: calc(var(--col) * -0.03s);
+  }
+  @keyframes heroWave {
+    0%, 100% { opacity: 0.35; text-shadow: 0 0 0 transparent; }
+    50% { opacity: 1; text-shadow: 0 0 0.55em var(--ink); }
   }
 
   /* The band the character runs in. Reference has him 274px tall with his
@@ -359,123 +367,56 @@ const CONFIG = {
 };
 
 // ----------------------------------------------------------------- hero type
-// Builds the name out of type. The word is rasterised into an offscreen canvas
-// in a heavy serif, then each grid cell is sampled for coverage and swapped for
-// a character of matching density — the same idea as the character's ascii
-// pass, so the header and the figure share a visual language.
-//
-// The cell is deliberately NOT square. A monospace glyph is roughly twice as
-// tall as it is wide, so sampling on a square grid would squash the letters to
-// half height once they are laid back out as text; sampling cells at that same
-// ~0.5 ratio is what keeps the proportions of the source face.
-const HERO = {
-  TEXT: "Owen Kan",
-  // Fewer levels than the runner's ramp on purpose: at the hero's cell size,
-  // the full 10-step ramp switches character on almost every cell, which
-  // reads as noise rather than shading. Spacing the steps out (same range,
-  // fewer stops) keeps the letterforms but calms that down.
-  RAMP: " :=#@",
-  // Reference sets Test Tiempos Headline Medium. That is a licensed face and
-  // is not present here, so the nearest widely available relative stands in —
-  // Tiempos descends from Times, which makes it the closest substitute.
-  FONT: '600 {size}px "Times New Roman", Times, Georgia, serif',
-  MONO: 'ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace',
-  GAMMA: 0.85,
-  CUTOFF: 0.06        // coverage below this stays blank, keeping counters open
-};
+// Hand-drawn ASCII art (not sampled from a font at runtime) — every row is
+// exactly 77 characters, one character per grid cell, so laying it out is
+// just picking a font-size that makes 77 monospace advances span the box.
+const HERO_MONO = 'ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace';
+const HERO_ART = [
+":'#######::'##:::::'##:'########:'##::: ##::::'##:::'##::::'###::::'##::: ##:",
+"'##.... ##: ##:'##: ##: ##.....:: ###:: ##:::: ##::'##::::'## ##::: ###:: ##:",
+" ##:::: ##: ##: ##: ##: ##::::::: ####: ##:::: ##:'##::::'##:. ##:: ####: ##:",
+" ##:::: ##: ##: ##: ##: ######::: ## ## ##:::: #####::::'##:::. ##: ## ## ##:",
+" ##:::: ##: ##: ##: ##: ##...:::: ##. ####:::: ##. ##::: #########: ##. ####:",
+" ##:::: ##: ##: ##: ##: ##::::::: ##:. ###:::: ##:. ##:: ##.... ##: ##:. ###:",
+". #######::. ###. ###:: ########: ##::. ##:::: ##::. ##: ##:::: ##: ##::. ##:",
+":.......::::...::...:::........::..::::..:::::..::::..::..:::::..::..::::..::",
+];
+const HERO_COLS = HERO_ART[0].length;
 
 // Advance width of one monospace glyph, as a fraction of font-size. Measured
-// rather than assumed — it drives both the cell geometry and the layout size.
+// rather than assumed — it's what turns "77 columns" into a font-size that
+// makes the block span the container exactly.
 const MONO_ADVANCE = (() => {
   const c = document.createElement("canvas").getContext("2d");
-  c.font = `100px ${HERO.MONO}`;
+  c.font = `100px ${HERO_MONO}`;
   return c.measureText("M").width / 100;
 })();
 
-// Natural (non-overlapping) line height of the mono font, as a fraction of
-// font-size. A monospace glyph is roughly twice as tall as its advance is
-// wide, so sizing font-size off MONO_ADVANCE alone (to make the glyph exactly
-// cellPx wide) makes it render far taller than cellPx — line-height can space
-// rows apart but can't compress a glyph's own height, so clamping it to
-// cellPx directly just let successive rows overlap. Fix: lay out each row at
-// its natural height, then squash the whole block vertically with a single
-// scaleY so it lands on cellPx without any row overlapping another.
-const MONO_LINE_RATIO = (() => {
-  const c = document.createElement("canvas").getContext("2d");
-  c.font = `100px ${HERO.MONO}`;
-  const m = c.measureText("M");
-  const asc = m.fontBoundingBoxAscent || 80;
-  const desc = m.fontBoundingBoxDescent || 20;
-  return (asc + desc) / 100;
-})();
-
-const heroMeasureCtx = document.createElement("canvas").getContext("2d");
-const heroSampleCanvas = document.createElement("canvas");
-
-// cellPx: the on-screen size of one character cell, in CSS px. Passed in from
-// resize() as the SAME value the character's ascii pass uses, so the header
-// and the figure are drawn at one shared resolution.
-function buildHero(el, widthPx, cellPx) {
-  if (!widthPx || widthPx < 40 || !cellPx || cellPx <= 0) return;
-
-  // Natural proportions of the word — measured, never distorted. Everything
-  // below preserves this ratio, which is what keeps the letterforms honest.
-  const REF = 200;
-  heroMeasureCtx.font = HERO.FONT.replace("{size}", REF);
-  const m = heroMeasureCtx.measureText(HERO.TEXT);
-  const refW = m.width;
-  const refA = m.actualBoundingBoxAscent || REF * 0.72;
-  const refD = m.actualBoundingBoxDescent || REF * 0.22;
-  const refH = refA + refD;
-
-  // SQUARE cells, matching the character's square ascii cells. The grid then
-  // has the same aspect as the word itself, so rasterising into it needs no
-  // horizontal scaling at all — the earlier version stretched the source to
-  // fill a mismatched grid and relied on the glyph aspect to undo it, which
-  // only cancels exactly if that aspect is perfect.
-  const cols = Math.max(1, Math.round(widthPx / cellPx));
-  const rows = Math.max(1, Math.round((widthPx * (refH / refW)) / cellPx));
-
-  const src = heroSampleCanvas;
-  src.width = cols;
-  src.height = rows;
-  const g = src.getContext("2d", { willReadFrequently: true });
-  g.fillStyle = "#000";
-  g.fillRect(0, 0, cols, rows);
-
-  // Uniform scale only: fit the word's height to the grid, and let its width
-  // land where the aspect ratio puts it.
-  const size = REF * (rows / refH);
-  g.font = HERO.FONT.replace("{size}", size);
-  g.fillStyle = "#fff";
-  g.textAlign = "left";
-  g.textBaseline = "alphabetic";
-  g.fillText(HERO.TEXT, 0, (refA / refH) * rows);
-
-  const d = g.getImageData(0, 0, cols, rows).data;
-  const R = HERO.RAMP, last = R.length - 1;
-  let out = "";
-  for (let y = 0; y < rows; y++) {
-    let line = "";
-    for (let x = 0; x < cols; x++) {
-      const i = (y * cols + x) * 4;
-      const v = (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255;
-      line += v < HERO.CUTOFF ? " " : R[Math.round(Math.pow(v, HERO.GAMMA) * last)];
+// Built once (the art itself never changes); resize() only ever adjusts
+// font-size afterward, so the per-character spans for the wave animation
+// aren't torn down and rebuilt on every resize.
+function buildHeroArt(el) {
+  el.textContent = "";
+  HERO_ART.forEach((line) => {
+    const row = document.createElement("div");
+    row.setAttribute("aria-hidden", "true");
+    for (let x = 0; x < line.length; x++) {
+      const span = document.createElement("span");
+      span.className = "wc";
+      span.style.setProperty("--col", x);
+      span.textContent = line[x];
+      row.appendChild(span);
     }
-    out += line.replace(/\s+$/, "") + (y < rows - 1 ? "\n" : "");
-  }
-  el.textContent = out;
+    el.appendChild(row);
+  });
+}
 
-  // Make one glyph occupy exactly cellPx x cellPx: the advance sets the
-  // width, a natural (non-overlapping) line box sets each row's true height,
-  // and a single scaleY on the whole block squashes that down to cellPx —
-  // see MONO_LINE_RATIO above for why line-height alone can't do this.
-  const fontSizePx = cellPx / MONO_ADVANCE;
-  const naturalRowPx = fontSizePx * MONO_LINE_RATIO;
-  el.style.fontSize = fontSizePx + "px";
-  el.style.lineHeight = naturalRowPx + "px";
-  el.style.transform = `scaleY(${cellPx / naturalRowPx})`;
-  el.style.transformOrigin = "top left";
+// widthPx: the hero box's own CSS width — the art is scaled to fill it,
+// independent of the runner's cell size (this is fixed pre-drawn art now,
+// not sampled to match another grid).
+function sizeHeroArt(el, widthPx) {
+  if (!widthPx || widthPx < 40) return;
+  el.style.fontSize = (widthPx / (HERO_COLS * MONO_ADVANCE)) + "px";
 }
 
 // ---------------------------------------------------------------- glyph atlas
@@ -1088,17 +1029,16 @@ function resize() {
   const cellCssPx = charPx / CONFIG.GRANULARITY_SQUARES;
   asciiMat.uniforms.uGranularity.value = cellCssPx * dpr;
 
-  // Hand the character's own cell size to the hero so both are drawn on the
-  // same grid. Built after the stage because it takes its resolution from it;
-  // the two no longer share a flex column, so neither resizes the other.
   const heroEl = document.getElementById("hero");
-  if (heroEl) buildHero(heroEl, heroEl.clientWidth, cellCssPx);
+  if (heroEl) sizeHeroArt(heroEl, heroEl.clientWidth);
 }
 window.addEventListener("resize", resize);
 // Catches the case the guard above bails on: the stage getting its real box
 // after this script runs. A plain resize listener never fires for that, since
 // the window itself never changed size.
 if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas);
+const heroElInit = document.getElementById("hero");
+if (heroElInit) buildHeroArt(heroElInit);
 resize();
 
 // Movement/state-machine step, factored out of the render loop so it can
