@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Owen Kan</title>
+<style>
+  @font-face {
+    font-family: "SF Pro Display";
+    src: url("fonts/SFPRODISPLAYREGULAR.OTF") format("opentype");
+    font-weight: 400; font-display: swap;
+  }
+  @font-face {
+    font-family: "SF Pro Display";
+    src: url("fonts/SFPRODISPLAYBOLD.OTF") format("opentype");
+    font-weight: 700; font-display: swap;
+  }
+  :root { --bg: #000000; --ink: #ff00ff; }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%;
+    background: var(--bg); color: var(--ink);
+    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont,
+                 "Helvetica Neue", Arial, sans-serif;
+  }
+  .wrap {
+    height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 24px;
+  }
+  .code {
+    margin: 0; font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .msg {
+    margin: 0.75rem 0 0; font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+    font-weight: 400; opacity: 0.85; max-width: 32em;
+  }
+  a {
+    color: var(--ink); text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="code">404</p>
+    <p class="msg">
+      This page doesn't exist. If the whole site looks broken,
+      email <a href="mailto:owenkan0316@gmail.com">owenkan0316@gmail.com</a>
+      and let him know his site is down.
+    </p>
+  </div>
+</body>
+</html>
